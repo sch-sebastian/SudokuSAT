@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class SAT {
@@ -26,22 +28,18 @@ public class SAT {
         this.pos = new HashMap<>();
         this.neg = new HashMap<>();
         this.solution = new HashSet<>();
-        Iterator<Clause> iterCl = this.clauses.iterator();
-        while (iterCl.hasNext()) {
-            Clause curCL = iterCl.next();
-            Iterator<Literal> iterLi = curCL.iterator();
-            while (iterLi.hasNext()) {
-                Literal curLi = iterLi.next();
+        for (Clause curCL : this.clauses) {
+            for (Literal curLi : curCL) {
                 if (curLi.sign) {
-                    if(pos.containsKey(curLi)){
+                    if (pos.containsKey(curLi)) {
                         pos.put(curLi, pos.get(curLi) + 1);
-                    }else{
+                    } else {
                         pos.put(curLi, 1);
                     }
                 } else {
-                    if(neg.containsKey(curLi)){
+                    if (neg.containsKey(curLi)) {
                         neg.put(curLi, neg.get(curLi) + 1);
-                    }else{
+                    } else {
                         neg.put(curLi, 1);
                     }
                 }
@@ -59,7 +57,7 @@ public class SAT {
     }
 
     public SolveSolution solve() {
-        while ( clauses.size() != 0 && clauses.peek().size() == 1) {
+        while (clauses.size() != 0 && clauses.peek().size() == 1) {
             unitPropagation();
             if (abortCheck()) {
                 return new SolveSolution(false);
@@ -82,29 +80,36 @@ public class SAT {
         Literal literal = iterLi.next();
         PriorityQueue<Clause> c1 = new PriorityQueue<>(clauses);
         c1.add(new Clause(literal));
-        SAT sat1 = new SAT(c1, new HashMap<>(pos), new HashMap<>(neg), new HashSet<>(solution));
+        SAT sat1 = new SAT(c1);
         SolveSolution s1 = sat1.solve();
         if (s1.succ) {
+            s1.assignment.addAll(solution);
             return s1;
         }
         PriorityQueue<Clause> c2 = new PriorityQueue<>(clauses);
         c2.add(new Clause(new Literal(literal.name, !literal.sign)));
-        SAT sat2 = new SAT(c2, new HashMap<>(pos), new HashMap<>(neg), new HashSet<>(solution));
-        return sat2.solve();
+        SAT sat2 = new SAT(c2);
+        SolveSolution s2 = sat2.solve();
+        s2.assignment.addAll(solution);
+        return s2;
+
+
     }
 
     public void setPures() {
-        HashMap<Literal, Integer> posCopy = (HashMap<Literal, Integer>) pos.clone();
-        HashMap<Literal, Integer> negCopy = (HashMap<Literal, Integer>) neg.clone();
+        HashSet<Literal> purePos = new HashSet<>(pos.keySet());
+        HashSet<Literal> pureNeg = new HashSet<>(neg.keySet());
 
-        HashMap<Literal, Integer> purePos = new HashMap<>(posCopy);
-        purePos.keySet().removeAll(negCopy.keySet());
 
-        HashMap<Literal, Integer> pureNeg = new HashMap<>(negCopy);
-        pureNeg.keySet().removeAll(posCopy.keySet());
+        for (Literal negLi : neg.keySet()) {
+            purePos.remove(new Literal(negLi.name, true));
+        }
 
+        for (Literal posLi : pos.keySet()) {
+            pureNeg.remove(new Literal(posLi.name, false));
+        }
         HashSet<Clause> toDelete = new HashSet<>();
-        for (Literal literal : purePos.keySet()) {
+        for (Literal literal : purePos) {
             solution.add(literal);
             for (Clause clause : clauses) {
                 if (clause.contains(literal)) {
@@ -112,7 +117,7 @@ public class SAT {
                 }
             }
         }
-        for (Literal literal : pureNeg.keySet()) {
+        for (Literal literal : pureNeg) {
             solution.add(literal);
             for (Clause clause : clauses) {
                 if (clause.contains(literal)) {
@@ -124,14 +129,14 @@ public class SAT {
     }
 
     public boolean abortCheck() {
-        if (clauses.poll().size() == 0) {
+        if (clauses.peek().size() == 0) {
             return true;
         } else {
             return false;
         }
     }
 
-    public  void unitPropagation() {
+    public void unitPropagation() {
         Iterator<Literal> iterLi = clauses.poll().iterator();
         Literal curLi = iterLi.next();
         subtractLiteral(curLi);
@@ -159,39 +164,67 @@ public class SAT {
     }
 
     public void subtractLiteral(Literal li) {
-        if (pos.containsKey(li)) {
+        if (li.sign) {
             if (pos.get(li) - 1 > 0) {
                 pos.put(li, pos.get(li) - 1);
             } else {
                 pos.remove(li);
+                Literal invLi = new Literal(li.name, !li.sign);
+                if (!neg.containsKey(invLi) && !solution.contains(li) && !solution.contains(invLi)) {
+                    solution.add(li);
+                }
             }
         } else {
             if (neg.get(li) - 1 > 0) {
                 neg.put(li, neg.get(li) - 1);
             } else {
                 neg.remove(li);
+                Literal invLi = new Literal(li.name, !li.sign);
+                if (!pos.containsKey(invLi) && !solution.contains(li) && !solution.contains(new Literal(li.name, !li.sign))) {
+                    solution.add(li);
+                }
             }
         }
     }
 
 
+    public static PriorityQueue<Clause> parse(String filename) throws FileNotFoundException {
+        PriorityQueue<Clause> clauses = new PriorityQueue<>();
+        Scanner scanner = new Scanner(new File(filename));
+        HashSet<Literal> curLiterals = new HashSet<>();
+        while (scanner.hasNext()) {
+            if (!scanner.hasNextInt()) {
+                String curStr = scanner.next();
+                if (curStr.equals("c") || curStr.equals("p")) {
+                    scanner.nextLine();
+                }
+            } else {
+                int num = scanner.nextInt();
+                if (num == 0) {
+                    clauses.add(new Clause((HashSet<Literal>) curLiterals.clone()));
+                    curLiterals.clear();
+                } else {
+                    curLiterals.add(new Literal(String.valueOf(Math.abs(num)), num > 0));
+                }
+            }
+        }
+        return clauses;
+    }
+
+
     public static void main(String[] args) {
-        HashSet<Literal> h1 = new HashSet<>();
-        h1.add(new Literal("x", true));
-        Clause c1 = new Clause(h1);
 
-        HashSet<Literal> h2 = new HashSet<>();
-        h2.add(new Literal("x", false));
-        h2.add(new Literal("y", true));
-        h2.add(new Literal("z", true));
-        Clause c2 = new Clause(h2);
+        try {
+            PriorityQueue<Clause> clauses = parse("testInput");
 
-        PriorityQueue<Clause> pq1 = new PriorityQueue<>();
-        pq1.add(c1);
-        pq1.add(c2);
+            SAT sat1 = new SAT(clauses);
+            SolveSolution solution = sat1.solve();
+            System.out.println(solution.succ);
 
-        SAT sat1 = new SAT(pq1);
-        SolveSolution solution  = sat1.solve();
-        System.out.println(solution.succ);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }

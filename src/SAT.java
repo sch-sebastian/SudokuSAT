@@ -1,3 +1,5 @@
+import exp.sebastian.Main;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -59,9 +61,6 @@ public class SAT {
     public SolveSolution solve() {
         while (clauses.size() != 0 && clauses.peek().size() == 1) {
             unitPropagation();
-            if (abortCheck()) {
-                return new SolveSolution(false);
-            }
         }
         int oldN = 0;
         while (oldN != clauses.size()) {
@@ -90,8 +89,11 @@ public class SAT {
         c2.add(new Clause(new Literal(literal.name, !literal.sign)));
         SAT sat2 = new SAT(c2);
         SolveSolution s2 = sat2.solve();
-        s2.assignment.addAll(solution);
-        return s2;
+        if(s2.succ){
+            s2.assignment.addAll(solution);
+            return s2;
+        }
+        return new SolveSolution(false);
 
 
     }
@@ -216,7 +218,6 @@ public class SAT {
 
         try {
             PriorityQueue<Clause> clauses = parse("testInput");
-
             SAT sat1 = new SAT(clauses);
             SolveSolution solution = sat1.solve();
             System.out.println(solution.succ);
@@ -224,7 +225,5 @@ public class SAT {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-
     }
 }

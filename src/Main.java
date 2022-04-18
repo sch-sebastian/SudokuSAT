@@ -1,7 +1,5 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
@@ -9,17 +7,25 @@ public class Main {
 
     public static void main(String[] args) {
         ArrayList<String> clauses = new ArrayList<>();
+
         clauses.addAll(oneNumberPerEntry());
         clauses.addAll(oncePerCol());
         clauses.addAll(oncePerRow());
         clauses.addAll(oncePerBox());
         clauses.addAll(parse("sudoku01"));
 
+        Integer[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        HashMap<Integer, ArrayList<ArrayList<Integer>>>[] combinations = getSumCombi(numbers);
+
+        ArrayList<Integer>[] groups = getGroups("group01");
+        IntegerWrapper varCount = new IntegerWrapper(999);
+        clauses.addAll(oncePerGroup(groups));
+        clauses.addAll(atLeastOneFittingNumberPerGroupEntry(groups, combinations, varCount));
 
         try {
             BufferedWriter myWriter = new BufferedWriter(new FileWriter("inputTMP.txt"));
-            myWriter.write("p cnf 999 " + clauses.size() + br);
-            for(String clause : clauses){
+            myWriter.write("p cnf " + varCount + " " + clauses.size() + br);
+            for (String clause : clauses) {
                 myWriter.write(clause);
             }
             myWriter.flush();
@@ -35,7 +41,7 @@ public class Main {
             Scanner scanner = new Scanner(new File("modelTMP.txt"));
             while (scanner.hasNextInt()) {
                 int cur = scanner.nextInt();
-                if (cur > 0) {
+                if (cur > 0 && cur < 1000) {
                     String str = Integer.toString(cur);
                     int x = Integer.parseInt(str.substring(0, 1));
                     int y = Integer.parseInt(str.substring(1, 2));
@@ -44,9 +50,9 @@ public class Main {
                 }
             }
 
-            for (int x = 0; x < grid.length; x++) {
+            for (int y = 0; y < grid.length; y++) {
                 String line = "";
-                for (int y = 0; y < grid[0].length; y++) {
+                for (int x = 0; x < grid[0].length; x++) {
                     line = line + grid[x][y] + " ";
                 }
                 System.out.println(line);
@@ -59,7 +65,41 @@ public class Main {
 
     }
 
-    public static HashMap<Integer, ArrayList<ArrayList<Integer>>>[] getSumCombi(Integer[] numbers){
+    private static ArrayList<Integer>[] getGroups(String groupFile) {
+        try {
+            Scanner scanner = new Scanner(new File(groupFile));
+            int numGroups = scanner.nextInt();
+            ArrayList<Integer>[] groups = new ArrayList[numGroups];
+            for (int i = 0; i < numGroups; i++) {
+                groups[i] = new ArrayList<>();
+                groups[i].add(scanner.nextInt());
+            }
+            for (int y = 1; y <= 9; y++) {
+                for (int x = 1; x <= 9; x++) {
+                    int curGroup = scanner.nextInt();
+                    if (curGroup != 0) {
+                        groups[curGroup - 1].add(x);
+                        groups[curGroup - 1].add(y);
+                    }
+                }
+            }
+            scanner.close();
+            return groups;
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (InputMismatchException e) {
+            System.out.println("Scanner Error in getGroups: Next element not an Integer");
+        } catch (NoSuchElementException e) {
+            System.out.println("Scanner Error in getGroups: End of File to early.");
+        } catch (IllegalStateException e) {
+            System.out.println("Scanner Error in getGroups: Scanner closed to early.");
+        }
+        return null;
+    }
+
+    public static HashMap<Integer, ArrayList<ArrayList<Integer>>>[] getSumCombi(Integer[] numbers) {
         PowerSet<Integer> pS = new PowerSet<>(numbers);
 
         HashMap<Integer, ArrayList<ArrayList<Integer>>>[] sumCombi = new HashMap[numbers.length + 1];
@@ -71,8 +111,8 @@ public class Main {
             for (Integer element : set) {
                 sum = sum + element;
             }
-            if(!sumCombi[set.size()].containsKey(sum)){
-                sumCombi[set.size()].put(sum,new ArrayList<>());
+            if (!sumCombi[set.size()].containsKey(sum)) {
+                sumCombi[set.size()].put(sum, new ArrayList<>());
             }
             sumCombi[set.size()].get(sum).add(set);
         }
@@ -90,6 +130,59 @@ public class Main {
                 }
                 res.add(line + "0" + br);
             }
+        }
+        return res;
+    }
+
+    public static ArrayList<String> oncePerGroup(ArrayList<Integer>[] groups) {
+        ArrayList<String> res = new ArrayList<>();
+        for (ArrayList<Integer> group : groups) {
+            for (int i = 1; i < group.size() - 3; i = i + 2) {
+                int xi = group.get(i);
+                int yi = group.get(i + 1);
+                for (int j = i + 2; j < group.size() - 1; j = j + 2) {
+                    int xj = group.get(j);
+                    int yj = group.get(j + 1);
+                    for (int z = 1; z <= 9; z++) {
+                        res.add("-" + xi + yi + z + " -" + xj + yj + z + " 0" + br);
+                    }
+                }
+
+            }
+        }
+        return res;
+    }
+
+    public static ArrayList<String> atLeastOneFittingNumberPerGroupEntry(ArrayList<Integer>[] groups, HashMap<Integer, ArrayList<ArrayList<Integer>>>[] combinations, IntegerWrapper varCount) {
+        ArrayList<String> res = new ArrayList<>();
+        for (ArrayList<Integer> group : groups) {
+            int numCells = (group.size() - 1) / 2;
+            int sum = group.get(0);
+            ArrayList<ArrayList<Integer>> combis = combinations[numCells].get(sum);
+            int yStart = varCount.val + 1;
+            for (ArrayList<Integer> combi : combis) {
+                varCount.inc();
+                for (int g = 1; g < group.size() - 1; g = g + 2) {
+                    int x = group.get(g);
+                    int y = group.get(g + 1);
+                    String clause = "-" + varCount;
+                    for (Integer z : combi) {
+                        clause = clause + " " + x + y + z;
+                    }
+                    clause = clause + " 0" + br;
+                    res.add(clause);
+                }
+            }
+            String posClause = "";
+            for (int a = yStart; a < varCount.val; a++) {
+                posClause = posClause + " " + a;
+                for (int b = a + 1; b <= varCount.val; b++) {
+                    res.add("-" + a + " -" + b + " 0" + br);
+                }
+            }
+            posClause = posClause + " " + varCount.val + " 0" + br;
+            res.add(posClause);
+
         }
         return res;
     }
@@ -154,7 +247,7 @@ public class Main {
                 for (int x = 1; x <= 9; x++) {
                     int cur = scanner.nextInt();
                     if (0 < cur && cur < 10) {
-                        res.add("" + y + x + cur + " 0" + br);
+                        res.add("" + x + y + cur + " 0" + br);
                     }
                 }
             }

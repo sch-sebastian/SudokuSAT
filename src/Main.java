@@ -6,18 +6,19 @@ public class Main {
     static String br = "\n";
 
     public static void main(String[] args) {
+        String probNum = "02";
         ArrayList<String> clauses = new ArrayList<>();
 
         clauses.addAll(oneNumberPerEntry());
         clauses.addAll(oncePerCol());
         clauses.addAll(oncePerRow());
         clauses.addAll(oncePerBox());
-        clauses.addAll(parse("sudoku01"));
+        clauses.addAll(parse("sudoku" + probNum));
 
         Integer[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         HashMap<Integer, ArrayList<ArrayList<Integer>>>[] combinations = getSumCombi(numbers);
 
-        ArrayList<Integer>[] groups = getGroups("group01");
+        ArrayList<Integer>[] groups = getGroups("group" + probNum);
         IntegerWrapper varCount = new IntegerWrapper(999);
         clauses.addAll(oncePerGroup(groups));
         clauses.addAll(atLeastOneFittingNumberPerGroupEntry(groups, combinations, varCount));

@@ -1,6 +1,3 @@
-package exp.sebastian;
-
-
 import org.sat4j.maxsat.SolverFactory;
 import org.sat4j.reader.DimacsReader;
 import org.sat4j.reader.ParseFormatException;

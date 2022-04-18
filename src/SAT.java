@@ -1,5 +1,3 @@
-import exp.sebastian.Main;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -75,27 +73,54 @@ public class SAT {
         }
         HashSet<Literal> allLiterals = new HashSet<>(pos.keySet());
         allLiterals.addAll(neg.keySet());
+
+        ArrayList<Literal> cand = new ArrayList<>();
         Iterator<Literal> iterLi = allLiterals.iterator();
-        Literal literal = iterLi.next();
-        PriorityQueue<Clause> c1 = new PriorityQueue<>(clauses);
-        c1.add(new Clause(literal));
-        SAT sat1 = new SAT(c1);
-        SolveSolution s1 = sat1.solve();
-        if (s1.succ) {
-            s1.assignment.addAll(solution);
-            return s1;
+        cand.add(iterLi.next());
+        Literal l2 = iterLi.next();
+        while (iterLi.hasNext() && l2.name.equals(cand.get(0).name)) {
+            l2 = iterLi.next();
         }
-        PriorityQueue<Clause> c2 = new PriorityQueue<>(clauses);
-        c2.add(new Clause(new Literal(literal.name, !literal.sign)));
-        SAT sat2 = new SAT(c2);
-        SolveSolution s2 = sat2.solve();
-        if(s2.succ){
-            s2.assignment.addAll(solution);
-            return s2;
+        if (!l2.name.equals(cand.get(0).name)) {
+            cand.add(l2);
         }
-        return new SolveSolution(false);
-
-
+        if (cand.size() == 1) {
+            PriorityQueue<Clause> c1 = new PriorityQueue<>(clauses);
+            c1.add(new Clause(cand.get(0)));
+            SAT sat1 = new SAT(c1);
+            SolveSolution s1 = sat1.solve();
+            if (s1.succ) {
+                s1.assignment.addAll(solution);
+                return s1;
+            }
+            PriorityQueue<Clause> c2 = new PriorityQueue<>(clauses);
+            c2.add(new Clause(new Literal(cand.get(0).name, !cand.get(0).sign)));
+            SAT sat2 = new SAT(c2);
+            SolveSolution s2 = sat2.solve();
+            if (s2.succ) {
+                s2.assignment.addAll(solution);
+                return s2;
+            }
+            return new SolveSolution(false);
+        } else {
+            PriorityQueue<Clause> c1 = new PriorityQueue<>(clauses);
+            c1.add(new Clause(cand.get(0), cand.get(1)));
+            SAT sat1 = new SAT(c1);
+            SolveSolution s1 = sat1.solve();
+            if (s1.succ) {
+                s1.assignment.addAll(solution);
+                return s1;
+            }
+            PriorityQueue<Clause> c2 = new PriorityQueue<>(clauses);
+            c2.add(new Clause(new Literal(cand.get(0).name, !cand.get(0).sign), new Literal(cand.get(1).name, !cand.get(1).sign)));
+            SAT sat2 = new SAT(c2);
+            SolveSolution s2 = sat2.solve();
+            if (s2.succ) {
+                s2.assignment.addAll(solution);
+                return s2;
+            }
+            return new SolveSolution(false);
+        }
     }
 
     public void setPures() {

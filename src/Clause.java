@@ -9,8 +9,9 @@ public class Clause implements Comparable, Iterable<Literal> {
         this.literals = literals;
     }
 
-    public Clause(Literal l) {
+    public Clause(Literal... ls) {
         this.literals = new HashSet<>();
+        for(Literal l: ls)
         this.literals.add(l);
     }
 

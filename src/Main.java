@@ -1,7 +1,6 @@
-package exp.sebastian;
-
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
@@ -58,6 +57,26 @@ public class Main {
         }
 
 
+    }
+
+    public static HashMap<Integer, ArrayList<ArrayList<Integer>>>[] getSumCombi(Integer[] numbers){
+        PowerSet<Integer> pS = new PowerSet<>(numbers);
+
+        HashMap<Integer, ArrayList<ArrayList<Integer>>>[] sumCombi = new HashMap[numbers.length + 1];
+        for (int i = 0; i < sumCombi.length; i++) {
+            sumCombi[i] = new HashMap<>();
+        }
+        for (ArrayList<Integer> set : pS.sets) {
+            Integer sum = 0;
+            for (Integer element : set) {
+                sum = sum + element;
+            }
+            if(!sumCombi[set.size()].containsKey(sum)){
+                sumCombi[set.size()].put(sum,new ArrayList<>());
+            }
+            sumCombi[set.size()].get(sum).add(set);
+        }
+        return sumCombi;
     }
 
 

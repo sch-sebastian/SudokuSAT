@@ -10,7 +10,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Desktop/sat4j-sat4j-sat-v20201214/sat4j-sat.jar!/" />
+          <root url="jar://$MODULE_DIR$/../libraries/sat4j-sat4j-sat-v20201214/sat4j-sat.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

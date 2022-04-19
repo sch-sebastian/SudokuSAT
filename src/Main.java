@@ -6,7 +6,7 @@ public class Main {
     static String br = "\n";
 
     public static void main(String[] args) {
-        String probNum = "02";
+        String probNum = "03";
         ArrayList<String> clauses = new ArrayList<>();
 
         clauses.addAll(oneNumberPerEntry());

@@ -1,51 +1,43 @@
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Objects;
 
-public class Clause implements Comparable, Iterable<Literal> {
-    HashSet<Literal> literals;
-
-    public Clause(HashSet<Literal> literals) {
-        this.literals = literals;
-    }
-
-    public Clause(Literal... ls) {
-        this.literals = new HashSet<>();
-        for(Literal l: ls)
-        this.literals.add(l);
-    }
+public class Clause {
+    HashSet<Integer> literals;
 
     public Clause() {
-        this.literals = new HashSet<>();
+        this.literals  = new HashSet<>();
     }
 
-    public int size(){
-        return literals.size();
-    }
-
-    public Iterator<Literal> iterator(){
-        return literals.iterator();
-    }
-
-    public boolean contains(Literal li){
-        return literals.contains(li);
-    }
-
-    public boolean remove(Object o){
-        return literals.remove(o);
+    public Clause(int... literals) {
+        this.literals  = new HashSet<>();
+        for(int i: literals){
+            this.literals.add(i);
+        }
     }
 
     @Override
-    public int compareTo(Object o) {
-        Clause other = (Clause) o;
-        int ts = literals.size();
-        int os = other.literals.size();
-        if (ts == os) {
-            return 0;
-        } else if (ts < os) {
-            return -1;
-        } else {
-            return 1;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Clause clause = (Clause) o;
+        return Objects.equals(literals, clause.literals);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(literals);
+    }
+
+    @Override
+    public String toString() {
+        String res = "";
+        for(Integer i:literals){
+            res = res + i + " ";
         }
+        if(res.length()>0){
+            res = res.substring(0,res.length()-1);
+        }
+        return res;
     }
 }

@@ -20,7 +20,7 @@ public class Generator {
         clauses.addAll(oncePerBox());
 
         try {
-            BufferedWriter myWriter = new BufferedWriter(new FileWriter("inputTMP.txt"));
+            BufferedWriter myWriter = new BufferedWriter(new FileWriter("input.tmp"));
             myWriter.write("p cnf 999 " + clauses.size() + br);
             for(String clause : clauses){
                 myWriter.write(clause);

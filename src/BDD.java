@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.HashSet;
 
 public class BDD {
 
@@ -108,39 +109,39 @@ public class BDD {
         }
     }
 
-    public CNF getCNF(){
-        CNF res = new CNF();
+    public ClauseSet getClauses() {
+        ClauseSet res = new ClauseSet();
         res.add(new Clause(root.sub_tree_num));
         UniqueLinkedList<BDDNode> queue = new UniqueLinkedList<>();
         queue.add(root);
-        while (queue.size !=0){
+        while (queue.size != 0) {
             BDDNode cur = queue.poll();
-            res.add(new Clause(-cur.sub_tree_num,-vars[vars.length-cur.depth-1],cur.child_true.sub_tree_num));
-            res.add(new Clause(-cur.sub_tree_num, vars[vars.length-cur.depth-1],cur.child_false.sub_tree_num));
-            if(cur.child_true.sign==0){
+            res.add(new Clause(-cur.sub_tree_num, -vars[vars.length - cur.depth - 1], cur.child_true.sub_tree_num));
+            res.add(new Clause(-cur.sub_tree_num, vars[vars.length - cur.depth - 1], cur.child_false.sub_tree_num));
+            if (cur.child_true.sign == 0) {
                 queue.add(cur.child_true);
-            }else{
+            } else {
                 res.add(new Clause(cur.child_true.sub_tree_num * cur.child_true.sign));
             }
-            if(cur.child_false.sign==0){
+            if (cur.child_false.sign == 0) {
                 queue.add(cur.child_false);
-            }else{
+            } else {
                 res.add(new Clause(cur.child_false.sub_tree_num * cur.child_false.sign));
             }
         }
         return res;
     }
 
-
+    //for testing
     public static void main(String[] args) {
         Environment.varCounter = 1001;
         int[] vars = {1, 2, 3};
         int[] weights = {2, 3, 5};
         int rhs = 5;
         BDD bdd = new BDD(vars, weights, rhs);
-        CNF cnf = bdd.getCNF();
+        ClauseSet bddClauses = bdd.getClauses();
         try {
-            Environment.writeCNF(cnf);
+            Environment.writeCNF(bddClauses);
             Solver.run();
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {
+public class Experimental {
 
     static String br = "\n";
 
@@ -24,7 +24,7 @@ public class Main {
         clauses.addAll(atLeastOneFittingNumberPerGroupEntry(groups, combinations, varCount));
 
         try {
-            BufferedWriter myWriter = new BufferedWriter(new FileWriter("inputTMP.txt"));
+            BufferedWriter myWriter = new BufferedWriter(new FileWriter("input.tmp"));
             myWriter.write("p cnf " + varCount + " " + clauses.size() + br);
             for (String clause : clauses) {
                 myWriter.write(clause);
@@ -39,7 +39,7 @@ public class Main {
         ArrayList<Integer> sol = new ArrayList<>();
         int[][] grid = new int[9][9];
         try {
-            Scanner scanner = new Scanner(new File("modelTMP.txt"));
+            Scanner scanner = new Scanner(new File("model.tmp"));
             while (scanner.hasNextInt()) {
                 int cur = scanner.nextInt();
                 if (cur > 0 && cur < 1000) {
@@ -100,7 +100,7 @@ public class Main {
         return null;
     }
 
-    public static HashMap<Integer, ArrayList<ArrayList<Integer>>>[] getSumCombi(Integer[] numbers) {
+    private static HashMap<Integer, ArrayList<ArrayList<Integer>>>[] getSumCombi(Integer[] numbers) {
         PowerSet<Integer> pS = new PowerSet<>(numbers);
 
         HashMap<Integer, ArrayList<ArrayList<Integer>>>[] sumCombi = new HashMap[numbers.length + 1];
@@ -121,7 +121,7 @@ public class Main {
     }
 
 
-    public static ArrayList<String> oneNumberPerEntry() {
+    private static ArrayList<String> oneNumberPerEntry() {
         ArrayList<String> res = new ArrayList<>();
         for (int x = 1; x <= 9; x++) {
             for (int y = 1; y <= 9; y++) {
@@ -135,7 +135,7 @@ public class Main {
         return res;
     }
 
-    public static ArrayList<String> oncePerGroup(ArrayList<Integer>[] groups) {
+    private static ArrayList<String> oncePerGroup(ArrayList<Integer>[] groups) {
         ArrayList<String> res = new ArrayList<>();
         for (ArrayList<Integer> group : groups) {
             for (int i = 1; i < group.size() - 3; i = i + 2) {
@@ -154,7 +154,7 @@ public class Main {
         return res;
     }
 
-    public static ArrayList<String> atLeastOneFittingNumberPerGroupEntry(ArrayList<Integer>[] groups, HashMap<Integer, ArrayList<ArrayList<Integer>>>[] combinations, IntegerWrapper varCount) {
+    private static ArrayList<String> atLeastOneFittingNumberPerGroupEntry(ArrayList<Integer>[] groups, HashMap<Integer, ArrayList<ArrayList<Integer>>>[] combinations, IntegerWrapper varCount) {
         ArrayList<String> res = new ArrayList<>();
         for (ArrayList<Integer> group : groups) {
             int numCells = (group.size() - 1) / 2;
@@ -188,7 +188,7 @@ public class Main {
         return res;
     }
 
-    public static ArrayList<String> oncePerCol() {
+    private static ArrayList<String> oncePerCol() {
         ArrayList<String> res = new ArrayList<>();
         for (int y = 1; y <= 9; y++) {
             for (int z = 1; z <= 9; z++) {
@@ -202,7 +202,7 @@ public class Main {
         return res;
     }
 
-    public static ArrayList<String> oncePerRow() {
+    private static ArrayList<String> oncePerRow() {
         ArrayList<String> res = new ArrayList<>();
         for (int x = 1; x <= 9; x++) {
             for (int z = 1; z <= 9; z++) {
@@ -216,7 +216,7 @@ public class Main {
         return res;
     }
 
-    public static ArrayList<String> oncePerBox() {
+    private static ArrayList<String> oncePerBox() {
         ArrayList<String> res = new ArrayList<>();
         for (int z = 1; z <= 9; z++) {
             for (int i = 0; i <= 2; i++) {
@@ -239,7 +239,7 @@ public class Main {
         return res;
     }
 
-    public static ArrayList<String> parse(String filename) {
+    private static ArrayList<String> parse(String filename) {
         ArrayList<String> res = new ArrayList<>();
         try {
             Scanner scanner = new Scanner(new File(filename));

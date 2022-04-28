@@ -20,13 +20,13 @@ public class Solver {
                 Reader reader = new DimacsReader(solver);
                 PrintWriter out = null;
                 try {
-                        out = new PrintWriter("modelTMP.txt");
+                        out = new PrintWriter("model.tmp");
                 } catch (FileNotFoundException e) {
                         e.printStackTrace();
                 }
                 // CNF filename is given on the command line
                 try {
-                        IProblem problem = reader.parseInstance("inputTMP.txt");
+                        IProblem problem = reader.parseInstance("input.tmp");
                         if (problem.isSatisfiable()) {
                                 System.out.println("Satisfiable !");
                                 reader.decode(problem.model(),out);

@@ -2,7 +2,17 @@ import java.io.*;
 import java.util.Scanner;
 
 public class Environment {
-    static int varCounter = 1000;
+    //This must start with 1000, strangely increasing it hase negative effects to the solver runtime
+    //Which is weird because it should only affect variable naming.
+    private static int varCounter = 1000;
+
+    public static void incVC(){
+        varCounter++;
+    }
+
+    public static int getVC(){
+        return varCounter;
+    }
 
     public static void writeCNF(ClauseSet clauseSet) throws IOException {
         File file = new File("input.tmp");

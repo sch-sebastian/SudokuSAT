@@ -39,7 +39,8 @@ public class Killer {
                 }
             }
             BDD bdd = new BDD(vars, weights, rhs);
-            res.addAll(bdd.getClauses());
+            //res.addAll(bdd.getClauses());
+            res.addAll(bdd.getLessClauses());
         }
         return res;
     }

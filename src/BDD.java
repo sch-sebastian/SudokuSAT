@@ -50,8 +50,8 @@ public class BDD {
 
         //Construct BDD
         UniqueLinkedList<BDDNode> queue = new UniqueLinkedList<>();
-        root = new BDDNode(Environment.varCounter, 0, 0);
-        Environment.varCounter++;
+        root = new BDDNode(Environment.getVC(), 0, 0);
+        Environment.incVC();
 
         queue.add(root);
         while (queue.size != 0) {
@@ -62,43 +62,43 @@ public class BDD {
             if (cur.depth == vars.length - 1) {
                 //Last Layer
                 if (cur.sum + weights[weights.length - cur.depth - 1] != rhs) {
-                    ct = new BDDNode(Environment.varCounter, cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, -1);
-                    Environment.varCounter++;
+                    ct = new BDDNode(Environment.getVC(), cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, -1);
+                    Environment.incVC();
                 } else {
-                    ct = new BDDNode(Environment.varCounter, cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, 1);
-                    Environment.varCounter++;
+                    ct = new BDDNode(Environment.getVC(), cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, 1);
+                    Environment.incVC();
                 }
                 if (cur.sum != rhs) {
-                    cf = new BDDNode(Environment.varCounter, cur.sum, cur.depth + 1, -1);
-                    Environment.varCounter++;
+                    cf = new BDDNode(Environment.getVC(), cur.sum, cur.depth + 1, -1);
+                    Environment.incVC();
                 } else {
-                    cf = new BDDNode(Environment.varCounter, cur.sum, cur.depth + 1, 1);
-                    Environment.varCounter++;
+                    cf = new BDDNode(Environment.getVC(), cur.sum, cur.depth + 1, 1);
+                    Environment.incVC();
                 }
             } else {
                 //Internal Layer
                 if (cur.sum >= rhs) {
                     //if current var true too high
-                    ct = new BDDNode(Environment.varCounter, cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, -1);
-                    Environment.varCounter++;
+                    ct = new BDDNode(Environment.getVC(), cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, -1);
+                    Environment.incVC();
                 } else {
-                    ct = new BDDNode(Environment.varCounter, cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1);
+                    ct = new BDDNode(Environment.getVC(), cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1);
                     if (!queue.contains(ct)) {
                         queue.add(ct);
-                        Environment.varCounter++;
+                        Environment.incVC();
                     } else {
                         ct = queue.get(ct);
                     }
                 }
-                if (cur.sum + rest[rest.length - (cur.depth + 1)] < rhs) { //TODO: check rest index
+                if (cur.sum + rest[rest.length - (cur.depth + 1)] < rhs) {
                     //if current var false too low
-                    cf = new BDDNode(Environment.varCounter, cur.sum, cur.depth + 1, -1);
-                    Environment.varCounter++;
+                    cf = new BDDNode(Environment.getVC(), cur.sum, cur.depth + 1, -1);
+                    Environment.incVC();
                 } else {
-                    cf = new BDDNode(Environment.varCounter, cur.sum, cur.depth + 1);
+                    cf = new BDDNode(Environment.getVC(), cur.sum, cur.depth + 1);
                     if (!queue.contains(cf)) {
                         queue.add(cf);
-                        Environment.varCounter++;
+                        Environment.incVC();
                     } else {
                         cf = queue.get(cf);
                     }
@@ -116,8 +116,15 @@ public class BDD {
         queue.add(root);
         while (queue.size != 0) {
             BDDNode cur = queue.poll();
+            //Positive occurrence clauses.
             res.add(new Clause(-cur.sub_tree_num, -vars[vars.length - cur.depth - 1], cur.child_true.sub_tree_num));
             res.add(new Clause(-cur.sub_tree_num, vars[vars.length - cur.depth - 1], cur.child_false.sub_tree_num));
+            //Negative occurrence clauses (maybe not necessary but increase speed 10x)
+            res.add(new Clause(cur.sub_tree_num, -vars[vars.length - cur.depth - 1], -cur.child_true.sub_tree_num));
+            res.add(new Clause(cur.sub_tree_num, vars[vars.length - cur.depth - 1], -cur.child_false.sub_tree_num));
+            //Red-clauses, are redundant but increase strength of unit propagation.
+            //res.add(new Clause(-cur.child_true.sub_tree_num, -cur.child_false.sub_tree_num, cur.sub_tree_num));
+            //res.add(new Clause(cur.child_true.sub_tree_num, cur.child_false.sub_tree_num, -cur.sub_tree_num));
             if (cur.child_true.sign == 0) {
                 queue.add(cur.child_true);
             } else {
@@ -132,8 +139,39 @@ public class BDD {
         return res;
     }
 
+    //Although it needs about 9000 Clauses less the resulting encoding of this version is (3x) less efficient.
+    public ClauseSet getLessClauses() {
+        ClauseSet res = new ClauseSet();
+        res.add(new Clause(root.sub_tree_num));
+        UniqueLinkedList<BDDNode> queue = new UniqueLinkedList<>();
+        queue.add(root);
+        while (queue.size != 0) {
+            BDDNode cur = queue.poll();
+            if (cur.child_true.sign == 0) {
+                res.add(new Clause(-cur.sub_tree_num, -vars[vars.length - cur.depth - 1], cur.child_true.sub_tree_num));
+                res.add(new Clause(cur.sub_tree_num, -vars[vars.length - cur.depth - 1], -cur.child_true.sub_tree_num));
+                queue.add(cur.child_true);
+            } else if(cur.child_true.sign == -1){
+                res.add(new Clause(-cur.sub_tree_num, -vars[vars.length - cur.depth - 1]));
+            }else{
+                res.add(new Clause(cur.sub_tree_num, -vars[vars.length - cur.depth - 1]));
+            }
+
+            if (cur.child_false.sign == 0) {
+                res.add(new Clause(-cur.sub_tree_num, vars[vars.length - cur.depth - 1], cur.child_false.sub_tree_num));
+                res.add(new Clause(cur.sub_tree_num, vars[vars.length - cur.depth - 1], -cur.child_false.sub_tree_num));
+                queue.add(cur.child_false);
+            } else if(cur.child_false.sign == -1){
+                res.add(new Clause(-cur.sub_tree_num, vars[vars.length - cur.depth - 1]));
+            }else{
+                res.add(new Clause(cur.sub_tree_num, vars[vars.length - cur.depth - 1]));
+            }
+        }
+        return res;
+    }
+
     //for testing
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         Environment.varCounter = 1001;
         int[] vars = {1, 2, 3};
         int[] weights = {2, 3, 5};
@@ -146,7 +184,7 @@ public class BDD {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }
 
 

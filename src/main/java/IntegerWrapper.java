@@ -1,3 +1,5 @@
+package main.java;
+
 public class IntegerWrapper implements Comparable<Integer> {
     public Integer val;
     public IntegerWrapper(Integer val) {

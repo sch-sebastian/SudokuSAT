@@ -1,4 +1,7 @@
+package main.java;
+
 import java.io.*;
+import java.nio.file.Paths;
 
 public class Runner {
 
@@ -8,14 +11,15 @@ public class Runner {
         System.out.println("Starting Encoding...");
         long encodingStart = System.currentTimeMillis();
 
-        String probNum = "03";
+        String fieldNum = "03";
+        String groupNum = "03";
         ClauseSet clauses = new ClauseSet();
 
-        clauses.addAll(Sudoku.createClauses("sudoku" + probNum));
-        clauses.addAll(Killer.createClauses("group" + "03"));
+        clauses.addAll(Sudoku.createClauses(Paths.get("src","main", "data", "sudoku" + fieldNum).toString()));
+        clauses.addAll(Killer.createClauses(Paths.get("src","main", "data", "group" + groupNum).toString()));
 
         try {
-            Environment.writeCNF(clauses);
+            Environment.writeDIMACS(clauses);
             System.out.println("Duration: " + (System.currentTimeMillis() - encodingStart) + "ms");
             System.out.println("Starting Solver...");
             long start = System.currentTimeMillis();

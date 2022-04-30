@@ -1,26 +1,34 @@
+package main.java;
+
 import java.io.*;
 import java.util.Scanner;
 
 public class Environment {
-    //This must start with 1000, strangely increasing it hase negative effects to the solver runtime
-    //Which is weird because it should only affect variable naming.
+
     private static int varCounter = 1000;
 
-    public static void incVC(){
+    public static void incVC() {
         varCounter++;
     }
 
-    public static int getVC(){
+    public static int getVC() {
         return varCounter;
     }
 
-    public static void writeCNF(ClauseSet clauseSet) throws IOException {
+    public static void writeDIMACS(ClauseSet clauseSet, boolean... sort) throws IOException {
         File file = new File("input.tmp");
         BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-        bw.write("p cnf " + clauseSet.getMax() + " " + clauseSet.size() + "\n"); //TODO: Implement highest var-name correct
-        for (Clause cl : clauseSet.clauses) {
-            bw.write(cl.toString() + " 0\n");
+        bw.write("p cnf " + clauseSet.getMax() + " " + clauseSet.size() + "\n");
+        if (sort.length > 0 && !sort[0]) {
+            for (Clause cl : clauseSet.clauses) {
+                bw.write(cl.toString() + " 0\n");
+            }
+        } else {
+            for (Clause cl : clauseSet.getSortedClauses()) {
+                bw.write(cl.toString() + " 0\n");
+            }
         }
+
         bw.flush();
         bw.close();
     }
@@ -48,6 +56,4 @@ public class Environment {
             System.out.println(line);
         }
     }
-
-
 }

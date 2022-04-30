@@ -1,5 +1,4 @@
-import java.io.IOException;
-import java.util.HashSet;
+package main.java;
 
 public class BDD {
 
@@ -123,8 +122,8 @@ public class BDD {
             res.add(new Clause(cur.sub_tree_num, -vars[vars.length - cur.depth - 1], -cur.child_true.sub_tree_num));
             res.add(new Clause(cur.sub_tree_num, vars[vars.length - cur.depth - 1], -cur.child_false.sub_tree_num));
             //Red-clauses, are redundant but increase strength of unit propagation.
-            //res.add(new Clause(-cur.child_true.sub_tree_num, -cur.child_false.sub_tree_num, cur.sub_tree_num));
-            //res.add(new Clause(cur.child_true.sub_tree_num, cur.child_false.sub_tree_num, -cur.sub_tree_num));
+            res.add(new Clause(-cur.child_true.sub_tree_num, -cur.child_false.sub_tree_num, cur.sub_tree_num));
+            res.add(new Clause(cur.child_true.sub_tree_num, cur.child_false.sub_tree_num, -cur.sub_tree_num));
             if (cur.child_true.sign == 0) {
                 queue.add(cur.child_true);
             } else {
@@ -139,7 +138,7 @@ public class BDD {
         return res;
     }
 
-    //Although it needs about 9000 Clauses less the resulting encoding of this version is (3x) less efficient.
+    //Although it needs fewer clauses the resulting encoding of this version is less efficient.
     public ClauseSet getLessClauses() {
         ClauseSet res = new ClauseSet();
         res.add(new Clause(root.sub_tree_num));

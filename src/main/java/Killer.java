@@ -1,6 +1,7 @@
+package main.java;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.*;
 
 public class Killer {
@@ -39,8 +40,8 @@ public class Killer {
                 }
             }
             BDD bdd = new BDD(vars, weights, rhs);
-            //res.addAll(bdd.getClauses());
-            res.addAll(bdd.getLessClauses());
+            res.addAll(bdd.getClauses());
+            //res.addAll(bdd.getLessClauses());
         }
         return res;
     }

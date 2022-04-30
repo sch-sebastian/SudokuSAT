@@ -1,5 +1,6 @@
-import java.util.Collections;
-import java.util.HashSet;
+package main.java;
+
+import java.util.*;
 
 public class ClauseSet {
     HashSet<Clause> clauses;
@@ -35,5 +36,13 @@ public class ClauseSet {
 
     public int size() {
         return clauses.size();
+    }
+
+    public ArrayList<Clause> getSortedClauses() {
+        ArrayList<Clause> sortedClauses = new ArrayList<>();
+        sortedClauses.addAll(clauses);
+        Collections.sort(sortedClauses);
+        Collections.reverse(sortedClauses);
+        return sortedClauses;
     }
 }

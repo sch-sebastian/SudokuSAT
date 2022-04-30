@@ -11,12 +11,13 @@ public class Runner {
         System.out.println("Starting Encoding...");
         long encodingStart = System.currentTimeMillis();
 
-        String fieldNum = "03";
-        String groupNum = "03";
+        String fieldNum = "04";
+        String groupNum = "04";
         ClauseSet clauses = new ClauseSet();
 
         clauses.addAll(Sudoku.createClauses(Paths.get("src","main", "data", "sudoku" + fieldNum).toString()));
         clauses.addAll(Killer.createClauses(Paths.get("src","main", "data", "group" + groupNum).toString()));
+        clauses.addAll(Chess.createClausesAntiKnight());
 
         try {
             Environment.writeDIMACS(clauses);

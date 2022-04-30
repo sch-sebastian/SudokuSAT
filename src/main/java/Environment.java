@@ -7,6 +7,8 @@ public class Environment {
 
     private static int varCounter = 1000;
 
+
+
     public static void incVC() {
         varCounter++;
     }

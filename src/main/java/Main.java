@@ -3,9 +3,7 @@ package main.java;
 import java.io.*;
 import java.nio.file.Paths;
 
-public class Runner {
-
-    static String br = "\n";
+public class Main {
 
     public static void main(String[] args) {
         System.out.println("Starting Encoding...");
@@ -15,8 +13,9 @@ public class Runner {
         String groupNum = "04";
         ClauseSet clauses = new ClauseSet();
 
-        clauses.addAll(Sudoku.createClauses(Paths.get("src","main", "data", "sudoku" + fieldNum).toString()));
+        clauses.addAll(Sudoku.createClauses(Paths.get("src", "main", "data", "sudoku" + fieldNum).toString()));
         clauses.addAll(Killer.createClauses(Paths.get("src","main", "data", "group" + groupNum).toString()));
+        //clauses.addAll(Killer.createLessClauses(Paths.get("src", "main", "data", "group" + groupNum).toString()));
         clauses.addAll(Chess.createClausesAntiKnight());
 
         try {

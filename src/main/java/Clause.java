@@ -16,6 +16,13 @@ public class Clause implements Comparable<Clause> {
         }
     }
 
+    public Clause(ArrayList<Integer> literals) {
+        this.literals = new HashSet<>();
+        for (int i : literals) {
+            this.literals.add(i);
+        }
+    }
+
     public int size() {
         return literals.size();
     }

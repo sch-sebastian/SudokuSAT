@@ -37,13 +37,13 @@ public class BDD {
         }
     }
 
-    public BDD(int[] vars, int[] weights, int rhs) {
-        this.vars = vars;
-        rest = new int[weights.length];
+    public BDD(PBConstraint pbc) {
+        this.vars = pbc.vars;
+        rest = new int[pbc.weights.length];
         //calculate rest
         int sum = 0;
-        for (int i = 0; i < weights.length - 1; i++) {
-            sum = sum + weights[i];
+        for (int i = 0; i < pbc.weights.length - 1; i++) {
+            sum = sum + pbc.weights[i];
             rest[i + 1] = sum;
         }
 
@@ -60,14 +60,14 @@ public class BDD {
 
             if (cur.depth == vars.length - 1) {
                 //Last Layer
-                if (cur.sum + weights[weights.length - cur.depth - 1] != rhs) {
-                    ct = new BDDNode(Environment.getVC(), cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, -1);
+                if (cur.sum + pbc.weights[pbc.weights.length - cur.depth - 1] != pbc.rhs) {
+                    ct = new BDDNode(Environment.getVC(), cur.sum + pbc.weights[pbc.weights.length - cur.depth - 1], cur.depth + 1, -1);
                     Environment.incVC();
                 } else {
-                    ct = new BDDNode(Environment.getVC(), cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, 1);
+                    ct = new BDDNode(Environment.getVC(), cur.sum + pbc.weights[pbc.weights.length - cur.depth - 1], cur.depth + 1, 1);
                     Environment.incVC();
                 }
-                if (cur.sum != rhs) {
+                if (cur.sum != pbc.rhs) {
                     cf = new BDDNode(Environment.getVC(), cur.sum, cur.depth + 1, -1);
                     Environment.incVC();
                 } else {
@@ -76,12 +76,12 @@ public class BDD {
                 }
             } else {
                 //Internal Layer
-                if (cur.sum >= rhs) {
+                if (cur.sum >= pbc.rhs) {
                     //if current var true too high
-                    ct = new BDDNode(Environment.getVC(), cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1, -1);
+                    ct = new BDDNode(Environment.getVC(), cur.sum + pbc.weights[pbc.weights.length - cur.depth - 1], cur.depth + 1, -1);
                     Environment.incVC();
                 } else {
-                    ct = new BDDNode(Environment.getVC(), cur.sum + weights[weights.length - cur.depth - 1], cur.depth + 1);
+                    ct = new BDDNode(Environment.getVC(), cur.sum + pbc.weights[pbc.weights.length - cur.depth - 1], cur.depth + 1);
                     if (!queue.contains(ct)) {
                         queue.add(ct);
                         Environment.incVC();
@@ -89,7 +89,7 @@ public class BDD {
                         ct = queue.get(ct);
                     }
                 }
-                if (cur.sum + rest[rest.length - (cur.depth + 1)] < rhs) {
+                if (cur.sum + rest[rest.length - (cur.depth + 1)] < pbc.rhs) {
                     //if current var false too low
                     cf = new BDDNode(Environment.getVC(), cur.sum, cur.depth + 1, -1);
                     Environment.incVC();

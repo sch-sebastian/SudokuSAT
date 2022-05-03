@@ -28,27 +28,17 @@ public class Killer {
 
 
     private static ClauseSet createClauses(ArrayList<Integer>[] groups) {
-        ClauseSet res = new ClauseSet();
-        for (ArrayList<Integer> group : groups) {
-            int rhs = group.get(0);
-            int n = ((group.size() - 1) / 2);
-            int[] vars = new int[n * 9];
-            int[] weights = new int[vars.length];
-            for (int v = 0, i = 1; v < vars.length && i < group.size() - 1; v++, i = i + 2) {
-                for (int z = 1; z <= 9; z++) {
-                    vars[n * (z - 1) + v] = 100 * group.get(i) + 10 * group.get(i + 1) + z;
-                    weights[n * (z - 1) + v] = z;
-                }
-            }
-            BDD bdd = new BDD(vars, weights, rhs);
-            res.addAll(bdd.getClauses());
-            //res.addAll(bdd.getLessClauses());
+        ClauseSet clauses = new ClauseSet();
+        PBConstraint[] pbcs = PBConstraint.toPBCArray(groups);
+        for(PBConstraint pbc : pbcs){
+            BDD bdd = new BDD(pbc);
+            clauses.addAll(bdd.getClauses());
         }
-        return res;
+        return clauses;
     }
 
 
-    private static ArrayList<Integer>[] parseGroups(String groupFile) {
+    public static ArrayList<Integer>[] parseGroups(String groupFile) {
         try {
             Scanner scanner = new Scanner(new File(groupFile));
             int numGroups = scanner.nextInt();

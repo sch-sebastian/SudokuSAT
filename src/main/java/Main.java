@@ -3,6 +3,8 @@ package main.java;
 import java.io.*;
 import java.nio.file.Paths;
 
+import static main.java.PBConstraint.toPBCArray;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -18,6 +20,11 @@ public class Main {
         //clauses.addAll(Killer.createLessClauses(Paths.get("src", "main", "data", "group" + groupNum).toString()));
         clauses.addAll(Chess.createClausesAntiKnight());
 
+/*        clauses.addAll(Sudoku.createClauses(Paths.get("src", "main", "data", "sudoku" + fieldNum).toString()));
+        clauses.addAll(AdderNetwork.createClauses(toPBCArray(Killer.parseGroups(Paths.get("src", "main", "data", "group" + groupNum).toString()))));
+        //clauses.addAll(Killer.createLessClauses(Paths.get("src", "main", "data", "group" + groupNum).toString()));
+        clauses.addAll(Chess.createClausesAntiKnight());*/
+
         try {
             Environment.writeDIMACS(clauses);
             System.out.println("Duration: " + (System.currentTimeMillis() - encodingStart) + "ms");
@@ -29,6 +36,5 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

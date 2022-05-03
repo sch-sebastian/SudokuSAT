@@ -5,9 +5,10 @@ import java.util.Scanner;
 
 public class Environment {
 
-    private static int varCounter = 1000;
+    private static int varCounter = 1002;
 
-
+    public static int FALSE = 1000;
+    public static int TRUE = 1001;
 
     public static void incVC() {
         varCounter++;

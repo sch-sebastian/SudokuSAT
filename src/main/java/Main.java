@@ -1,29 +1,25 @@
 package main.java;
 
 import java.io.*;
-import java.nio.file.Paths;
-
-import static main.java.PBConstraint.toPBCArray;
+import java.util.HashMap;
 
 public class Main {
 
     public static void main(String[] args) {
+        if(args.length!=1){
+            System.out.println("Invalid parameter(s): please provide a filename!");
+            System.exit(42);
+        }
+        System.out.println("Task: " + args[0]);
         System.out.println("Starting Encoding...");
         long encodingStart = System.currentTimeMillis();
-
-        String fieldNum = "04";
-        String groupNum = "04";
         ClauseSet clauses = new ClauseSet();
+        clauses.addAll(Sudoku.oneNumberPerEntry());
 
-        clauses.addAll(Sudoku.createClauses(Paths.get("src", "main", "data", "sudoku" + fieldNum).toString()));
-        clauses.addAll(Killer.createClauses(Paths.get("src","main", "data", "group" + groupNum).toString()));
-        //clauses.addAll(Killer.createLessClauses(Paths.get("src", "main", "data", "group" + groupNum).toString()));
-        clauses.addAll(Chess.createClausesAntiKnight());
-
-/*        clauses.addAll(Sudoku.createClauses(Paths.get("src", "main", "data", "sudoku" + fieldNum).toString()));
-        clauses.addAll(AdderNetwork.createClauses(toPBCArray(Killer.parseGroups(Paths.get("src", "main", "data", "group" + groupNum).toString()))));
-        //clauses.addAll(Killer.createLessClauses(Paths.get("src", "main", "data", "group" + groupNum).toString()));
-        clauses.addAll(Chess.createClausesAntiKnight());*/
+        HashMap<String, Constraint> constraints = Reader.read(args[0]);
+        for(Constraint constraint : constraints.values()){
+            clauses.addAll(constraint.createClauses());
+        }
 
         try {
             Environment.writeDIMACS(clauses);

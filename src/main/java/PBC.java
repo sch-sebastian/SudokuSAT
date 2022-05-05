@@ -2,12 +2,12 @@ package main.java;
 
 import java.util.ArrayList;
 
-public class PBConstraint {
+public class PBC {
     int[] vars;
     int[] weights;
     int rhs;
 
-    public PBConstraint(int[] vars, int[] weights, int rhs) {
+    public PBC(int[] vars, int[] weights, int rhs) {
         this.vars = vars;
         this.weights = weights;
         this.rhs = rhs;
@@ -17,7 +17,7 @@ public class PBConstraint {
      * @param group The first element is the value that the cells should sum up to, then the groups cell
      *              coordinates follow (alternating x and y).
      */
-    public PBConstraint(ArrayList<Integer> group) {
+    public PBC(ArrayList<Integer> group) {
         this.rhs = group.get(0);
         int n = ((group.size() - 1) / 2);
         this.vars = new int[n * 9];
@@ -28,18 +28,5 @@ public class PBConstraint {
                 weights[n * (z - 1) + v] = z;
             }
         }
-    }
-
-    /**
-     * @param groups The first element of each group is the value that the cells should sum up to, then the groups cell
-     *               coordinates follow (alternating x and y).
-     * @return An array of PBCs created from the given groups.
-     */
-    public static PBConstraint[] toPBCArray(ArrayList<Integer>[] groups) {
-        PBConstraint[] pbcs = new PBConstraint[groups.length];
-        for (int i = 0; i < groups.length; i++) {
-            pbcs[i] = new PBConstraint(groups[i]);
-        }
-        return pbcs;
     }
 }

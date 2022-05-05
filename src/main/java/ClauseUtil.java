@@ -2,29 +2,7 @@ package main.java;
 
 import java.util.ArrayList;
 
-public class Chess {
-
-    /**
-     * Returns a ClauseSet, off all clauses needed to specify the Anti-Knight-Move rule.
-     * "No digit can be a knight’s move away from an identical digit" CTCGH: xiii
-     *
-     * @param cell1 coordinates of first cell
-     * @param cell2 coordinates of second cell
-     * @return the set of clauses
-     */
-    public static ClauseSet createClausesAntiKnight() {
-        ArrayList<Tuple<Integer>> offsets = new ArrayList<>();
-        offsets.add(new Tuple<>(-1, -2));
-        offsets.add(new Tuple<>(1, -2));
-        offsets.add(new Tuple<>(-2, -1));
-        offsets.add(new Tuple<>(2, -1));
-        offsets.add(new Tuple<>(-2, 1));
-        offsets.add(new Tuple<>(2, 1));
-        offsets.add(new Tuple<>(-1, 2));
-        offsets.add(new Tuple<>(1, 2));
-        return notEqual(offsets);
-    }
-
+public class ClauseUtil {
     /**
      * Returns a ClauseSet, off all clauses needed to specify that two cells must differ from each other.
      *

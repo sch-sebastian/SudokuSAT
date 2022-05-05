@@ -1,9 +1,12 @@
 package main.java;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Environment {
+
+    public static PBCConverter converter = new AdderNetwork();
 
     private static int varCounter = 1002;
 
@@ -57,6 +60,25 @@ public class Environment {
                 line = line + grid[x][y] + " ";
             }
             System.out.println(line);
+        }
+    }
+
+
+
+    public  static ClauseSet toClauses(PBC pbc){
+        return converter.createClauses(pbc);
+    }
+
+    public static void setConverter(String type) {
+        switch (type){
+            case "BDD":
+                converter = new BDD();
+                break;
+            case "AdderNetwork":
+                converter = new AdderNetwork();
+                break;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 }

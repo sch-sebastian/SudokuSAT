@@ -5,18 +5,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
-public class AdderNetwork {
+public class AdderNetwork extends PBCConverter {
 
 
-    public static ClauseSet createClauses(PBConstraint[] pbcs) {
-        ClauseSet clauses = new ClauseSet();
-        for (PBConstraint pbc : pbcs) {
-            clauses.addAll(createClauses(pbc));
-        }
-        return clauses;
-    }
-
-    public static ClauseSet createClauses(PBConstraint pbc) {
+    public ClauseSet createClauses(PBC pbc) {
         ClauseSet clauses = new ClauseSet();
         clauses.add(new Clause(-Environment.FALSE));
         clauses.add(new Clause(Environment.TRUE));
@@ -190,19 +182,4 @@ public class AdderNetwork {
         }
         return binNum;
     }
-
-    //for testing
-/*    public static void main(String[] args) {
-        //Environment.varCounter = 1001;
-        int[] vars = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        int[] weights = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        int rhs = 11;
-        ClauseSet clauses = AdderNetwork.createClauses(new PBConstraint(vars, weights, rhs));
-        try {
-            Environment.writeDIMACS(clauses);
-            Solver.run();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
 }

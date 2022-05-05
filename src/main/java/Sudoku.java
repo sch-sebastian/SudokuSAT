@@ -1,47 +1,42 @@
 package main.java;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Scanner;
 
-public class Sudoku {
 
-    //---Non-static-part-in-case-we-need-instances-later----------------------------
-    private ClauseSet clauses;
+public class Sudoku extends Constraint {
 
-    public Sudoku() {
-        clauses = new ClauseSet();
-        clauses.addAll(oneNumberPerEntry());
-        clauses.addAll(oncePerCol());
-        clauses.addAll(oncePerRow());
-        clauses.addAll(oncePerBox());
+
+    public Sudoku(String data) {
+        super(data);
     }
 
-    public Sudoku(String fileName) {
-        clauses = new ClauseSet();
-        clauses.addAll(oneNumberPerEntry());
-        clauses.addAll(oncePerCol());
-        clauses.addAll(oncePerRow());
-        clauses.addAll(oncePerBox());
-        clauses.addAll(parseField(fileName));
-    }
-
-    public ClauseSet getClauses() {
-        return clauses;
-    }
-    //------------------------------------------------------------------------------
-
-    public static ClauseSet createClauses(String... fileName) {
-        ClauseSet res = new ClauseSet();
-        res.addAll(oneNumberPerEntry());
-        res.addAll(oncePerCol());
-        res.addAll(oncePerRow());
-        res.addAll(oncePerBox());
-        if (fileName.length != 0) {
-            res.addAll(parseField(fileName[0]));
+    public ClauseSet createClauses() {
+        ClauseSet clauses = new ClauseSet();
+        if (data.length() == 0) {
+            clauses.addAll(oncePerCol());
+            clauses.addAll(oncePerRow());
+            clauses.addAll(oncePerBox());
+        } else {
+            Scanner scanner = new Scanner(data);
+            while (scanner.hasNext()) {
+                switch (scanner.next()) {
+                    case "row":
+                        clauses.addAll(oncePerRow());
+                        break;
+                    case "column":
+                        clauses.addAll(oncePerCol());
+                        break;
+                    case "box":
+                        clauses.addAll(oncePerBox());
+                        break;
+                    default:
+                        throw new IllegalArgumentException();
+                }
+            }
         }
-        return res;
+
+        return clauses;
     }
 
     public static ClauseSet oneNumberPerEntry() {
@@ -112,29 +107,6 @@ public class Sudoku {
                     }
                 }
             }
-        }
-        ClauseSet cs = new ClauseSet();
-        cs.addAll(res);
-        return cs;
-    }
-
-    public static ClauseSet parseField(String filename) {
-        HashSet<Clause> res = new HashSet<>();
-        try {
-            Scanner scanner = new Scanner(new File(filename));
-
-            for (int y = 1; y <= 9; y++) {
-                for (int x = 1; x <= 9; x++) {
-                    int cur = scanner.nextInt();
-                    if (0 < cur && cur < 10) {
-                        res.add(new Clause(100 * x + 10 * y + cur));
-                        //res.add("" + x + y + cur + " 0" + br);
-                    }
-                }
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         }
         ClauseSet cs = new ClauseSet();
         cs.addAll(res);

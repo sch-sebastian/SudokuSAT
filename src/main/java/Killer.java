@@ -16,6 +16,11 @@ public class Killer extends Constraint {
         return createClauses(parseGroups());
     }
 
+    @Override
+    int check(int[][] model) {
+        return 0;
+    }
+
 
     private ClauseSet createClauses(ArrayList<Integer>[] groups) {
         ClauseSet clauses = new ClauseSet();

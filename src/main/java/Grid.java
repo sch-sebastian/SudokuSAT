@@ -1,8 +1,5 @@
 package main.java;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.HashSet;
 import java.util.Scanner;
 
 public class Grid extends Constraint {
@@ -26,5 +23,21 @@ public class Grid extends Constraint {
         }
 
         return clauses;
+    }
+
+    @Override
+    int check(int[][] model) {
+        Scanner scanner = new Scanner(data);
+        for (int y = 0; y < 9; y++) {
+            for (int x = 0; x < 9; x++) {
+                int cur = scanner.nextInt();
+                if (0 < cur && cur < 10) {
+                    if(model[x][y] != cur){
+                        return -1;
+                    }
+                }
+            }
+        }
+        return 1;
     }
 }

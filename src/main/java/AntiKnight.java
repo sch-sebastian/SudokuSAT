@@ -31,4 +31,9 @@ public class AntiKnight extends Constraint {
         offsets.add(new Tuple<>(1, 2));
         return notEqual(offsets);
     }
+
+    @Override
+    int check(int[][] model) {
+        return 0;
+    }
 }

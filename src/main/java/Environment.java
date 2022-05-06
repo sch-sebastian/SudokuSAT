@@ -1,15 +1,16 @@
 package main.java;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Environment {
 
     public static PBCConverter converter = new AdderNetwork();
 
-    private static int varCounter = 1002;
+    public static int[][] solution;
 
+    private static int varCounter = 1002;
     public static int FALSE = 1000;
     public static int TRUE = 1001;
 
@@ -39,7 +40,51 @@ public class Environment {
         bw.close();
     }
 
-    public static void printSolution() throws FileNotFoundException {
+    public static void printSolution(int[][] grid) throws FileNotFoundException {
+        for (int y = 0; y < grid.length; y++) {
+            String line = "";
+            for (int x = 0; x < grid[0].length; x++) {
+                line = line + grid[x][y] + " ";
+            }
+            System.out.println(line);
+        }
+    }
+
+
+    public static ClauseSet toClauses(PBC pbc) {
+        return converter.createClauses(pbc);
+    }
+
+    public static void setConverter(String type) {
+        type = type.trim();
+        switch (type) {
+            case "BDD":
+                converter = new BDD();
+                break;
+            case "AdderNetwork":
+                converter = new AdderNetwork();
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    public static void setSolution(String solStr) {
+        solution = new int[9][9];
+        Scanner scanner = new Scanner(solStr);
+        for (int y = 1; y <= 9; y++) {
+            for (int x = 1; x <= 9; x++) {
+                int cur = scanner.nextInt();
+                if (0 < cur && cur < 10) {
+                    solution[x - 1][y - 1] = cur;
+                } else {
+                    throw new IllegalArgumentException();
+                }
+            }
+        }
+    }
+
+    public static int[][] modelToArray() throws FileNotFoundException {
         int[][] grid = new int[9][9];
 
         Scanner scanner = new Scanner(new File("model.tmp"));
@@ -53,32 +98,42 @@ public class Environment {
                 grid[x - 1][y - 1] = z;
             }
         }
+        return grid;
+    }
 
-        for (int y = 0; y < grid.length; y++) {
-            String line = "";
-            for (int x = 0; x < grid[0].length; x++) {
-                line = line + grid[x][y] + " ";
+    public static boolean check(int[][] model, HashMap<String, Constraint> constraints) {
+        boolean isCorrect = true;
+        for (String constraintName : constraints.keySet()) {
+            Constraint curCons = constraints.get(constraintName);
+            int checkResult = curCons.check(model);
+            if (checkResult == -1) {
+                System.out.println(constraintName + ": failed");
+                isCorrect = false;
+            } else if (checkResult == 0) {
+                System.out.println(constraintName + ": not implemented");
+            }else{
+                System.out.println(constraintName + ": successful");
             }
-            System.out.println(line);
         }
-    }
+        if(solution!=null){
+            boolean equal = true;
+            for(int y = 0; y<9;y++){
+                for(int x = 0; x<9;x++){
+                    if(model[x][y]!=solution[x][y]){
+                        equal = false;
+                    }
+                }
+            }
+            if(!equal){
+                System.out.println("Solution: failed");
+                isCorrect = false;
+            }else {
+                System.out.println("Solution: successful");
+            }
 
-
-
-    public  static ClauseSet toClauses(PBC pbc){
-        return converter.createClauses(pbc);
-    }
-
-    public static void setConverter(String type) {
-        switch (type){
-            case "BDD":
-                converter = new BDD();
-                break;
-            case "AdderNetwork":
-                converter = new AdderNetwork();
-                break;
-            default:
-                throw new IllegalArgumentException();
         }
+
+
+        return isCorrect;
     }
 }

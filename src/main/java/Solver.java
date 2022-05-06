@@ -16,7 +16,8 @@ import java.io.PrintWriter;
 
 public class Solver {
 
-        public static void run() {
+        public static boolean run() {
+                boolean satisfiable = false;
                 ISolver solver = SolverFactory.newDefault();
                 solver.setTimeout(3600); // 1 hour timeout
                 Reader reader = new DimacsReader(solver);
@@ -30,6 +31,7 @@ public class Solver {
                 try {
                         IProblem problem = reader.parseInstance("input.tmp");
                         if (problem.isSatisfiable()) {
+                                satisfiable = true;
                                 System.out.println("Satisfiable !");
                                 reader.decode(problem.model(),out);
                                 out.flush();
@@ -44,5 +46,6 @@ public class Solver {
                 } catch (TimeoutException e) {
                         System.out.println("Timeout, sorry!");
                 }
+                return satisfiable;
         }
 }

@@ -11,6 +11,7 @@ public abstract class Constraint {
     }
 
     abstract ClauseSet createClauses();
+    abstract int check(int[][] model);
 
 
 }

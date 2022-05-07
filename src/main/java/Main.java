@@ -9,9 +9,10 @@ import static main.java.Environment.modelToArray;
 public class Main {
 
     public static void main(String[] args) {
+        int exitCode = 0;
         if (args.length != 1) {
             System.out.println("Invalid parameter(s): please provide a filename!");
-            System.exit(42);
+            System.exit(40);
         }
         System.out.println("Task: " + args[0]);
         System.out.println("------------------------------------------");
@@ -23,7 +24,7 @@ public class Main {
 
         try {
             HashMap<String, Constraint> constraints = Reader.read(args[0]);
-            for(String name : constraints.keySet()){
+            for (String name : constraints.keySet()) {
                 ClauseSet curClauses = constraints.get(name).createClauses();
                 System.out.println(name + ": " + curClauses.size() + " clauses and " + curClauses.vars.size() + " variables.");
                 clauses.addAll(curClauses);
@@ -49,11 +50,24 @@ public class Main {
                     System.out.println("------------------------------------------");
                     System.out.println("Faulty Model:");
                     Environment.printSolution(model);
+                    exitCode = 20;
                 }
-                System.out.println("------------------------------------------");
+            } else {
+                exitCode = 10;
             }
+            System.out.println("------------------------------------------");
         } catch (IOException e) {
             e.printStackTrace();
+            exitCode = 30;
         }
+        System.exit(exitCode);
+        /**
+         * Exit codes:
+         * 0:   success
+         * 10:  unsatisfiable
+         * 20:  test failed
+         * 30:  IOException
+         * 40:  missing parameter
+         * */
     }
 }

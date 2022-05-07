@@ -85,11 +85,13 @@ public class Sudoku extends Constraint {
                         for (int bx = 0; bx < 3; bx++) {
                             for (int y = 0; y < 3; y++) {
                                 for (int x = 0; x < 3; x++) {
-                                    for (int l = 0; l < 3; l++) {
+                                    for (int k = x + 1; k < 3; k++) {
+                                        if (model[3 * bx + x][3 * by + y] == model[3 * bx + k][3 * by + y]) {
+                                            return -1;
+                                        }
+                                    }
+                                    for (int l = y + 1; l < 3; l++) {
                                         for (int k = 0; k < 3; k++) {
-                                            if (x == k && y == l) {
-                                                continue;
-                                            }
                                             if (model[3 * bx + x][3 * by + y] == model[3 * bx + k][3 * by + l]) {
                                                 return -1;
                                             }

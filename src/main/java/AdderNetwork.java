@@ -8,7 +8,7 @@ import java.util.PriorityQueue;
 public class AdderNetwork extends PBCConverter {
 
 
-    public ClauseSet createClauses(PBC pbc) {
+    public ClauseSet createClauses(PBC pbc, int pbcVar) {
         ClauseSet clauses = new ClauseSet();
         clauses.add(new Clause(-Environment.FALSE));
         clauses.add(new Clause(Environment.TRUE));
@@ -89,11 +89,15 @@ public class AdderNetwork extends PBCConverter {
             }
         }
 
+        if (pbcVar != 0) {
+            clauses.addVarToAll(-pbcVar);
+        }
         return clauses;
     }
 
-    /** Returns the clauses needed to describe a full adder working on the 3 given variables.
-     * */
+    /**
+     * Returns the clauses needed to describe a full adder working on the 3 given variables.
+     */
     private static AddResult fullAdd(int x, int y, int z) {
         ClauseSet clauses = new ClauseSet();
         int sumVar = Environment.getVC();
@@ -123,8 +127,9 @@ public class AdderNetwork extends PBCConverter {
 
     }
 
-    /** Returns the clauses needed to describe a half adder working on the 2 given variables.
-     * */
+    /**
+     * Returns the clauses needed to describe a half adder working on the 2 given variables.
+     */
     public static AddResult halfAdd(int x, int y) {
         ClauseSet clauses = new ClauseSet();
         int sumVar = Environment.getVC();
@@ -160,9 +165,10 @@ public class AdderNetwork extends PBCConverter {
         }
     }
 
-    /**Translates the given number to Binary and returns it as an ArrrayList,
+    /**
+     * Translates the given number to Binary and returns it as an ArrrayList,
      * with the least significant bit at the lowest index.
-     * */
+     */
     public static ArrayList<Integer> toBinary(int n) {
         ArrayList<Integer> binNum = new ArrayList<>();
         if (n == 0) {

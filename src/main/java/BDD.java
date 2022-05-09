@@ -1,6 +1,6 @@
 package main.java;
 
-public class BDD extends PBCConverter{
+public class BDD extends PBCConverter {
 
     private static class BDDNode {
         int depth;
@@ -34,7 +34,22 @@ public class BDD extends PBCConverter{
     }
 
 
-    public ClauseSet createClauses(PBC pbc) {
+    public ClauseSet createClauses(PBC pbc, int pbcVar) {
+
+        ClauseSet clauses = new ClauseSet();
+
+        //Trivial case if 0 variables
+        if(pbc.vars.length == 0){
+            if(pbc.rhs!=0){
+                clauses.add(new Clause());
+            }
+            if (pbcVar != 0) {
+                clauses.addVarToAll(-pbcVar);
+            }
+            return clauses;
+        }
+
+
         int[] rest = new int[pbc.weights.length];
         //calculate rest
         int sum = 0;
@@ -103,66 +118,36 @@ public class BDD extends PBCConverter{
             cur.child_false = cf;
         }
 
-        ClauseSet res = new ClauseSet();
-        res.add(new Clause(root.sub_tree_num));
+        clauses.add(new Clause(root.sub_tree_num));
         queue = new UniqueLinkedList<>();
         queue.add(root);
         while (queue.size != 0) {
             BDDNode cur = queue.poll();
             //Positive occurrence clauses.
-            res.add(new Clause(-cur.sub_tree_num, -pbc.vars[pbc.vars.length - cur.depth - 1], cur.child_true.sub_tree_num));
-            res.add(new Clause(-cur.sub_tree_num, pbc.vars[pbc.vars.length - cur.depth - 1], cur.child_false.sub_tree_num));
+            clauses.add(new Clause(-cur.sub_tree_num, -pbc.vars[pbc.vars.length - cur.depth - 1], cur.child_true.sub_tree_num));
+            clauses.add(new Clause(-cur.sub_tree_num, pbc.vars[pbc.vars.length - cur.depth - 1], cur.child_false.sub_tree_num));
             //Negative occurrence clauses (maybe not necessary but increase speed 10x)
-            res.add(new Clause(cur.sub_tree_num, -pbc.vars[pbc.vars.length - cur.depth - 1], -cur.child_true.sub_tree_num));
-            res.add(new Clause(cur.sub_tree_num, pbc.vars[pbc.vars.length - cur.depth - 1], -cur.child_false.sub_tree_num));
+            clauses.add(new Clause(cur.sub_tree_num, -pbc.vars[pbc.vars.length - cur.depth - 1], -cur.child_true.sub_tree_num));
+            clauses.add(new Clause(cur.sub_tree_num, pbc.vars[pbc.vars.length - cur.depth - 1], -cur.child_false.sub_tree_num));
             //Red-clauses, are redundant but increase strength of unit propagation.
-            res.add(new Clause(-cur.child_true.sub_tree_num, -cur.child_false.sub_tree_num, cur.sub_tree_num));
-            res.add(new Clause(cur.child_true.sub_tree_num, cur.child_false.sub_tree_num, -cur.sub_tree_num));
+            clauses.add(new Clause(-cur.child_true.sub_tree_num, -cur.child_false.sub_tree_num, cur.sub_tree_num));
+            clauses.add(new Clause(cur.child_true.sub_tree_num, cur.child_false.sub_tree_num, -cur.sub_tree_num));
             if (cur.child_true.sign == 0) {
                 queue.add(cur.child_true);
             } else {
-                res.add(new Clause(cur.child_true.sub_tree_num * cur.child_true.sign));
+                clauses.add(new Clause(cur.child_true.sub_tree_num * cur.child_true.sign));
             }
             if (cur.child_false.sign == 0) {
                 queue.add(cur.child_false);
             } else {
-                res.add(new Clause(cur.child_false.sub_tree_num * cur.child_false.sign));
+                clauses.add(new Clause(cur.child_false.sub_tree_num * cur.child_false.sign));
             }
         }
-        return res;
+        if (pbcVar != 0) {
+            clauses.addVarToAll(-pbcVar);
+        }
+        return clauses;
     }
-
-/*    //Although it needs fewer clauses the resulting encoding of this version is less efficient.
-    public ClauseSet getLessClauses() {
-        ClauseSet res = new ClauseSet();
-        res.add(new Clause(root.sub_tree_num));
-        UniqueLinkedList<BDDNode> queue = new UniqueLinkedList<>();
-        queue.add(root);
-        while (queue.size != 0) {
-            BDDNode cur = queue.poll();
-            if (cur.child_true.sign == 0) {
-                res.add(new Clause(-cur.sub_tree_num, -vars[vars.length - cur.depth - 1], cur.child_true.sub_tree_num));
-                res.add(new Clause(cur.sub_tree_num, -vars[vars.length - cur.depth - 1], -cur.child_true.sub_tree_num));
-                queue.add(cur.child_true);
-            } else if(cur.child_true.sign == -1){
-                res.add(new Clause(-cur.sub_tree_num, -vars[vars.length - cur.depth - 1]));
-            }else{
-                res.add(new Clause(cur.sub_tree_num, -vars[vars.length - cur.depth - 1]));
-            }
-
-            if (cur.child_false.sign == 0) {
-                res.add(new Clause(-cur.sub_tree_num, vars[vars.length - cur.depth - 1], cur.child_false.sub_tree_num));
-                res.add(new Clause(cur.sub_tree_num, vars[vars.length - cur.depth - 1], -cur.child_false.sub_tree_num));
-                queue.add(cur.child_false);
-            } else if(cur.child_false.sign == -1){
-                res.add(new Clause(-cur.sub_tree_num, vars[vars.length - cur.depth - 1]));
-            }else{
-                res.add(new Clause(cur.sub_tree_num, vars[vars.length - cur.depth - 1]));
-            }
-        }
-        return res;
-    }*/
-
 }
 
 

@@ -18,7 +18,7 @@ public class Grid extends Constraint {
                 if (0 < cur && cur < 10) {
                     clauses.add(new Clause(100 * x + 10 * y + cur));
                     //res.add("" + x + y + cur + " 0" + br);
-                }
+                }//TODO: Exception?
             }
         }
 

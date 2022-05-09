@@ -38,6 +38,13 @@ public class ClauseSet {
         return clauses.size();
     }
 
+    public void addVarToAll(int var){
+        vars.add(Math.abs(var));
+        for(Clause clause : clauses){
+            clause.literals.add(var);
+        }
+    }
+
     public ArrayList<Clause> getSortedClauses() {
         ArrayList<Clause> sortedClauses = new ArrayList<>();
         sortedClauses.addAll(clauses);

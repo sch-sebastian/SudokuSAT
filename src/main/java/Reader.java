@@ -92,6 +92,8 @@ public class Reader {
                 return new AntiKnight();
             case "Grid":
                 return new Grid(data);
+            case "SandwichSum":
+                return new SandwichSum(data);
             default:
                 throw new IllegalArgumentException();
         }

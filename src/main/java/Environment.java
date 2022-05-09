@@ -14,6 +14,12 @@ public class Environment {
     public static int FALSE = 1000;
     public static int TRUE = 1001;
 
+    public static void init(){
+        converter = new AdderNetwork();
+        solution = null;
+        varCounter = 1002;
+    }
+
     public static void incVC() {
         varCounter++;
     }
@@ -51,8 +57,8 @@ public class Environment {
     }
 
 
-    public static ClauseSet toClauses(PBC pbc) {
-        return converter.createClauses(pbc);
+    public static ClauseSet toClauses(PBC pbc, int pbcVar) {
+        return converter.createClauses(pbc, pbcVar);
     }
 
     public static void setConverter(String type) {

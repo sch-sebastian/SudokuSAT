@@ -8,7 +8,14 @@ import static main.java.Environment.modelToArray;
 
 public class Main {
 
+
     public static void main(String[] args) {
+        int exitCode = run(args);
+        System.exit(exitCode);
+    }
+
+    public static int run(String[] args){
+        Environment.init();
         int exitCode = 0;
         if (args.length != 1) {
             System.out.println("Invalid parameter(s): please provide a filename!");
@@ -60,7 +67,7 @@ public class Main {
             e.printStackTrace();
             exitCode = 30;
         }
-        System.exit(exitCode);
+        return exitCode;
         /**
          * Exit codes:
          * 0:   success

@@ -2,6 +2,8 @@ package main.java;
 
 import java.util.*;
 
+import static main.java.PBC.toPBCArray;
+
 
 public class Killer extends Constraint {
 
@@ -26,42 +28,12 @@ public class Killer extends Constraint {
         ClauseSet clauses = new ClauseSet();
         PBC[] pbcs = toPBCArray(groups);
         for (PBC pbc : pbcs) {
-            clauses.addAll(Environment.toClauses(pbc));
+            clauses.addAll(Environment.toClauses(pbc, 0));
         }
         return clauses;
     }
 
-    /**
-     * @param groups The first element of each group is the value that the cells should sum up to, then the groups cell
-     *               coordinates follow (alternating x and y).
-     * @return An array of PBCs created from the given groups.
-     */
-    public static PBC[] toPBCArray(ArrayList<Integer>[] groups) {
-        PBC[] pbcs = new PBC[groups.length];
-        for (int i = 0; i < groups.length; i++) {
-            pbcs[i] = toPBC(groups[i]);
-        }
-        return pbcs;
-    }
 
-    /**
-     * @param group The first element of group is the value that the cells should sum up to, then the groups cell
-     *              coordinates follow (alternating x and y).
-     * @return An array of PBCs created from the given groups.
-     */
-    public static PBC toPBC(ArrayList<Integer> group) {
-        int rhs = group.get(0);
-        int n = ((group.size() - 1) / 2);
-        int[] vars = new int[n * 9];
-        int[] weights = new int[vars.length];
-        for (int v = 0, i = 1; v < vars.length && i < group.size() - 1; v++, i = i + 2) {
-            for (int z = 1; z <= 9; z++) {
-                vars[n * (z - 1) + v] = 100 * group.get(i) + 10 * group.get(i + 1) + z;
-                weights[n * (z - 1) + v] = z;
-            }
-        }
-        return new PBC(vars, weights, rhs);
-    }
 
 
     public ArrayList<Integer>[] parseGroups() {

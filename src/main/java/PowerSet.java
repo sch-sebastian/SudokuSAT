@@ -2,6 +2,7 @@ package main.java;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class PowerSet<T extends Comparable> {
 
@@ -47,14 +48,10 @@ public class PowerSet<T extends Comparable> {
         }
     }
 
+    public static HashMap<Integer, ArrayList<ArrayList<Integer>>>[] getSumCombi(Integer[] numbers) {
+        PowerSet<Integer> pS = new PowerSet<>(numbers);
 
-
-
-    public static void main(String[] args) {
-        Integer[] num = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        PowerSet<Integer> pS = new PowerSet<>(num);
-
-        HashMap<Integer, ArrayList<ArrayList<Integer>>>[] sumCombi = new HashMap[num.length + 1];
+        HashMap<Integer, ArrayList<ArrayList<Integer>>>[] sumCombi = new HashMap[numbers.length + 1];
         for (int i = 0; i < sumCombi.length; i++) {
             sumCombi[i] = new HashMap<>();
         }
@@ -63,13 +60,12 @@ public class PowerSet<T extends Comparable> {
             for (Integer element : set) {
                 sum = sum + element;
             }
-            if(!sumCombi[set.size()].containsKey(sum)){
-                sumCombi[set.size()].put(sum,new ArrayList<>());
+            if (!sumCombi[set.size()].containsKey(sum)) {
+                sumCombi[set.size()].put(sum, new ArrayList<>());
             }
             sumCombi[set.size()].get(sum).add(set);
         }
-        System.out.println("done");
-
+        return sumCombi;
     }
 
 }

@@ -1,8 +1,9 @@
 package main.java;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
+
+import static main.java.PowerSet.getSumCombi;
 
 public class Environment {
 
@@ -13,8 +14,10 @@ public class Environment {
     private static int varCounter = 1002;
     public static int FALSE = 1000;
     public static int TRUE = 1001;
+    public static Integer[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    public static HashMap<Integer, ArrayList<ArrayList<Integer>>>[] sumCombinations = getSumCombi(numbers);
 
-    public static void init(){
+    public static void init() {
         converter = new AdderNetwork();
         solution = null;
         varCounter = 1002;
@@ -117,29 +120,60 @@ public class Environment {
                 isCorrect = false;
             } else if (checkResult == 0) {
                 System.out.println(constraintName + ": not implemented");
-            }else{
+            } else {
                 System.out.println(constraintName + ": successful");
             }
         }
-        if(solution!=null){
+        if (solution != null) {
             boolean equal = true;
-            for(int y = 0; y<9;y++){
-                for(int x = 0; x<9;x++){
-                    if(model[x][y]!=solution[x][y]){
+            for (int y = 0; y < 9; y++) {
+                for (int x = 0; x < 9; x++) {
+                    if (model[x][y] != solution[x][y]) {
                         equal = false;
                     }
                 }
             }
-            if(!equal){
+            if (!equal) {
                 System.out.println("Solution: failed");
                 isCorrect = false;
-            }else {
+            } else {
                 System.out.println("Solution: successful");
             }
 
         }
-
-
         return isCorrect;
+    }
+
+
+    /**
+     * @param groups The first element of each group is the value that the cells should sum up to, then the groups cell
+     *               coordinates follow (alternating x and y).
+     * @return An array of PBCs created from the given groups.
+     */
+    public static PBC[] toPBCArray(ArrayList<Integer>[] groups) {
+        PBC[] pbcs = new PBC[groups.length];
+        for (int i = 0; i < groups.length; i++) {
+            pbcs[i] = toPBC(groups[i]);
+        }
+        return pbcs;
+    }
+
+    /**
+     * @param group The first element of group is the value that the cells should sum up to, then the groups cell
+     *              coordinates follow (alternating x and y).
+     * @return An array of PBCs created from the given groups.
+     */
+    public static PBC toPBC(ArrayList<Integer> group) {
+        int rhs = group.get(0);
+        int n = ((group.size() - 1) / 2);
+        int[] vars = new int[n * 9];
+        int[] weights = new int[vars.length];
+        for (int v = 0, i = 1; v < vars.length && i < group.size() - 1; v++, i = i + 2) {
+            for (int z = 1; z <= 9; z++) {
+                vars[n * (z - 1) + v] = 100 * group.get(i) + 10 * group.get(i + 1) + z;
+                weights[n * (z - 1) + v] = z;
+            }
+        }
+        return new PBC(vars, weights, rhs);
     }
 }

@@ -10,8 +10,19 @@ public class AdderNetwork extends PBCConverter {
 
     public ClauseSet createClauses(PBC pbc, int pbcVar) {
         ClauseSet clauses = new ClauseSet();
-        clauses.add(new Clause(-Environment.FALSE));
-        clauses.add(new Clause(Environment.TRUE));
+
+        //Trivial case if 0 variables
+        if(pbc.vars.length == 0){
+            if(pbc.rhs!=0){
+                clauses.add(new Clause());
+            }
+            if (pbcVar != 0) {
+                clauses.addVarToAll(-pbcVar);
+            }
+            return clauses;
+        }
+
+
 
         //Initialize Buckets--------------------------------------------------------------------------------------------
         ArrayList<Integer>[] binNum = new ArrayList[pbc.vars.length];
@@ -31,7 +42,7 @@ public class AdderNetwork extends PBCConverter {
         //Clauses for LHS-----------------------------------------------------------------------------------------------
         PriorityQueue<Integer> sortedK = new PriorityQueue<>(buckets.keySet());
         ArrayList<Integer> output = new ArrayList<>();
-        int donePos = 0;
+        int donePos = -1;
         while (!sortedK.isEmpty()) {
             int i = sortedK.poll();
 
@@ -92,6 +103,10 @@ public class AdderNetwork extends PBCConverter {
         if (pbcVar != 0) {
             clauses.addVarToAll(-pbcVar);
         }
+
+        clauses.add(new Clause(-Environment.FALSE));
+        clauses.add(new Clause(Environment.TRUE));
+
         return clauses;
     }
 

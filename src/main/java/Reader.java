@@ -11,45 +11,45 @@ public class Reader {
     public static HashMap<String, Constraint> read(String filename) throws FileNotFoundException {
         HashMap<String, Constraint> constraints = new HashMap<>();
 
-            File file = new File(Paths.get("src", "main", "data", filename).toString());
-            Scanner scanner = new Scanner(file).useDelimiter("\\s*\\}*\\s*\\{|\\}\\s*");
-            while (scanner.hasNext()) {
-                String token = scanner.next();
-                String[] cur = token.split(":");
-                if (cur.length > 0 && cur[0].equalsIgnoreCase("c")) {
-                    continue;
-                }
-                if (cur.length == 0 || cur.length > 2) {
-                    System.out.println("Reader Error at token: " + token);
-                    throw new IllegalArgumentException();
-                }
-                switch (cur[0]) {
-                    case "PBC":
-                        if (cur.length > 1) {
-                            Environment.setConverter(cur[1]);
-                        }
-                        break;
-                    case "Solution":
-                        if (cur.length == 2) {
-                            Environment.setSolution(cur[1]);
-                        }else {
-                            throw new IllegalArgumentException();
-                        }
-                        break;
-                    default:
-                        if (!constraints.containsKey(cur[0])) {
-                            if (cur.length == 1) {
-                                Constraint constraint = constraintMaker(cur[0], "");
-                                constraints.put(cur[0], constraint);
-                            } else {
-                                Constraint constraint = constraintMaker(cur[0], cur[1]);
-                                constraints.put(cur[0], constraint);
-                            }
+        File file = new File(Paths.get("src", "main", "data", filename).toString());
+        Scanner scanner = new Scanner(file).useDelimiter("\\s*\\}*\\s*\\{|\\}\\s*");
+        while (scanner.hasNext()) {
+            String token = scanner.next();
+            String[] cur = token.split(":");
+            if (cur.length > 0 && cur[0].equalsIgnoreCase("c")) {
+                continue;
+            }
+            if (cur.length == 0 || cur.length > 2) {
+                System.out.println("Reader Error at token: " + token);
+                throw new IllegalArgumentException();
+            }
+            switch (cur[0]) {
+                case "PBC":
+                    if (cur.length > 1) {
+                        Environment.setConverter(cur[1]);
+                    }
+                    break;
+                case "Solution":
+                    if (cur.length == 2) {
+                        Environment.setSolution(cur[1]);
+                    } else {
+                        throw new IllegalArgumentException();
+                    }
+                    break;
+                default:
+                    if (!constraints.containsKey(cur[0])) {
+                        if (cur.length == 1) {
+                            Constraint constraint = constraintMaker(cur[0], "");
+                            constraints.put(cur[0], constraint);
                         } else {
-                            System.out.println("Reader Error: double constraint!");
-                            throw new IllegalArgumentException();
+                            Constraint constraint = constraintMaker(cur[0], cur[1]);
+                            constraints.put(cur[0], constraint);
                         }
-                }
+                    } else {
+                        System.out.println("Reader Error: double constraint!");
+                        throw new IllegalArgumentException();
+                    }
+            }
 
 
 //                switch (cur.length) {
@@ -76,13 +76,28 @@ public class Reader {
 //                    default:
 //                        System.out.println("Reader Error at token: " + token);
 //                }
-            }
+        }
 
 
         return constraints;
     }
 
     private static Constraint constraintMaker(String type, String data) {
+        int optimized = 0;
+        if (data.contains("[")) {
+            int start = data.indexOf("[");
+            int end = data.indexOf("]");
+            try {
+                String num = data.substring(start + 1, end);
+                optimized = Integer.parseInt(num);
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("Reader Error: " + type + " optimization specification faulty!");
+                throw new IllegalArgumentException();
+            } catch (NumberFormatException e) {
+                System.out.println("Reader Error: " + type + " optimization specification faulty!");
+                throw new IllegalArgumentException();
+            }
+        }
         switch (type) {
             case "Sudoku":
                 return new Sudoku(data);
@@ -93,7 +108,7 @@ public class Reader {
             case "Grid":
                 return new Grid(data);
             case "SandwichSum":
-                return new SandwichSum(data);
+                return new SandwichSum(optimized, data);
             default:
                 throw new IllegalArgumentException();
         }

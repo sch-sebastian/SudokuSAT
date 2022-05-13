@@ -114,6 +114,7 @@ public class Reader {
             case "Thermometer":
                 return new Thermometer(data);
             default:
+                System.out.println("Reader Error: unknown constraint \"" + type + "\".");
                 throw new IllegalArgumentException();
         }
     }

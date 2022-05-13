@@ -48,7 +48,7 @@ public class Main {
             if (satisfiable) {
                 int[][] model = modelToArray();
                 System.out.println("------------------------------------------");
-                System.out.println("Starting Tests...");
+                System.out.println("Starting Checks...");
                 if (check(model, constraints)) {
                     System.out.println("------------------------------------------");
                     System.out.println("Correct Model:");

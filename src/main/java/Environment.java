@@ -119,7 +119,7 @@ public class Environment {
                 System.out.println(constraintName + ": failed");
                 isCorrect = false;
             } else if (checkResult == 0) {
-                System.out.println(constraintName + ": not implemented");
+                System.out.println(constraintName + ": check not implemented");
             } else {
                 System.out.println(constraintName + ": successful");
             }

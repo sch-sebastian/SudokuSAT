@@ -111,6 +111,8 @@ public class Reader {
                 return new SandwichSum(optimized, data);
             case "ArrowHead":
                 return new ArrowHead(data);
+            case "Thermometer":
+                return new Thermometer(data);
             default:
                 throw new IllegalArgumentException();
         }

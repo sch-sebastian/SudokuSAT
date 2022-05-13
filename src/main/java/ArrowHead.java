@@ -6,8 +6,13 @@ public class ArrowHead extends Constraint {
 
     static boolean useSupport = true;
 
+    boolean EQ = false;
+
     public ArrowHead(String... data) {
         super(data);
+        if (this.data.startsWith("EQ")) {
+            EQ = true;
+        }
     }
 
 
@@ -15,9 +20,16 @@ public class ArrowHead extends Constraint {
     ClauseSet createClauses() {
         ClauseSet clauses = new ClauseSet();
         ArrayList<Integer> indices = parseData();
-        for (int i = 0; i <= indices.size() - 4; i = i + 4) {
-            clauses.addAll(createAsmallerB(indices.get(i), indices.get(i + 1), indices.get(i + 2), indices.get(i + 3)));
+        if (!EQ) {
+            for (int i = 0; i <= indices.size() - 4; i = i + 4) {
+                clauses.addAll(createAsmallerB(indices.get(i), indices.get(i + 1), indices.get(i + 2), indices.get(i + 3)));
+            }
+        } else {
+            for (int i = 0; i <= indices.size() - 4; i = i + 4) {
+                clauses.addAll(createAsmallerEqB(indices.get(i), indices.get(i + 1), indices.get(i + 2), indices.get(i + 3)));
+            }
         }
+
         return clauses;
     }
 
@@ -26,7 +38,10 @@ public class ArrowHead extends Constraint {
         ArrayList<Integer> indices = new ArrayList<>();
         try {
             Scanner scanner = new Scanner(data);
-
+            if (scanner.hasNext() && !scanner.hasNextInt()) {
+                //Skip EQ
+                scanner.next();
+            }
             while (scanner.hasNextInt()) {
                 int a = scanner.nextInt();
                 int b = scanner.nextInt();
@@ -119,10 +134,5 @@ public class ArrowHead extends Constraint {
     @Override
     int check(int[][] model) {
         return 0;
-    }
-
-    public static void main(String[] args) {
-        ClauseSet cs = createAsmallerB(1, 1, 2, 1);
-        System.out.println("");
     }
 }

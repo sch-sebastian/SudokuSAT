@@ -109,6 +109,8 @@ public class Reader {
                 return new Grid(data);
             case "SandwichSum":
                 return new SandwichSum(optimized, data);
+            case "ArrowHead":
+                return new ArrowHead(data);
             default:
                 throw new IllegalArgumentException();
         }

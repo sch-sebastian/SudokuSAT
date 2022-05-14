@@ -21,7 +21,7 @@ public class SudokuExampleTest {
             if(!name.endsWith(".sdq")){
                 continue;
             }
-            String[] args = {name};
+            String[] args = {name, "MiniSat"};
             Assert.assertEquals(0, Main.run(args));
         }
     }

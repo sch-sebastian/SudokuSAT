@@ -17,9 +17,13 @@ public class Main {
     public static int run(String[] args){
         Environment.init();
         int exitCode = 0;
-        if (args.length != 1) {
+        if (args.length < 1) {
             System.out.println("Invalid parameter(s): please provide a filename!");
             System.exit(40);
+        }
+        String solName = "";
+        if (args.length > 1) {
+            solName = args[1];
         }
         System.out.println("Task: " + args[0]);
         System.out.println("------------------------------------------");
@@ -41,9 +45,9 @@ public class Main {
             Environment.writeDIMACS(clauses);
             System.out.println("Duration: " + (System.currentTimeMillis() - encodingStart) + "ms");
             System.out.println("------------------------------------------");
-            System.out.println("Starting Solver...");
+            System.out.println("Starting Solver " + solName + "...");
             long start = System.currentTimeMillis();
-            boolean satisfiable = Solver.run();
+            boolean satisfiable = Solver.run(solName);
             System.out.println("Duration: " + (System.currentTimeMillis() - start) + "ms");
             if (satisfiable) {
                 int[][] model = modelToArray();

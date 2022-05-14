@@ -97,6 +97,9 @@ public class Environment {
         int[][] grid = new int[9][9];
 
         Scanner scanner = new Scanner(new File("model.tmp"));
+        while (scanner.hasNext() && !scanner.hasNextInt()){
+            scanner.next();
+        }
         while (scanner.hasNextInt()) {
             int cur = scanner.nextInt();
             if (cur > 0 && cur < 1000) {

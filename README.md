@@ -2,7 +2,32 @@
 
 Files used to encode and input a sudoku problem for this program have the ending `.sdq` and most currently be located
 in `src\main\data`. An .sdq file can consist of multiple clauses, each one surrounded with`{ }`. Each clause is used to
-describe a constraint that the solution should satisfy. Each clause begins with the constraints name followed by `:`.
+describe a constraint that the solution should satisfy. Each clause begins with the constraints name followed by `:`
+.<br>
+
+Some constraints require to specify cells by their coordinates in the sudoku-grid. The used coordinates have their
+origin in the top left corner of the sudoku grid. The X-Axis goes from left to right, and the Y-Axis from top to bottom which can be seen below:
+```
+----------------------------------------------
+| 11 | 21 | 31 | 41 | 51 | 61 | 71 | 81 | 91 | 
+----------------------------------------------
+| 12 | 22 | 32 | 42 | 52 | 62 | 72 | 82 | 92 |
+----------------------------------------------
+| 13 | 23 | 33 | 43 | 53 | 63 | 73 | 83 | 93 |
+----------------------------------------------
+| 14 | 24 | 34 | 44 | 54 | 64 | 74 | 84 | 94 |
+----------------------------------------------
+| 15 | 25 | 35 | 45 | 55 | 65 | 75 | 85 | 95 |
+----------------------------------------------
+| 16 | 26 | 36 | 46 | 56 | 66 | 76 | 86 | 96 |
+----------------------------------------------
+| 17 | 27 | 37 | 47 | 57 | 67 | 77 | 87 | 97 |
+----------------------------------------------
+| 18 | 28 | 38 | 48 | 58 | 68 | 78 | 88 | 98 |
+----------------------------------------------
+| 19 | 29 | 39 | 49 | 59 | 69 | 79 | 89 | 99 |
+----------------------------------------------
+```
 
 ## Constraints:
 
@@ -108,6 +133,39 @@ The `2` states that there must be 2 Row-SandwichSums.<br>
 Then `1 4` states that in row 1 the SandwichSum must be 4.<br>
 (If there are no Row-SandwichSums the later part can be left away, but if there are no Column-SandwichSums this must be
 stated.)
+
+### {ArrowHeads:}
+
+Use `ArrowHeads` to specify that one of two cells must have a smaller value. Always list a pair of two cells, first the
+one which should have a smaller value. Cells are specified by their coordinates. The following example states that the
+cell with coordinates (x=1,y=1) must have a smaller value then the cells with coordinates (x=2,y=1) and (x=1,y=2):
+
+```
+{ArrowHeads:
+11 21
+11 12
+}
+```
+
+If `EQ` is written before the first pair of cells, the two cells of all pairs are allowed to have equal values.
+
+### {Thermometer:}
+
+Use `Thermometer` to specify the position of thermometers in the Grid. In a thermometer the lowest digit is at the
+bulb (the cell listed first) and the values of the following cells are strictly increasing. A `0` marks the beginning of
+a new thermometer, then the coordinates of the thermometer's cells follow. The following example specifies two
+thermometers, one with its bulb in the cell with coordinates (x=3, y=3) and one with its bulb in the cell with
+coordinates(x=1,y=1).
+
+```
+{Thermometer:
+0 33 32 21
+0 11 12
+}
+```
+
+If `frozen` is written before the first thermometer, cells along the thermometers must only have increasing but not
+strictly increasing values.
 
 ## Reference Solution
 

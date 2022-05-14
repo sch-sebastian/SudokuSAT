@@ -76,7 +76,9 @@ public class Solver {
             String workPath = System.getProperty("user.dir").replace("\\", "/").replace(":", "");
             command = "wsl cd /mnt/" + workPath + "; ls; ./MiniSat_v1.14_linux input.tmp model.tmp";
         } else {
-
+            String workPath = System.getProperty("user.dir");
+            command =  workPath + "/MiniSat_v1.14_linux input.tmp model.tmp";
+            allow(workPath);
         }
 
 
@@ -99,9 +101,12 @@ public class Solver {
             }//TODO: Add output for trivial or timeout!
 
         } catch (IOException e) {
+            if(e.getMessage().toLowerCase().contains("permission denied"))
             e.printStackTrace();
         } finally {
-            p.destroy();
+            if (p != null) {
+                p.destroy();
+            }
         }
         return false;
     }
@@ -114,6 +119,20 @@ public class Solver {
             return true;
         } catch (IOException e) {
             return false;
+        } finally {
+            if (p != null) {
+                p.destroy();
+            }
+        }
+    }
+
+    public static void allow(String workPath){
+        String command = "chmod +x " + workPath + "/MiniSat_v1.14_linux";
+        Process p = null;
+        try {
+            p = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             if (p != null) {
                 p.destroy();

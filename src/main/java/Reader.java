@@ -10,8 +10,11 @@ public class Reader {
 
     public static HashMap<String, Constraint> read(String filename) throws FileNotFoundException {
         HashMap<String, Constraint> constraints = new HashMap<>();
-
-        File file = new File(Paths.get("src", "main", "data", filename).toString());
+        String basePath = System.getProperty("user.dir");
+        if(!Reader.class.getResource("Reader.class").toString().toLowerCase().contains(".jar")){
+            basePath = Paths.get(basePath, "src", "main", "data").toString();
+        }
+        File file = new File(Paths.get(basePath, filename).toString());
         Scanner scanner = new Scanner(file).useDelimiter("\\s*\\}*\\s*\\{|\\}\\s*");
         while (scanner.hasNext()) {
             String token = scanner.next();

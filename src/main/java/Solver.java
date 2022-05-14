@@ -14,6 +14,11 @@ import java.util.ArrayList;
 
 public class Solver {
 
+    /**
+     * Runs the specified SAT-Solver or the default one.
+     *
+     * @param args name of the SAT-Solver to use.
+     */
     public static boolean run(String... args) {
         String solName = "";
         if (args.length > 0 && args[0] != null) {
@@ -33,6 +38,13 @@ public class Solver {
         }
     }
 
+    /**
+     * Runs the Sat4j-Default-Solver.
+     * Beforehand the problem must have been written into a DIMACS file callend "input.tmp".
+     * Afterwards a model for the problem (if one exists) can be found in "model.tmp".
+     *
+     * @return if the SAT-Problem was satisfiable.
+     */
     public static boolean runSat4j() {
         boolean satisfiable = false;
         ISolver solver = SolverFactory.newDefault();
@@ -66,22 +78,28 @@ public class Solver {
         return satisfiable;
     }
 
+
+    /**
+     * Runs the MiniSat-Solver from a binary file (Either using WSL or natively on Linux).
+     * Beforehand the problem must have been written into a DIMACS file called "input.tmp".
+     * Afterwards a model for the problem (if one exists) can be found in "model.tmp".
+     *
+     * @return if the SAT-Problem was satisfiable.
+     */
     public static boolean runMiniSat() {
         String command = "";
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            if(!checkWSL()){
+            if (!checkWSL()) {
                 System.out.println("Solver Error: running MiniSat on Windows requires WSL!");
                 throw new RuntimeException();
             }
             String workPath = System.getProperty("user.dir").replace("\\", "/").replace(":", "");
-            command = "wsl cd /mnt/" + workPath + "; ls; ./MiniSat_v1.14_linux input.tmp model.tmp";
+            command = "wsl cd /mnt/" + workPath + "; ./MiniSat_v1.14_linux input.tmp model.tmp";
         } else {
             String workPath = System.getProperty("user.dir");
-            command =  workPath + "/MiniSat_v1.14_linux input.tmp model.tmp";
+            command = workPath + "/MiniSat_v1.14_linux input.tmp model.tmp";
             allow(workPath);
         }
-
-
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(command);
@@ -98,10 +116,9 @@ public class Solver {
             } else {
                 System.out.println("Unsatisfiable !");
                 return false;
-            }//TODO: Add output for trivial or timeout!
+            }//TODO: Option for timeout
 
         } catch (IOException e) {
-            if(e.getMessage().toLowerCase().contains("permission denied"))
             e.printStackTrace();
         } finally {
             if (p != null) {
@@ -111,6 +128,10 @@ public class Solver {
         return false;
     }
 
+    /**
+     * Checks if WSL is installed by running a simple WSL command.
+     * (Should only be called on Windows-Systems)
+     */
     public static boolean checkWSL() {
         String command = "wsl ls";
         Process p = null;
@@ -126,7 +147,11 @@ public class Solver {
         }
     }
 
-    public static void allow(String workPath){
+    /**
+     * Sets the Permission for the MiniSat binary to be executable.
+     * (Should only be called on Unix-Systems)
+     */
+    public static void allow(String workPath) {
         String command = "chmod +x " + workPath + "/MiniSat_v1.14_linux";
         Process p = null;
         try {

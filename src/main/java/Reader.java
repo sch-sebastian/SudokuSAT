@@ -53,35 +53,7 @@ public class Reader {
                         throw new IllegalArgumentException();
                     }
             }
-
-
-//                switch (cur.length) {
-//                    case 2:
-//                        if (!constraints.containsKey(cur[0])) {
-//                            if (cur[0].equals("PBC")) {
-//                                Environment.setConverter(cur[1]);
-//                            } else {
-//                                Constraint constraint = constraintMaker(cur[0], cur[1]);
-//                                constraints.put(cur[0], constraint);
-//                            }
-//                        } else {
-//                            System.out.println("Reader Error: double constraint!");
-//                        }
-//                        break;
-//                    case 1:
-//                        if (!constraints.containsKey(cur[0])) {
-//                            Constraint constraint = constraintMaker(cur[0], "");
-//                            constraints.put(cur[0], constraint);
-//                        } else {
-//                            System.out.println("Reader Error: double constraint!");
-//                        }
-//                        break;
-//                    default:
-//                        System.out.println("Reader Error at token: " + token);
-//                }
         }
-
-
         return constraints;
     }
 

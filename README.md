@@ -6,7 +6,9 @@ describe a constraint that the solution should satisfy. Each clause begins with 
 .<br>
 
 Some constraints require to specify cells by their coordinates in the sudoku-grid. The used coordinates have their
-origin in the top left corner of the sudoku grid. The X-Axis goes from left to right, and the Y-Axis from top to bottom which can be seen below:
+origin in the top left corner of the sudoku grid. The X-Axis goes from left to right, and the Y-Axis from top to bottom
+which can be seen below:
+
 ```
 ----------------------------------------------
 | 11 | 21 | 31 | 41 | 51 | 61 | 71 | 81 | 91 | 
@@ -72,6 +74,7 @@ the same value.
 
 ### {Killer:}
 
+*Optimization: 0,2,3*<br>
 Use the `Killer` constraint as shown below describe the cells that belong to a killer cage and what the cage sums should
 be.
 
@@ -113,6 +116,7 @@ to the previously stated sums.
 
 ### {SandwichSum:}
 
+*Optimization: 0,1,2*<br>
 Use `SandwichSum` to describe in which rows or columns a SandwichSum must have a certain value.<br>
 
 ```
@@ -132,16 +136,16 @@ Then `7 6` states that in column 7 the SandwichSum must be 6.<br>
 The `2` states that there must be 2 Row-SandwichSums.<br>
 Then `1 4` states that in row 1 the SandwichSum must be 4.<br>
 (If there are no Row-SandwichSums the later part can be left away, but if there are no Column-SandwichSums this must be
-stated.)
+stated.)<br>
 
-### {ArrowHeads:}
+### {ArrowHead:}
 
-Use `ArrowHeads` to specify that one of two cells must have a smaller value. Always list a pair of two cells, first the
+Use `ArrowHead` to specify that one of two cells must have a smaller value. Always list a pair of two cells, first the
 one which should have a smaller value. Cells are specified by their coordinates. The following example states that the
 cell with coordinates (x=1,y=1) must have a smaller value then the cells with coordinates (x=2,y=1) and (x=1,y=2):
 
 ```
-{ArrowHeads:
+{ArrowHead:
 11 21
 11 12
 }
@@ -166,6 +170,21 @@ coordinates(x=1,y=1).
 
 If `frozen` is written before the first thermometer, cells along the thermometers must only have increasing but not
 strictly increasing values.
+
+### {Difficulty:}
+
+Use `Difficulty` to specify a cell that can have multiple values. The different values affect the difficulty of the
+sudoku for a human solver. Example:
+
+```
+{Difficulty:
+55 1 3
+}
+```
+
+The cell with coordinates (x=5, y=5) can have values in the range from `1` to `3` including `1` and `3`.<br>
+Using this constraint will cause multiple runs of the solver, trying all the possible difficulty values in the given
+range.
 
 ## Reference Solution
 
@@ -200,9 +219,10 @@ the solver faster.<br>
 | 0 |  Naive PBCs for sums, all possible combinations of the numbers 1 to 9 get encoded |
 | 1 |  Check if the targeted sum can even be achieved with a given number of cells before creating a PBC   |
 | 2 |  Only allow weights (values) in a PBC that can potentially be used to achive the targeted sum with a given number of cells  |
+| 3 |  Do not use PBCs, but Support clauses with knowledge from the Powerset of {1,...,9}.   |
 
-The different levels are based on each other, so `2` also fulfills `1`.<br>
-Currently this only has an effect on `SandwichSum`.
+The different levels are based on each other, so `2` also fulfills `1` (except `3`).<br>
+Currently this only has an effect on `SandwichSum` and `Killer`.
 
 ## PBC-Encoding
 

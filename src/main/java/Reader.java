@@ -11,7 +11,7 @@ public class Reader {
     public static HashMap<String, Constraint> read(String filename) throws FileNotFoundException {
         HashMap<String, Constraint> constraints = new HashMap<>();
         String basePath = System.getProperty("user.dir");
-        if(!Reader.class.getResource("Reader.class").toString().toLowerCase().contains(".jar")){
+        if (!Reader.class.getResource("Reader.class").toString().toLowerCase().contains(".jar")) {
             basePath = Paths.get(basePath, "src", "main", "data").toString();
         }
         File file = new File(Paths.get(basePath, filename).toString());
@@ -77,7 +77,7 @@ public class Reader {
             case "Sudoku":
                 return new Sudoku(data);
             case "Killer":
-                return new Killer(data);
+                return new Killer(optimized, data);
             case "AntiKnight":
                 return new AntiKnight();
             case "Grid":
@@ -88,6 +88,8 @@ public class Reader {
                 return new ArrowHead(data);
             case "Thermometer":
                 return new Thermometer(data);
+            case "Difficulty":
+                return new Difficulty(data);
             default:
                 System.out.println("Reader Error: unknown constraint \"" + type + "\".");
                 throw new IllegalArgumentException();

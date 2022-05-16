@@ -2,19 +2,28 @@ package main.java;
 
 import java.util.*;
 
-import static main.java.Environment.sumCombinations;
-import static main.java.Environment.toPBCArray;
+import static main.java.Environment.*;
 
 
 public class Killer extends Constraint {
 
+    int optimized;
+    /* 0 = Naive
+     * 2 = Prohibit cell values that can not be used for a sum.
+     * 3 = Do not use PBC, but Support clauses with knowledge from the Powerset.
+     * */
 
     public Killer(String data) {
         super(data);
+        this.optimized = 0;
     }
 
-    // Implementation of PB-Encoding encoding---------------------------------------------------------------------------
+    public Killer(int optimized, String data) {
+        super(data);
+        this.optimized = optimized;
+    }
 
+    @Override
     public ClauseSet createClauses() {
         return createClauses(parseGroups());
     }
@@ -27,14 +36,28 @@ public class Killer extends Constraint {
 
     private ClauseSet createClauses(ArrayList<Integer>[] groups) {
         ClauseSet clauses = new ClauseSet();
-        PBC[] pbcs = toPBCArray(groups);
-        for (PBC pbc : pbcs) {
-            clauses.addAll(Environment.toClauses(pbc, 0));
+        if (optimized == 3) {
+            clauses.addAll(createLessClauses(groups));
+        } else if (optimized == 2) {
+            for (ArrayList<Integer> group : groups) {
+                ArrayList<Integer> allowedVAlues = getAllowedValues(group.get(0), (group.size() - 1) / 2);
+                PBC pbc = toPBC(group, allowedVAlues);
+                clauses.addAll(Environment.toClauses(pbc, 0));
+            }
+        } else {
+            PBC[] pbcs = toPBCArray(groups);
+            for (PBC pbc : pbcs) {
+                clauses.addAll(Environment.toClauses(pbc, 0));
+            }
         }
         return clauses;
     }
 
-
+    /**
+     * Reads and parses the given group data and returns the groups as an Array of Integer ArrayLists. The first element
+     * of each ArrayList is the value that the cells of the corresponding group should sum up to, then the group's cell
+     * coordinates follow (alternating x and y).
+     */
     public ArrayList<Integer>[] parseGroups() {
         try {
             Scanner scanner = new Scanner(data);
@@ -65,13 +88,9 @@ public class Killer extends Constraint {
         return null;
     }
 
-    // Implementation of Intuitive encoding-----------------------------------------------------------------------------
-
-
-    public ClauseSet createLessClauses() {
-        return createLessClauses(parseGroups());
-    }
-
+    /**
+     * Creates clauses for Killer Sudoku without the use of PBC.
+     */
     public static ClauseSet createLessClauses(ArrayList<Integer>[] groups) {
         ClauseSet clauses = new ClauseSet();
         clauses.addAll(oncePerGroupClauses(groups));
@@ -79,7 +98,12 @@ public class Killer extends Constraint {
         return clauses;
     }
 
-
+    /**
+     * Creates clauses to ensure each value can only be present at most once per group.
+     *
+     * @param groups The first element of each group is the value that the cells should sum up to, then the group's cell
+     *               coordinates follow (alternating x and y).
+     */
     private static ClauseSet oncePerGroupClauses(ArrayList<Integer>[] groups) {
         ClauseSet clauses = new ClauseSet();
         for (ArrayList<Integer> group : groups) {
@@ -100,6 +124,21 @@ public class Killer extends Constraint {
         return clauses;
     }
 
+    /**
+     * Creates clauses to ensure that for all groups in each group cell there is a fitting number.
+     * This is done using knowledge from the powerset of {1,..,9} to check which values are even possible within a group
+     * with given size and sum and in what combinations they are allowed.
+     * <p>
+     * Support clauses are created with the idea that either a certain number combination (that has the required sum) is
+     * not present or each group cell must have value from it.
+     * <p>
+     * At-most clauses are created, because only one number combination can be present per group.
+     * <p>
+     * One At-least clauses is created, because one number combination per group must be present.
+     *
+     * @param groups The first element of each group is the value that the cells should sum up to, then the group's cell
+     *               coordinates follow (alternating x and y).
+     */
     private static ClauseSet atLeastOneFittingNumberPerGroupEntry(ArrayList<Integer>[] groups) {
         ClauseSet clauses = new ClauseSet();
         for (ArrayList<Integer> group : groups) {
@@ -138,5 +177,33 @@ public class Killer extends Constraint {
             clauses.add(new Clause(comLiterals));
         }
         return clauses;
+    }
+
+
+    /**
+     * @param group            The first element of group is the value that the cells should sum up to, then the group's
+     *                         cell coordinates follow (alternating x and y).
+     * @param allowedValuesSet set of values that are allowed in the group cells.
+     * @return a PBC created from the given group only containing the allowed values.
+     */
+    private static PBC toPBC(ArrayList<Integer> group, ArrayList<Integer>... allowedValuesSet) {
+        ArrayList<Integer> allowedValues;
+        if (allowedValuesSet.length < 1) {
+            allowedValues = new ArrayList<>();
+            allowedValues.addAll(List.of(Environment.numbers));
+        } else {
+            allowedValues = allowedValuesSet[0];
+        }
+        Collections.sort(allowedValues);
+        int nCells = (group.size() - 1) / 2;
+        int[] vars = new int[nCells * allowedValues.size()];
+        int[] weights = new int[vars.length];
+        for (int i = 0; i < allowedValues.size(); i++) {
+            for (int j = 0; j < nCells; j++) {
+                weights[i * nCells + j] = allowedValues.get(i);
+                vars[i * nCells + j] = 100 * group.get(j * 2 + 1) + 10 * group.get(j * 2 + 2) + allowedValues.get(i);
+            }
+        }
+        return new PBC(vars, weights, group.get(0));
     }
 }

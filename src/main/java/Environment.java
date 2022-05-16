@@ -179,4 +179,16 @@ public class Environment {
         }
         return new PBC(vars, weights, rhs);
     }
+
+    public static ArrayList<Integer> getAllowedValues(int sum, int l){
+        ArrayList<ArrayList<Integer>> combiList = sumCombinations[l].get(sum);
+        HashSet<Integer> allowedValues = new HashSet<>();
+
+        for (ArrayList<Integer> combi : combiList) {
+            for (Integer i : combi) {
+                allowedValues.add(i);
+            }
+        }
+        return new ArrayList<>(allowedValues);
+    }
 }

@@ -90,6 +90,8 @@ public class Reader {
                 return new Thermometer(data);
             case "Difficulty":
                 return new Difficulty(data);
+            case "ThermometersHidden":
+                return new ThermometersHidden(data);
             default:
                 System.out.println("Reader Error: unknown constraint \"" + type + "\".");
                 throw new IllegalArgumentException();

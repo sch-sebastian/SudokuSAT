@@ -11,7 +11,9 @@ public class Environment {
 
     public static int[][] solution;
 
-    private static int varCounter = 1002;
+    // Sudoku gris needs 111 to 999
+    // ThermometersHidden needs 11111 to 91999
+    private static int varCounter = 100000;
     public static int FALSE = 1000;
     public static int TRUE = 1001;
     public static Integer[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};

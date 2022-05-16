@@ -74,7 +74,7 @@ public class ArrowHead extends Constraint {
         return indices;
     }
 
-    public static ClauseSet createAsmallerB(int aX, int aY, int bX, int bY) {
+    public static ClauseSet createAsmallerB(int aX, int aY, int bX, int bY, int... eqVar) {
         ClauseSet clauses = new ClauseSet();
 
         if (useSupport) {
@@ -96,6 +96,9 @@ public class ArrowHead extends Constraint {
                     clauses.add(new Clause(-(100 * aX + 10 * aY + i), -(100 * bX + 10 * bY + j)));
                 }
             }
+        }
+        if(eqVar.length>0){
+            clauses.addVarToAll(-eqVar[0]);
         }
         return clauses;
     }

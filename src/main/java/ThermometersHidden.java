@@ -102,7 +102,7 @@ public class ThermometersHidden extends Constraint {
                             //This grid cell is a certain thermofield iff certain other cell is a certain thermofield.
                             clauses.add(new Clause(-(1000 * (t + 10) + 100 * d + 10 * xT + yT), (1000 * (t + 10) + 100 * (d + 1) + 10 * xTnext + yTnext)));
                             clauses.add(new Clause((1000 * (t + 10) + 100 * d + 10 * xT + yT), -(1000 * (t + 10) + 100 * (d + 1) + 10 * xTnext + yTnext)));
-                            //This grid cell must be smaller then certain other grid cell, or this gridcell is not certain thermofield.
+                            //This grid cell must be smaller than certain other grid cell, or this grid cell is not certain thermofield.
                             clauses.addAll(ArrowHead.createAsmallerB(xT, yT, xTnext, yTnext, (1000 * (t + 10) + 100 * d + 10 * xT + yT)));
                             xT = xTnext;
                             yT = yTnext;

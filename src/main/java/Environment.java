@@ -11,7 +11,7 @@ public class Environment {
 
     public static int[][] solution;
 
-    // Sudoku gris needs 111 to 999
+    // Sudoku grid needs 111 to 999
     // ThermometersHidden needs 11111 to 91999
     private static int varCounter = 100000;
     public static int FALSE = 1000;

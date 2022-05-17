@@ -171,6 +171,40 @@ coordinates(x=1,y=1).
 If `frozen` is written before the first thermometer, cells along the thermometers must only have increasing but not
 strictly increasing values.
 
+### {ThermometersHidden:}
+
+Use `ThermometersHidden` to specify the shape of hidden thermometers that must be positioned inside the sudoku grid.
+Thermometers are not allowed to overlap and can not be frozen. A `0` marks the beginning of
+a new thermometer's shape, then the directions follow (starting from the bulb).
+The directions are encoded with:
+```  
+      1
+      
+      A
+      |
+4  <-- -->  2
+      |
+      V
+      
+      3
+```
+In the following Example, a thermometer of length 4 is specified:
+```
+{ThermometersHidden:
+0 1 4 1
+}
+```
+This thermometer has  shape:
+```
+-----
+| I |
+---------
+| I | I |
+---------
+    | O |
+    -----
+```
+
 ### {Difficulty:}
 
 Use `Difficulty` to specify a cell that can have multiple values. The different values affect the difficulty of the

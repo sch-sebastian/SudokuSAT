@@ -1,6 +1,7 @@
 package main.java;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class Tuple<T> {
     private T[] data;
@@ -15,5 +16,18 @@ public class Tuple<T> {
 
     public T get(int i){
         return data[i];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tuple<?> tuple = (Tuple<?>) o;
+        return Arrays.equals(data, tuple.data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(data);
     }
 }

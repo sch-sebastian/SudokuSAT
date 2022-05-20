@@ -94,6 +94,8 @@ public class Reader {
                 return new ThermometersHidden(data);
             case "SecretDirection":
                 return new SecretDirection(data);
+            case "Tower":
+                return new Tower(optimized, data);
             default:
                 System.out.println("Reader Error: unknown constraint \"" + type + "\".");
                 throw new IllegalArgumentException();

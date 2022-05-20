@@ -6,11 +6,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.HashSet;
 
 public class SudokuExampleTest {
 
     @Test
     void Examples(){
+        HashSet<String> ignore = new HashSet<>();
+        //ignore.add("");
         File dir = new File(Paths.get("src", "main", "data").toString());
         File[] files = dir.listFiles();
         for(File file: files){
@@ -18,7 +21,7 @@ public class SudokuExampleTest {
                 continue;
             }
             String name = file.getName();
-            if(!name.endsWith(".sdq")){
+            if(!name.endsWith(".sdq") || ignore.contains(name)){
                 continue;
             }
             String[] args = {name, "MiniSat"};

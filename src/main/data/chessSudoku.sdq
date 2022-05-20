@@ -45,7 +45,8 @@
 {Sudoku:}
 {C:
 
-One Solution:
+TODO: Check constraint implementation again
+One Possible Solution:
 3 2 1 6 5 8 9 4 7
 4 5 7 1 3 9 8 6 2
 6 9 8 7 2 4 1 3 5

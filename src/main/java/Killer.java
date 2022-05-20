@@ -34,7 +34,7 @@ public class Killer extends Constraint {
     }
 
 
-    private ClauseSet createClauses(ArrayList<Integer>[] groups) {
+    public ClauseSet createClauses(ArrayList<Integer>[] groups) {
         ClauseSet clauses = new ClauseSet();
         if (optimized == 3) {
             clauses.addAll(createLessClauses(groups));

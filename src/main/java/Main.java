@@ -1,6 +1,7 @@
 package main.java;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static main.java.Environment.check;
@@ -53,6 +54,7 @@ public class Main {
             boolean satisfiable = Solver.run(solName);
             System.out.println("Duration: " + (System.currentTimeMillis() - start) + "ms");
             if (satisfiable) {
+                System.out.println("Satisfiable !");
                 int[][] model = modelToArray();
                 System.out.println("------------------------------------------");
                 System.out.println("Starting Checks...");
@@ -66,10 +68,22 @@ public class Main {
                     Environment.printSolution(model);
                     exitCode = 20;
                 }
+                if (args.length > 2 && args[2].equals("true")) {
+                    boolean unique = checkUnique(clauses, solName);
+                    System.out.println("------------------------------------------");
+                    System.out.println("Unique Solution: " + unique);
+                    if(!unique){
+                        System.out.println("Alternative Model:");
+                        int[][] alternative = modelToArray();
+                        Environment.printSolution(alternative);
+                    }
+                }
             } else {
+                System.out.println("Unsatisfiable !");
                 exitCode = 10;
             }
             System.out.println("------------------------------------------");
+
         } catch (IOException e) {
             e.printStackTrace();
             exitCode = 30;
@@ -84,6 +98,7 @@ public class Main {
          * 40:  missing parameter
          * */
     }
+
 
     public static int runDifficulties(HashMap<String, Constraint> constraints, String solName) {
         int exitCode = 0;
@@ -136,5 +151,29 @@ public class Main {
             exitCode = 30;
         }
         return exitCode;
+    }
+
+    private static boolean checkUnique(ClauseSet clauses, String solName) throws IOException {
+        clauses.addAll(notKnownSolution());
+        Environment.writeDIMACS(clauses);
+        boolean satisfiable = Solver.run(solName);
+        if (satisfiable) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    static ClauseSet notKnownSolution() throws FileNotFoundException {
+        int[][] model = Environment.modelToArray();
+        ClauseSet clauses = new ClauseSet();
+        ArrayList literals = new ArrayList();
+        for (int y = 1; y <= 9; y++) {
+            for (int x = 1; x <= 9; x++) {
+                literals.add(-(100 * x + 10 * y + model[x - 1][y - 1]));
+            }
+        }
+        clauses.add(new Clause(literals));
+        return clauses;
     }
 }

@@ -61,12 +61,9 @@ public class Solver {
             IProblem problem = reader.parseInstance("input.tmp");
             if (problem.isSatisfiable()) {
                 satisfiable = true;
-                System.out.println("Satisfiable !");
                 reader.decode(problem.model(), out);
                 out.flush();
                 out.close();
-            } else {
-                System.out.println("Unsatisfiable !");
             }
         } catch (ParseFormatException | IOException e) {
             // TODO Auto-generated catch block

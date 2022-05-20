@@ -174,9 +174,9 @@ strictly increasing values.
 ### {ThermometersHidden:}
 
 Use `ThermometersHidden` to specify the shape of hidden thermometers that must be positioned inside the sudoku grid.
-Thermometers are not allowed to overlap and can not be frozen. A `0` marks the beginning of
-a new thermometer's shape, then the directions follow (starting from the bulb).
-The directions are encoded with:
+Thermometers are not allowed to overlap and can not be frozen. A `0` marks the beginning of a new thermometer's shape,
+then the directions follow (starting from the bulb). The directions are encoded with:
+
 ```  
       1
       
@@ -188,13 +188,17 @@ The directions are encoded with:
       
       3
 ```
+
 In the following Example, a thermometer of length 4 is specified:
+
 ```
 {ThermometersHidden:
 0 1 4 1
 }
 ```
-This thermometer has  shape:
+
+This thermometer has shape:
+
 ```
 -----
 | I |
@@ -204,6 +208,19 @@ This thermometer has  shape:
     | O |
     -----
 ```
+
+### {SecretDirection:}
+
+Use `SecretDirection` to specify the start cell and its value of the secret path that leads to the treasure.
+
+```
+{SecretDirection:
+55 2
+}
+```
+
+In this example the path starts at the cell with coordinates (x=5, y=5) and this cell has a value of 2 from which it
+follows that the first step has length 2.
 
 ### {Difficulty:}
 

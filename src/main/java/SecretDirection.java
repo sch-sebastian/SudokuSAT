@@ -46,6 +46,7 @@ public class SecretDirection extends Constraint {
         clauses.addAll(atMostOnceInPath());
         clauses.addAll(atMostOneCellPerDepth());
         clauses.addAll(nineInPathIsCenter());
+        clauses.addAll(notAroundCenter9());
         clauses.addAll(pathImplications(origin[0], origin[1]));
         return clauses;
     }
@@ -217,6 +218,25 @@ public class SecretDirection extends Constraint {
                 for (int k = x + 3; k <= 8; k = k + 3) {
                     for (int l = 2; l <= 8; l = l + 3) {
                         clauses.add(new Clause(-(100 * x + 10 * y + 9), -(100 * k + 10 * l + 9)));
+                    }
+                }
+            }
+        }
+        return clauses;
+    }
+
+    ClauseSet notAroundCenter9() {
+        ClauseSet clauses = new ClauseSet();
+        for (int y = 2; y <= 8; y = y + 3) {
+            for (int x = 2; x <= 8; x = x + 3) {
+                for (int yOff = -1; yOff <= 1; yOff++) {
+                    for (int xOff = -1; xOff <= 1; xOff++) {
+                        if (yOff == 0 && xOff == 0) {
+                            continue;
+                        }
+                        for (int d = 0; d <= 64; d++) {
+                            clauses.add(new Clause(-(100 * x + 10 * y + 9), -(10000 + 1000 * (x + xOff) + 100 * (y + yOff) + d)));
+                        }
                     }
                 }
             }

@@ -38,8 +38,6 @@ public class SecretDirection extends Constraint {
     ClauseSet createClauses(int[] origin) {
         ClauseSet clauses = new ClauseSet();
         clauses.add(new Clause(100 * origin[0] + 10 * origin[1] + origin[2])); //Set origin value
-        clauses.add(new Clause(1000 + 10 * origin[0] + origin[1])); //Set origin as path
-        //TODO:check if one above is needed.
         clauses.addAll(atLeastOneCenter9());
         clauses.addAll(atMostOneCenter9());
         clauses.addAll(center9IsPath());

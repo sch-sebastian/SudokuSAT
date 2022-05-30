@@ -96,6 +96,8 @@ public class Reader {
                 return new SecretDirection(data);
             case "Tower":
                 return new Tower(optimized, data);
+            case "Nurikabe":
+                return new Nurikabe(optimized, data);
             default:
                 System.out.println("Reader Error: unknown constraint \"" + type + "\".");
                 throw new IllegalArgumentException();

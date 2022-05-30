@@ -11,17 +11,17 @@ import java.util.HashSet;
 public class SudokuExampleTest {
 
     @Test
-    void Examples(){
+    void Examples() {
         HashSet<String> ignore = new HashSet<>();
-        //ignore.add("");
+        ignore.add("nurikabeSudoku.sdq");
         File dir = new File(Paths.get("src", "main", "data").toString());
         File[] files = dir.listFiles();
-        for(File file: files){
-            if(!file.isFile()){
+        for (File file : files) {
+            if (!file.isFile()) {
                 continue;
             }
             String name = file.getName();
-            if(!name.endsWith(".sdq") || ignore.contains(name)){
+            if (!name.endsWith(".sdq") || ignore.contains(name)) {
                 continue;
             }
             String[] args = {name, "MiniSat"};

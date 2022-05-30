@@ -145,9 +145,10 @@ public class Killer extends Constraint {
             int numCells = (group.size() - 1) / 2;
             int sum = group.get(0);
             ArrayList<ArrayList<Integer>> combis = sumCombinations[numCells].get(sum);
-            int yStart = Environment.getVC();
+            ArrayList<Integer> comLiterals = new ArrayList<>();
             for (ArrayList<Integer> combi : combis) {
                 int comNum = Environment.getVC();
+                comLiterals.add(comNum);
                 Environment.incVC();
                 for (int g = 1; g < group.size() - 1; g = g + 2) {
                     int x = group.get(g);
@@ -163,15 +164,10 @@ public class Killer extends Constraint {
                 }
             }
             //Clauses: at most one combination is true
-            ArrayList<Integer> comLiterals = new ArrayList<>();
-            for (int a = yStart; a < Environment.getVC() - 1; a++) {
-                comLiterals.add(a);
-                for (int b = a + 1; b < Environment.getVC(); b++) {
-                    clauses.add(new Clause(-a, -b));
+            for (int a = 0; a < comLiterals.size() - 1; a++) {
+                for (int b = a + 1; b < comLiterals.size(); b++) {
+                    clauses.add(new Clause(-comLiterals.get(a), -comLiterals.get(b)));
                 }
-            }
-            if (yStart < Environment.getVC()) {
-                comLiterals.add(Environment.getVC() - 1);
             }
             //Clause: at least one combination is true
             clauses.add(new Clause(comLiterals));

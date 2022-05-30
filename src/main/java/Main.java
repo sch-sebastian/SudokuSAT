@@ -4,8 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static main.java.Environment.check;
-import static main.java.Environment.modelToArray;
+import static main.java.Environment.*;
 
 public class Main {
 
@@ -26,6 +25,11 @@ public class Main {
         if (args.length > 1) {
             solName = args[1];
         }
+        boolean checkUnique = false;
+        if (args.length > 2 && args[2].equals("true")) {
+            checkUnique = true;
+        }
+
         System.out.println("Task: " + args[0]);
         System.out.println("------------------------------------------");
         System.out.println("Starting Encoding...");
@@ -47,6 +51,9 @@ public class Main {
             System.out.println("Total: " + clauses.size() + " clauses and " + clauses.vars.size() + " variables.");
 
             Environment.writeDIMACS(clauses);
+            if (!checkUnique) {
+                clauses = null;
+            }
             System.out.println("Duration: " + (System.currentTimeMillis() - encodingStart) + "ms");
             System.out.println("------------------------------------------");
             System.out.println("Starting Solver " + solName + "...");
@@ -68,11 +75,14 @@ public class Main {
                     Environment.printSolution(model);
                     exitCode = 20;
                 }
-                if (args.length > 2 && args[2].equals("true")) {
+                if (constraints.containsKey("Nurikabe")) {
+                    printIsland();
+                }
+                if (checkUnique) {
                     boolean unique = checkUnique(clauses, solName);
                     System.out.println("------------------------------------------");
                     System.out.println("Unique Solution: " + unique);
-                    if(!unique){
+                    if (!unique) {
                         System.out.println("Alternative Model:");
                         int[][] alternative = modelToArray();
                         Environment.printSolution(alternative);

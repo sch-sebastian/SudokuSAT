@@ -1,83 +1,61 @@
 % !TEX root = ../Thesis.tex
-\chapter{Body of the Thesis}
+%\theoremstyle{definition}
+\newtheorem{definition}{Definition}
 
-This is the body of the thesis.
-
-\section{Structure}
-\label{sec:my-label}
-
-\subsection{Sub-Section}
-
-\subsubsection{Sub-Sub-Section}
-
-\paragraph{Paragraph}
-
-\subparagraph{Even Sub-Paragraph}
-
-This is the body text. Make sure that when you reference anything you use labels and references. When you refer to anything, you normally capitalise the type of object you reference to, e.g. Section~\ref{sec:my-label} instead of section~\ref{sec:my-label}. You may also just use the \texttt{cref} command and it will generate the label, e.g., for \cref{sec:my-label}, we did not specify the word ``Section''.
-
-Hint: Try to structure your labels as it is done with \texttt{sec:my-label} and \texttt{fig:machine}, etc.
+%\renewcommand{\thethm}{\arabic{thm}}% Remove subsection from theorem counter representation
 
 
+\chapter{Background}
+Before we explain different Sudoku Variants and how they can be encoded so that a computer can solve them, we first want to give some background knowledge and definitions needed to understand the tools and formalisms that are used to achieve such an encoding.
 
-\section{Equations}
-A Turing Machine is a 7-Tuple:
-\begin{equation}
-    M = \langle Q, \Gamma, b, \Sigma, \delta, q_0, F \rangle
-\end{equation}
-A Turing Machine is a 7-Tuple even if defined in the text, as in $M = \langle Q, \Gamma, b, \Sigma, \delta, q_0, F \rangle$.
+\section{Propositional Logic}
 
-
+\paragraph{Atoms}
+(also called \emph{Atomic Propositions} or \emph{Literals}) are the smallest units used in Propositional Logic, and must have a truth value of true or false.
 
 
-\section{Tables}
-Some tables can also be used as shown in \cref{tab:table}\footnote{Table captions are normally above the table.}. Remember that tables might be positioned elsewhere in the document. You can force positioning by putting a \texttt{ht!} in the definition.
+\paragraph{Formulas} are compositions of one or multiple \emph{Atoms} and can be defined recursively:\\
+Every \emph{Atom} is also a \emph{Formula}.
+If $\varphi$ is a \emph{Formula}, then so is its negation $\neg\varphi$.
+If $\varphi$ and $\psi$ are \emph{Formulas}, then so is the conjunction $\varphi \land \psi$.
+If $\varphi$ and $\psi$ are \emph{Formulas}, then so is the disjunction $\varphi \lor \psi$.
 
-\begin{table}[ht!]
-\centering
-\caption{Frequency of Paper Citations. By the way: Make sure to put the label always after the caption, otherwise \LaTeX{} might reference wrongly!}
-\begin{tabular}{lcl} \toprule
-Title&$f$&Comments\\ \midrule
-The chemical basis of morphogenesis & 7327 & \\ 
-On computable numbers, with an application to the ... & 6347 & Turing Machine\\
-Computing machinery and intelligence & 6130 & \\ \bottomrule
+
+\paragraph{Interpretations} or truth assignments, are functions that assigns truth values to \emph{Atoms} $\mathcal{I}: A \rightarrow \{0,1\}$. A \emph{Formula} $\varphi$ holds (is true) under an \emph{Interpretation} $\mathcal{I}$ (written $\mathcal{I} \models \varphi$) following the semantical rules:
+\begin{center}
+    \begin{tabular}{ l l l }
+    $\mathcal{I} \models a$ & iff & $\mathcal{I}(a) = 1$\\
+    $\mathcal{I} \models \neg a$ & iff & not $\mathcal{I} \models a$\\
+    $\mathcal{I} \models (\varphi \land \psi)$ & iff & $\mathcal{I} \models \varphi$ and $\mathcal{I} \models \psi$\\
+    $\mathcal{I} \models (\varphi \lor \psi)$ & iff & $\mathcal{I} \models \varphi$ or $\mathcal{I} \models \psi$\\
 \end{tabular}
-\label{tab:table}
-\end{table}
+\end{center}
 
+An \emph{Interpretation} for which a formula $\varphi$ hold is called a \textbf{Model} of $\varphi$.
 
+\paragraph{Equivalence}
+Two \emph{Formulas} $\varphi$ and $\psi$ are \emph {logically equivalent} ($\varphi \equiv \psi$) if it holds for all \emph{Interpretations} $\mathcal{I}$ that, $\varphi$ holds under $\mathcal{I}$ if and only if $\psi$ holds under $\mathcal{I}$.
 
+\paragraph{Implication / Biconditional}
+As one might have noticed, \emph{Implication} ($\rightarrow$) and \emph{Biconditional} ($\leftrightarrow$) have not been mentioned in the definition of \emph{Formulas} as they are abbreviations for more extended \emph{Formulas} that use $\lor$, $\land$ and $\neg$.
+\begin{center}
+\begin{tabular}{ l l l }
+    $(\varphi \rightarrow \psi)$ & $\equiv$ & $(\neg\varphi \lor \psi)$\\
+    $(\varphi \leftrightarrow \psi)$ & $\equiv$ & $(\neg\varphi \lor \psi) \land (\neg\psi \lor \varphi)$\\
+\end{tabular}
+\end{center}
 
-\section{Figures}
-Figures are nice to show concepts visually. For organising well your thesis, put all figures in the Figures folder. Figure~\ref{fig:machine} shows how to insert an image into your document. \Cref{fig:tm} references a figure with multiple sub-figures, whereas the sub-figures are referenced by \cref{fig:tm:tm1}, etc. \todoMissing{Description of figure.}
+\paragraph{Clause}
+A \emph{Clause} is a disjunction of \emph{Atoms}. A \emph{Formula} that is a \emph{Clause} becomes true for \emph{Interpretation} $\mathcal{I}$ if one of its \emph{Atoms} gets assigned to true.
 
-\begin{figure}
-\centering
-\includegraphics[width=0.9\textwidth]{turingmachine}
-\caption{A Turing machine.}
-\label{fig:machine}
-\end{figure}
-
-
-\begin{figure}
-\centering
-\subbottom[Turing Machine 1\label{fig:tm:tm1}]{\includegraphics[width=0.2\textwidth]{block}}
-\subbottom[Turing Machine 2\label{fig:tm:tm2}]{\includegraphics[width=0.2\textwidth]{block}}
-\subbottom[Turing Machine 3\label{fig:tm:tm3}]{\includegraphics[width=0.2\textwidth]{block}}
-\subbottom[Turing Machine 4\label{fig:tm:tm4}]{\includegraphics[width=0.2\textwidth]{block}}
-\caption{Plots of four Turing machines}
-\label{fig:tm}
-\end{figure}
-
-
-
-
-\section{Packages}
-These packages might be helpful for writing your thesis:
-
-\begin{description}
-	\item[\texttt{caption}] to adjust the look of your captions
-	\item[\texttt{glossaries}] for creating glossaries (also list of symbols)
-	\item[\texttt{makeidx}] for indexes and the back of your document
-	\item[\texttt{algorithm, algorithmicx, algpseudocode}] for adding algorithms to your document
-\end{description}
+\paragraph{Conjunctive Normal Form}
+A \emph{Formula} is said to be in \emph{Conjunctive Normal Form} (CNF) if it is a conjunction of disjunctions of \emph{Atoms}. 
+By example given the \emph{Atoms} \emph{a}, \emph{b}, \emph{c} and \emph{d} the \emph{Formulas} $\varphi$, $\psi$ and $\varrho$ are in CNF:
+\begin{center}
+    \begin{tabular}{ l l l }
+    $\varphi$ & $\equiv$ & $(a)$\\
+    $\psi$ & $\equiv$ & $(a \land b)$\\
+    $\varrho$ & $\equiv$ & $((a \lor b) \land (c \lor d))$\\
+\end{tabular}
+\end{center}
+Also, it holds that every formula can be brought into CNF \cite{ArtificialAModernApproach}.\todo{other reference?}

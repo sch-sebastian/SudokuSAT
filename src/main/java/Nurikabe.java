@@ -51,18 +51,20 @@ public class Nurikabe extends Constraint {
 
     ClauseSet noRepetitionInIsland() {
         ClauseSet clauses = new ClauseSet();
-        for (int n = 1; n <= 27; n++) {
+        for (int n = 1; n <= 14; n++) {
             for (int y = 1; y <= 9; y++) {
                 for (int x = 1; x <= 9; x++) {
                     for (int z = 1; z <= 9; z++) {
-/*                        for (int k = y + 1; k <= 9; k++) {
+                        for (int k = y + 1; k <= 9; k++) {
                             clauses.add(new Clause(-(island + 100 * n + 10 * x + y), -(island + 100 * n + 10 * x + k), -(100 * x + 10 * y + z), -(100 * x + 10 * k + z)));
-                        }*/
+                            //This is not needed if normal sudoku rules apply
+                        }
                         for (int k = x + 1; k <= 9; k++) {
                             for (int l = 1; l <= 9; l++) {
-                                if (l == y) {
+                                /*if (l == y) {
                                     continue;
-                                }
+                                    //Only allowed if normal sudoku rules apply
+                                }*/
                                 clauses.add(new Clause(-(island + 100 * n + 10 * x + y), -(island + 100 * n + 10 * k + l), -(100 * x + 10 * y + z), -(100 * k + 10 * l + z)));
                             }
                         }
@@ -77,8 +79,8 @@ public class Nurikabe extends Constraint {
         ClauseSet clauses = new ClauseSet();
         for (int y = 1; y <= 9; y++) {
             for (int x = 1; x <= 9; x++) {
-                for (int n = 1; n <= 27; n++) {
-                    for (int k = 1; k <= 27; k++) {
+                for (int n = 1; n <= 14; n++) {
+                    for (int k = 1; k <= 14; k++) {
                         if (k == n) {
                             continue;
                         }
@@ -100,7 +102,7 @@ public class Nurikabe extends Constraint {
         ClauseSet clauses = new ClauseSet();
         for (int y = 1; y <= 9; y++) {
             for (int x = 1; x <= 9; x++) {
-                for (int n = 1; n <= 27; n++) {
+                for (int n = 1; n <= 14; n++) {
                     ArrayList<Integer> literals = new ArrayList<>();
                     literals.add(-(island + 100 * n + 10 * x + y));
                     for (int d = 1; d <= 18; d++) {
@@ -248,10 +250,10 @@ public class Nurikabe extends Constraint {
                 int oceanXY = ocean + 10 * x + y;
                 ArrayList<Integer> literals = new ArrayList<>();
                 literals.add(oceanXY);
-                for (int n = 1; n <= 27; n++) {
+                for (int n = 1; n <= 14; n++) {
                     literals.add(island + 100 * n + 10 * x + y);
                     clauses.add(new Clause(-oceanXY, -(island + 100 * n + 10 * x + y))); //ocean --> not island
-                    for (int k = n + 1; k <= 27; k++) {
+                    for (int k = n + 1; k <= 14; k++) {
                         clauses.add(new Clause(-(island + 100 * n + 10 * x + y), -(island + 100 * k + 10 * x + y)));
                         //At most one island per cell
                     }
@@ -331,7 +333,7 @@ public class Nurikabe extends Constraint {
 
     ClauseSet islandContinuation() {
         ClauseSet clauses = new ClauseSet();
-        for (int n = 1; n <= 27; n++) {
+        for (int n = 1; n <= 14; n++) {
             for (int y = 1; y <= 9; y++) {
                 for (int x = 1; x <= 9; x++) {
                     clauses.add(new Clause(-(island + 100 * n + 10 * x + y), (walk + 1000000 * 1 + 10000 * n + 1000 * x + 100 * y + 10 * x + y)));
@@ -369,7 +371,7 @@ public class Nurikabe extends Constraint {
 
     ClauseSet islandCellInOneWalkLayerPerSource() {
         ClauseSet clauses = new ClauseSet();
-        for (int n = 1; n <= 27; n++) {
+        for (int n = 1; n <=14; n++) {
             for (int y = 1; y <= 9; y++) {
                 for (int x = 1; x <= 9; x++) {
                     for (int yS = 1; yS <= 9; yS++) {

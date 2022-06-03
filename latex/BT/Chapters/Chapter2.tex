@@ -1,9 +1,4 @@
 % !TEX root = ../Thesis.tex
-%\theoremstyle{definition}
-\newtheorem{definition}{Definition}
-
-%\renewcommand{\thethm}{\arabic{thm}}% Remove subsection from theorem counter representation
-
 
 \chapter{Background}
 Before we explain different Sudoku Variants and how they can be encoded so that a computer can solve them, we first want to give some background knowledge and definitions needed to understand the tools and formalisms that are used to achieve such an encoding.
@@ -11,33 +6,37 @@ Before we explain different Sudoku Variants and how they can be encoded so that 
 \section{Propositional Logic}
 
 \paragraph{Atoms}
-(also called \emph{Atomic Propositions} or \emph{Literals}) are the smallest units used in Propositional Logic, and must have a truth value of true or false.
+(also called \emph{atomic propositions}) are the smallest units used in propositional logic, and must have a truth value of true or false.
+
+\paragraph{Literals}
+are atoms or their negation, so if $x_1$ is an \emph{atom}, then $x_1$ and $\neg x_1$ are \emph{literals}. Literals are said to be \emph{positive} or \emph{negative} respectively.
 
 
-\paragraph{Formulas} are compositions of one or multiple \emph{Atoms} and can be defined recursively:\\
-Every \emph{Atom} is also a \emph{Formula}.
-If $\varphi$ is a \emph{Formula}, then so is its negation $\neg\varphi$.
-If $\varphi$ and $\psi$ are \emph{Formulas}, then so is the conjunction $\varphi \land \psi$.
-If $\varphi$ and $\psi$ are \emph{Formulas}, then so is the disjunction $\varphi \lor \psi$.
+\paragraph{Formulas} are compositions of one or multiple \emph{atoms} and can be defined recursively:\\
+Every \emph{atom} is also a \emph{formula}.
+If $\varphi$ is a \emph{formula}, then so is its negation $\neg\varphi$.
+If $\varphi$ and $\psi$ are \emph{formulas}, then so is the conjunction $\varphi \land \psi$.
+If $\varphi$ and $\psi$ are \emph{formulas}, then so is the disjunction $\varphi \lor \psi$.
 
 
-\paragraph{Interpretations} or truth assignments, are functions that assigns truth values to \emph{Atoms} $\mathcal{I}: A \rightarrow \{0,1\}$. A \emph{Formula} $\varphi$ holds (is true) under an \emph{Interpretation} $\mathcal{I}$ (written $\mathcal{I} \models \varphi$) following the semantical rules:
+\paragraph{Interpretations} (also called truth assignments) are functions that assigns truth values to a set $A$ of \emph{atoms} $\mathcal{I}: A \rightarrow \{0,1\}$. A \emph{formula} $\varphi$ over $A$ holds (is true) under an \emph{interpretation} $\mathcal{I}$ (written $\mathcal{I} \models \varphi$) following the semantical rules:
 \begin{center}
     \begin{tabular}{ l l l }
-    $\mathcal{I} \models a$ & iff & $\mathcal{I}(a) = 1$\\
-    $\mathcal{I} \models \neg a$ & iff & not $\mathcal{I} \models a$\\
-    $\mathcal{I} \models (\varphi \land \psi)$ & iff & $\mathcal{I} \models \varphi$ and $\mathcal{I} \models \psi$\\
-    $\mathcal{I} \models (\varphi \lor \psi)$ & iff & $\mathcal{I} \models \varphi$ or $\mathcal{I} \models \psi$\\
-\end{tabular}
+    $\mathcal{I} \models x_1$ & iff & $\mathcal{I}(x_1) = 1$\\
+    $\mathcal{I} \models \neg x_1$ & iff & not $\mathcal{I} \models x_1$\\
+    $\mathcal{I} \models (\psi \land \varrho)$ & iff & $\mathcal{I} \models \psi$ and $\mathcal{I} \models \varrho$\\
+    $\mathcal{I} \models (\psi \lor \varrho)$ & iff & $\mathcal{I} \models \psi$ or $\mathcal{I} \models \varrho$\\
+\end{tabular}\\
+Where $\psi$ and  $\varrho$ are \emph{formulas} and $x_1$ is an \emph{atom}.
 \end{center}
 
-An \emph{Interpretation} for which a formula $\varphi$ hold is called a \textbf{Model} of $\varphi$.
+An \emph{Interpretation} for which a \emph{formula} $\varphi$ hold is called a \textbf{Model} of $\varphi$.
 
 \paragraph{Equivalence}
-Two \emph{Formulas} $\varphi$ and $\psi$ are \emph {logically equivalent} ($\varphi \equiv \psi$) if it holds for all \emph{Interpretations} $\mathcal{I}$ that, $\varphi$ holds under $\mathcal{I}$ if and only if $\psi$ holds under $\mathcal{I}$.
+of two \emph{formulas} $\varphi$ and $\psi$ is given if it holds for all \emph{interpretations} $\mathcal{I}$ that, $\varphi$ holds under $\mathcal{I}$ if and only if $\psi$ holds under $\mathcal{I}$. The formulas are then called \emph {logically equivalent} ($\varphi \equiv \psi$).
 
-\paragraph{Implication / Biconditional}
-As one might have noticed, \emph{Implication} ($\rightarrow$) and \emph{Biconditional} ($\leftrightarrow$) have not been mentioned in the definition of \emph{Formulas} as they are abbreviations for more extended \emph{Formulas} that use $\lor$, $\land$ and $\neg$.
+\paragraph{Implications / Biconditionals}
+As one might have noticed, \emph{implication} ($\rightarrow$) and \emph{biconditional} ($\leftrightarrow$) have not been mentioned in the definition of \emph{formulas} as they are abbreviations for more extended \emph{formulas} that use $\lor$, $\land$ and $\neg$.
 \begin{center}
 \begin{tabular}{ l l l }
     $(\varphi \rightarrow \psi)$ & $\equiv$ & $(\neg\varphi \lor \psi)$\\
@@ -45,12 +44,12 @@ As one might have noticed, \emph{Implication} ($\rightarrow$) and \emph{Bicondit
 \end{tabular}
 \end{center}
 
-\paragraph{Clause}
-A \emph{Clause} is a disjunction of \emph{Atoms}. A \emph{Formula} that is a \emph{Clause} becomes true for \emph{Interpretation} $\mathcal{I}$ if one of its \emph{Atoms} gets assigned to true.
+\paragraph{Clauses}
+are disjunctions of literals (\emph{atoms} and/or their negations). A \emph{formula} that is a \emph{clause} is true under \emph{interpretation} $\mathcal{I}$ if one of its \emph{literals} is true.
 
-\paragraph{Conjunctive Normal Form}
-A \emph{Formula} is said to be in \emph{Conjunctive Normal Form} (CNF) if it is a conjunction of disjunctions of \emph{Atoms}. 
-By example given the \emph{Atoms} \emph{a}, \emph{b}, \emph{c} and \emph{d} the \emph{Formulas} $\varphi$, $\psi$ and $\varrho$ are in CNF:
+\paragraph{Conjunctive Normal Form (CNF)}
+A \emph{formula} is said to be in \emph{conjunctive normal form} if it is a conjunction of \emph{clauses}. 
+By example given the \emph{atoms} \emph{a}, \emph{b}, \emph{c} and \emph{d} the \emph{formulas} $\varphi$, $\psi$ and $\varrho$ are in CNF:
 \begin{center}
     \begin{tabular}{ l l l }
     $\varphi$ & $\equiv$ & $(a)$\\
@@ -58,4 +57,70 @@ By example given the \emph{Atoms} \emph{a}, \emph{b}, \emph{c} and \emph{d} the 
     $\varrho$ & $\equiv$ & $((a \lor b) \land (c \lor d))$\\
 \end{tabular}
 \end{center}
-Also, it holds that every formula can be brought into CNF \cite{ArtificialAModernApproach}.\todo{other reference?}
+Also, it holds that every \emph{formula} can be brought into CNF \cite{LogicForComputerScientists}.
+
+\paragraph{Satisfiability} \label{Satisfiability} A \emph{formula} is called \emph{satisfiable} if there exists at least one model for it otherwise it is called \emph{unsatisfiable}. The formula $\varphi \equiv (x_1 \lor \neg x_2) \land (x_2 \lor x_3) \land (\neg x_1 \lor \neg x_3) \land (\neg x_1 \lor \neg x_2 \lor x_3)$ is \emph{satisfiable} and $\mathcal{I}:= \{x_1 \rightarrow false, x_2 \rightarrow false, x_3 \rightarrow true\}$ is a \emph{model} for it. However if this \emph{model} is explicitly ruled out as in $\psi \equiv \varphi \land (x_1 \land x_2 \land \neg x_3)$ the formula becomes unsatisfiable (example by \cite{10.5555/1121689}).
+
+\newpage
+\section{Complexity Theory}
+The time it takes a program to finish depends on various factors. Complexity Theory can be used to classify programs by their running time. The goal of this chapter is to give a brief overview of how complexity is measured and how programs can be classified.\footnote{The following definitions are intentionally simplified and, more accurate information can be found in \cite{IntroductionToTheTheoryOfComputation} that this section is based on. Also it is worth mentioning that the concepts of Complexity Theorie not only consider time but can of course also be applied to other resources that might be limited and therefore could be seen as a measure of complexity.}
+
+\subsection{Time Complexity}\label{TimeComplexity}
+ Time Complexity is not an estimate of seconds it takes to finish a program instance, but rather a meassure of difficulty using
+ abstract units. Such a unit could by example be a step that requires a comparably long constant time in a program. The \emph{running time} or \emph{time complexity} of a program is then the maximal number such a step is needed to run the program given an input of length $n$ and can be described as a function $f(n): \mathcal{N} \rightarrow \mathcal{R}^+$. 
+
+Considering the following example were the program gets as input a list of size $n$ and $someAction()$ takes constant time:
+\lstset{basicstyle=\ttfamily}
+\begin{lstlisting}[language=java,frame=single]
+myProgramm(ArrayList<Integer> list){
+    someAction();
+    for(int i = 0; i < list.size()){
+        someAction();
+    }
+    for(int i = 0; i< list.size();i++){
+        for(int j = 0; j < list.size();j++){
+            someAction();
+            someAction();
+        }
+    }
+}
+\end{lstlisting}
+In the beginning $someAction()$ is executed once, then the first for-loop iterates $n$-times, which leads to $n$ executions of $someAction()$, the two nested for loops result in $2n^2$ executions of $someAction()$ so find the time complexity $f(n)=2n^2+n+1$.
+
+\subsection{BIG-O Notation}
+In the case of the BIG-O Notation (also calle asymptotic notation) the detailed time complexity formula is further estimated, considering its behaviour for large inputs. In BIG-O Notation only the highest order term is considered lower order terms like constants are left away. Revisiting the example of \ref{TimeComplexity} we get $f(n) = O(n^2)$ and $n^2$ is called the asymptotic upper bound of $f(n)$.
+
+\newpage
+\section{SAT-Problems and SAT-Solvers}
+SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula is satisfiable (if there exists a \emph{model} for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem, they take a formula as input and return a boolean value (true or false), to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis multiple SAT-Solvers are used, which are described in furthere detail in\todoMissing{Link}.
+
+\subsection{DIMACS CNF File Format}
+The used SAT-Solvers require the input formula to be in CNF, even more particular they require the formula to be described in the DIMACS CNF File Format often just called DIMACS. DIMACS stands for Center for ``Discrete Mathematics and Theoretical Computer Science" which is a collaboration between the Rutgers and Princeton University as well as research firms. The file format was utilised in the DIMACS Implementation Challenge 1993 and has become the common file format for SAT Problems since then\todoMissing{reference}.\\
+
+DIMACS CNF Files have the following Format:
+\begin{itemize}
+    \item Atoms are represented as positive integers.
+    \item Negative literals are represented as negative integers.
+    \item The first line starts with the letter ``p" and holds the problem description, it states the problem type, the highest integer used to describe an atom and the number of clauses.
+    \item Clauses are represented as lists of there literals and are terminated by the number 0. All literals as well as the ending 0s are separated by white spaces or line breaks.
+    \item Lines are interpreted as comments (ignored by the solver) if they start with the letter ``c". Comments can be added every where in the file except inside the definition of a clause.
+\end{itemize}
+A DIMACS file describing the formula $\varphi \equiv (x_1 \lor \neg x_2) \land (x_2 \lor x_3) \land (\neg x_1 \lor \neg x_3) \land (\neg x_1 \lor \neg x_2 \lor x_3)$ could look like this:
+
+\lstset{basicstyle=\ttfamily}
+\begin{lstlisting}[language=Java,frame=single]
+c some comment describing the problem
+p cnf 3 4
+ 1 -2  0
+ 2  3  0
+-1 -3  0
+-1 -2  3  0
+\end{lstlisting}
+
+\subsection{MiniSat} 	
+\lipsum[1]
+
+\subsection{Sat4j} 	
+\lipsum[1]
+
+\subsection{NP-Hard}

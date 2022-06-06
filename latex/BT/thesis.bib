@@ -80,3 +80,81 @@ publisher = {Addison-Wesley Professional},
 address   = "Boston, MA",
 abstract = {This multivolume work on the analysis of algorithms has long been recognized as the definitive description of classical computer science.The three complete volumes published to date already comprise a unique and invaluable resource in programming theory and practice. Countless readers have spoken about the profound personal influence of Knuth's writings. Scientists have marveled at the beauty and elegance of his analysis, while practicing programmers have successfully applied his “cookbook” solutions to their day-to-day problems. All have admired Knuth for the breadth, clarity, accuracy, and good humor found in his books.To begin the fourth and later volumes of the set, and to update parts of the existing three, Knuth has created a series of small books called fascicles, which will be published at regular intervals. Each fascicle will encompass a section or more of wholly new or revised material. Ultimately, the content of these fascicles will be rolled up into the comprehensive, final versions of each volume, and the enormous undertaking that began in 1962 will be complete.Volume 4, Fascicle 4This latest fascicle covers the generation of all trees, a basic topic that has surprisingly rich ties to the first three volumes of The Art of Computer Programming. In thoroughly discussing this well-known subject, while providing 124 new exercises, Knuth continues to build a firm foundation for programming. To that same end, this fascicle also covers the history of combinatorial generation. Spanning many centuries, across many parts of the world, Knuth tells a fascinating story of interest and relevance to every artful programmer, much of it never before told. The story even includes a touch of suspense: two problems that no one has yet been able to solve.}
 }
+
+@inproceedings{10.1145/800157.805047,
+author = {Cook, Stephen A.},
+title = {The Complexity of Theorem-Proving Procedures},
+year = {1971},
+isbn = {978-1-450-37464-4},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/800157.805047},
+doi = {10.1145/800157.805047},
+abstract = {It is shown that any recognition problem solved by a polynomial time-bounded nondeterministic Turing machine can be “reduced” to the problem of determining whether a given propositional formula is a tautology. Here “reduced” means, roughly speaking, that the first problem can be solved deterministically in polynomial time provided an oracle is available for solving the second. From this notion of reducible, polynomial degrees of difficulty are defined, and it is shown that the problem of determining tautologyhood has the same polynomial degree as the problem of determining whether the first of two given graphs is isomorphic to a subgraph of the second. Other examples are discussed. A method of measuring the complexity of proof procedures for the predicate calculus is introduced and discussed.},
+booktitle = {Proceedings of the Third Annual ACM Symposium on Theory of Computing},
+pages = {151–158},
+numpages = {8},
+location = {Shaker Heights, Ohio, USA},
+series = {STOC '71}
+}
+
+@article{levin1973universal,
+  title={Universal sequential search problems},
+  author={Levin, Leonid Anatolevich},
+  journal={Problemy peredachi informatsii},
+  volume={9},
+  number={3},
+  pages={115--116},
+  year={1973},
+  publisher={Russian Academy of Sciences, Branch of Informatics}
+}
+
+@article{En2006TranslatingPC,
+  title={Translating Pseudo-Boolean Constraints into SAT},
+  author={Niklas E{\'e}n and Niklas S{\"o}rensson},
+  journal={J. Satisf. Boolean Model. Comput.},
+  year={2006},
+  volume={2},
+  pages={1-26}
+}
+
+@InProceedings{walsh2000SATvCSP,
+author="Walsh, Toby",
+editor="Dechter, Rina",
+title="{SAT} v {CSP}",
+booktitle="Principles and Practice of Constraint Programming -- CP 2000",
+year="2000",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="441--456",
+abstract="We perform a comprehensive study of mappings between constraint satisfaction problems (CSPs) and propositional satisfiability (SAT). We analyse four different mappings of SAT problems into CSPs, and two of CSPs into SAT problems. For each mapping, we compare the impact of achieving arc-consistency on the CSP with unit propagation on the SAT problem. We then extend these results to CSP algorithms that maintain (some level of) arc-consistency during search like FC and MAC, and to the Davis-Putnam procedure (which performs unit propagation at each search node). Because of differences in the branching structure of their search, a result showing the dominance of achieving arc-consistency on the CSP over unit propagation on the SAT problem does not necessarily translate to the dominance of MAC over the Davis-Putnam procedure. These results provide insight into the relationship between propositional satisfiability and constraint satisfaction.",
+isbn="978-3-540-45349-9"
+}
+
+@inproceedings{gent20002ArcConsistencyInSAT,
+  author    = {Ian P. Gent},
+  editor    = {Frank van Harmelen},
+  title     = {{A}rc {C}onsistency in {SAT}},
+  booktitle = {Proceedings of the 15th European Conference on Artificial Intelligence,
+               ECAI'2002, Lyon, France, July 2002},
+  pages     = {121--125},
+  publisher = {{IOS} Press},
+  year      = {2002},
+  timestamp = {Mon, 03 Jan 2022 07:50:19 +0100},
+  biburl    = {https://dblp.org/rec/conf/ecai/Gent02.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{kasif1990OnTheParallelComplexityOfDiscreteRelaxationInConstraintSatisfactionNetworks,
+title = {On the parallel complexity of discrete relaxation in constraint satisfaction networks},
+journal = {Artificial Intelligence},
+volume = {45},
+number = {3},
+pages = {275-286},
+year = {1990},
+issn = {0004-3702},
+doi = {https://doi.org/10.1016/0004-3702(90)90009-O},
+url = {https://www.sciencedirect.com/science/article/pii/000437029090009O},
+author = {Simon Kasif},
+abstract = {Constraint satisfaction networks have been shown to be a very useful tool for knowledge representation in Artificial Intelligence applications. These networks often utilize local constraint propagation techniques to achieve local consistency (consistent labeling in vision). Such methods have been used extensively in the context of image understanding and interpretation, as well as planning, natural language analysis and truth maintenance systems. In this paper we study the parallel complexity of discrete relaxation, one of the most commonly used constraint propagation techniques. Since the constraint propagation procedures such as discrete relaxation appear to operate locally, it has been previously believed that the relaxation approach for achieving local consistency has a natural parallel solution. Our analysis suggests that a parallel solution is unlikely to improve the known sequential solutions by much. Specifically, we prove that the problem solved by discrete relaxation (arc consistency) is log-space complete for P (the class of polynomial-time deterministic sequential algorithms). Intuitively, this implies that discrete relaxation is inherently sequential and it is unlikely that we can solve the polynomial-time version of the consistent labeling problem in logarithmic time by using only a polynomial number of processors. Some practical implications of our result are discussed. We also provide a two-way transformation between AND/OR graphs, propositional Horn satisfiability and local consistency in constraint networks that allows us to develop optimal linear-time algorithms for local consistency in constraint networks.}
+}

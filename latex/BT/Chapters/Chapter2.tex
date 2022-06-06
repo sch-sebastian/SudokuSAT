@@ -1,12 +1,13 @@
 % !TEX root = ../Thesis.tex
 
 \chapter{Background}
-Before we explain different Sudoku Variants and how they can be encoded so that a computer can solve them, we first want to give some background knowledge and definitions needed to understand the tools and formalisms that are used to achieve such an encoding.
+Before we dive into how we can translate Sudokus into a language such that a computer can work on them, we first want to elaborate some background knowledge and definitions, needed to understand the used tools and formalisms.
 
 \section{Propositional Logic}
+Propositional logic is a Language that provides a formal way of writing statements that can either be true or false. It is used in this thesis to describe and encode the specific rules that the diffrent sudoku variants must follow which is why this section should give a refresh about its syntax and sematics.
 
 \paragraph{Atoms}
-(also called \emph{atomic propositions}) are the smallest units used in propositional logic, and must have a truth value of true or false.
+(also called \emph{atomic propositions}) are the smallest units used in propositional logic, and must have a truth value of true or false (often noted as digits 0 and 1).
 
 \paragraph{Literals}
 are atoms or their negation, so if $x_1$ is an \emph{atom}, then $x_1$ and $\neg x_1$ are \emph{literals}. Literals are said to be \emph{positive} or \emph{negative} respectively.
@@ -61,13 +62,13 @@ Also, it holds that every \emph{formula} can be brought into CNF \cite{LogicForC
 
 \paragraph{Satisfiability} \label{Satisfiability} A \emph{formula} is called \emph{satisfiable} if there exists at least one model for it otherwise it is called \emph{unsatisfiable}. The formula $\varphi \equiv (x_1 \lor \neg x_2) \land (x_2 \lor x_3) \land (\neg x_1 \lor \neg x_3) \land (\neg x_1 \lor \neg x_2 \lor x_3)$ is \emph{satisfiable} and $\mathcal{I}:= \{x_1 \rightarrow false, x_2 \rightarrow false, x_3 \rightarrow true\}$ is a \emph{model} for it. However if this \emph{model} is explicitly ruled out as in $\psi \equiv \varphi \land (x_1 \land x_2 \land \neg x_3)$ the formula becomes unsatisfiable (example by \cite{10.5555/1121689}).
 
-\newpage
-\section{Complexity Theory}
-The time it takes a program to finish depends on various factors. Complexity Theory can be used to classify programs by their running time. The goal of this chapter is to give a brief overview of how complexity is measured and how programs can be classified.\footnote{The following definitions are intentionally simplified and, more accurate information can be found in \cite{IntroductionToTheTheoryOfComputation} that this section is based on. Also it is worth mentioning that the concepts of Complexity Theorie not only consider time but can of course also be applied to other resources that might be limited and therefore could be seen as a measure of complexity.}
+
+\section{Complexity Theory}\todo{Is this section needed?}
+The time it takes a program to finish depends on various factors. Complexity Theory can be used to classify problems (and the programs that solve them) by their running time. The goal of this chapter is to give a brief overview of how complexity is measured and how problems can be classified.\footnote{The following definitions are intentionally simplified and, more accurate information can be found in \cite{IntroductionToTheTheoryOfComputation} that this section is based on. Also it is worth mentioning that the concepts of Complexity Theorie not only consider time but can of course also be applied to other resources that might be limited and therefore could be seen as a measure of complexity.}
 
 \subsection{Time Complexity}\label{TimeComplexity}
  Time Complexity is not an estimate of seconds it takes to finish a program instance, but rather a meassure of difficulty using
- abstract units. Such a unit could by example be a step that requires a comparably long constant time in a program. The \emph{running time} or \emph{time complexity} of a program is then the maximal number such a step is needed to run the program given an input of length $n$ and can be described as a function $f(n): \mathcal{N} \rightarrow \mathcal{R}^+$. 
+ abstract units. Such a unit could by example be a step that requires a comparably long constant time in a program that solves a problem. The \emph{running time} or \emph{time complexity} of a program or problem is then the maximal number such a step is needed to run the program given an input of length $n$ and can be described as a function $f(n): \mathcal{N} \rightarrow \mathcal{R}^+$. 
 
 Considering the following example were the program gets as input a list of size $n$ and $someAction()$ takes constant time:
 \lstset{basicstyle=\ttfamily}
@@ -85,17 +86,24 @@ myProgramm(ArrayList<Integer> list){
     }
 }
 \end{lstlisting}
-In the beginning $someAction()$ is executed once, then the first for-loop iterates $n$-times, which leads to $n$ executions of $someAction()$, the two nested for loops result in $2n^2$ executions of $someAction()$ so find the time complexity $f(n)=2n^2+n+1$.
+In the beginning $someAction()$ is executed once, then the first for-loop iterates $n$-times, which leads to $n$ executions of $someAction()$, the two nested for loops result in $2n^2$ executions of $someAction()$ so we find the time complexity $f(n)=2n^2+n+1$.
 
 \subsection{BIG-O Notation}
-In the case of the BIG-O Notation (also calle asymptotic notation) the detailed time complexity formula is further estimated, considering its behaviour for large inputs. In BIG-O Notation only the highest order term is considered lower order terms like constants are left away. Revisiting the example of \ref{TimeComplexity} we get $f(n) = O(n^2)$ and $n^2$ is called the asymptotic upper bound of $f(n)$.
+In the case of the BIG-O Notation (also calle asymptotic notation) the detailed time complexity formula is further estimated, considering its behaviour for large inputs. In BIG-O Notation only the highest order term is considered lower order terms like constants are left away. Revisiting the example of \ref{TimeComplexity} we get $f(n) = 2n^2+n+1 = O(n^2)$ and $n^2$ is called the asymptotic upper bound of $f(n)$.
+
+\subsection{P and NP}
+Problems are classified into two complexity classes $P$ and $NP$. $P$ is the set of problems for which algorithms with polynomial time complexity are known (Example: $f(n)=2n^2+n+1$). $NP$ on the otherhand is the set of problems for which no algorithms with polynomial time complexity have been found, but only exponential ones (Example: $f(n)=2^n+n+1$). A problem is called NP-Hard if all other problems of the class NP can be reduced to it in polynomial time, further a problem is called NP-Complete if it is part of NP and is NP-Hard. If one would find a problem with polynomial complexity to be NP-Hard it would imply that all other problems in NP could be reduced to it, which would mean that P = NP. If this is the case or not, is still an open question in Computer Science and Mathematics, but shall not be the focus of this thesis.
 
 \newpage
 \section{SAT-Problems and SAT-Solvers}
-SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula is satisfiable (if there exists a \emph{model} for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem, they take a formula as input and return a boolean value (true or false), to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis multiple SAT-Solvers are used, which are described in furthere detail in\todoMissing{Link}.
+SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula of propositional logic is satisfiable (if there exists a \emph{model} for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem, they take a formula as input and return a boolean value (true or false), to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis multiple SAT-Solvers are used, which are described in furthere detail in\todoMissing{Link}. As one will later see the time to find solutions for particular problem instances varies between them, but if it comes to the complexity class it holds that SAT-Problems are in NP and that they are NP-Hard\cite{10.1145/800157.805047}\cite{levin1973universal}, so the runtime of the solvers may scale exponetially with the number of clauses and variables given to them as input.
+
+
+\subsection{How SAT-Solvers solve}
+\todo{Write about unit propagation and DPLL ?}
 
 \subsection{DIMACS CNF File Format}
-The used SAT-Solvers require the input formula to be in CNF, even more particular they require the formula to be described in the DIMACS CNF File Format often just called DIMACS. DIMACS stands for Center for ``Discrete Mathematics and Theoretical Computer Science" which is a collaboration between the Rutgers and Princeton University as well as research firms. The file format was utilised in the DIMACS Implementation Challenge 1993 and has become the common file format for SAT Problems since then\todoMissing{reference}.\\
+The used SAT-Solvers require the input formula to be in CNF, even more particular they require the formula to be described in the DIMACS CNF File Format often just called DIMACS. DIMACS stands for Center for ``Discrete Mathematics and Theoretical Computer Science" which is a collaboration between the Rutgers and Princeton University as well as research firms. The file format was utilised in the DIMACS Implementation Challenge 1993 and since then has become the common file format for SAT-Problems\todoMissing{reference}.\\
 
 DIMACS CNF Files have the following Format:
 \begin{itemize}
@@ -103,7 +111,7 @@ DIMACS CNF Files have the following Format:
     \item Negative literals are represented as negative integers.
     \item The first line starts with the letter ``p" and holds the problem description, it states the problem type, the highest integer used to describe an atom and the number of clauses.
     \item Clauses are represented as lists of there literals and are terminated by the number 0. All literals as well as the ending 0s are separated by white spaces or line breaks.
-    \item Lines are interpreted as comments (ignored by the solver) if they start with the letter ``c". Comments can be added every where in the file except inside the definition of a clause.
+    \item Lines are interpreted as comments (ignored by the solver) if they start with the letter ``c". Comments can be added everywhere in the file except inside the definition of a clause.
 \end{itemize}
 A DIMACS file describing the formula $\varphi \equiv (x_1 \lor \neg x_2) \land (x_2 \lor x_3) \land (\neg x_1 \lor \neg x_3) \land (\neg x_1 \lor \neg x_2 \lor x_3)$ could look like this:
 
@@ -123,4 +131,50 @@ p cnf 3 4
 \subsection{Sat4j} 	
 \lipsum[1]
 
-\subsection{NP-Hard}
+\section{Constraint Networks (CN)}
+Puzzles like Sudoku can be broken down to multiple constraints that must all hold for a solution to be correct. Problems like this can be described using constraint networks. The issue of finding a solution to a constraint network is called Constraint Satisfaction Problem or short CSP. Solutions for constraint networks can be found using Backtracking Search (\cite{ArtificialAModernApproach}, page 175) but the goal of this thesis is to find such solutions by first encoding the Constraints into SAT-Problems that can then be solved by arbitrary SAT-Solvers. In this section we will shortly discuss how constraint networks are defined and how they can be translated directly to general SAT-Problems.
+
+
+Constraint Networks can be described as a tuple of three components: $CN := \langle \mathcal{X},  \mathcal{D},  \mathcal{C}\rangle$.
+$\mathcal{X}$ is a set of variables, $\mathcal{D}$ is a set of finite domains (one corresponding to each variable) and $\mathcal{C}$ is a set of constraints that describe the allowed values for variable subsets.
+
+\subsection{Unary Constraints}
+Constraints that only consider one variable are called unary constraint, they don't have to be explicitelly written as part of $\mathcal{C}$ because they can also just be seen as a domain restriction for a variable, that can be represented by reducing the corresponding domain. Examples for a variable $x_1$ could be: ``$x_1$ must be smaller than 10", ``$x_1$ must be larger than 0" or ``$x_1$ must be even".
+
+\subsection{Binary Constraints}
+Constraints that include two variables are called binary constraint, they get defined extensively as part of $\mathcal{C}$ by listing all allowed value pairs that the two variables could take. Examples for variables $x_1$ and $x_2$ could be: ``$x_1$ must be smaller than $x_2$", ``$x_1$ or $x_2$ must be 9" or ``$x_1 + x_2 \leq 12$".
+
+\subsection{N-ary Constraints}
+Constraints that include more than two variables are called N-nary constraints and get defined similar to binary constraints in a CSP. Examples for variables $x_1$ to $x_9$ could be: ``At most one variable from $x_1$ to $x_9$ must be 5" or ``The sum of the variables $x_1$ to $x_9$ must be 45".
+
+\subsection{Common Encodings}
+CSP can be transformed to clauses that can then be used by a SAT-Solver in many different ways, two of the most common ones we want to elaborate here.
+
+\paragraph{Direct Encoding \cite{walsh2000SATvCSP}\cite{gent20002ArcConsistencyInSAT}}
+We assigne a SAT variable $x_{i,j}$ to all possible variable values $j$ for all CSP variables $i$. So called At-least-one clauses ensure that a CSP variable i has at least one value assigned from its domain.
+\begin{center}
+    $x_{i,1} \lor x_{i,2} \lor ... \lor x_{i,d}$
+\end{center}
+
+Optionally so called At-most-one clauses ensure that a CSP variable $i$ has at most one value assigned from its domain.
+\begin{center}
+    for j $\neq$ k:\\
+    $\neg x_{i,j} \lor \neg x_{i,k}$
+\end{center}
+
+Conflict clauses ensure that no CSP variable value combinations are allowed that do not comply to the constraints of the CSP.
+By example, The N-ary constraint "at most one CSP variable of $x_1$, $x_2$ and $x_3$ has value 5" would be transformed to the clauses:
+\begin{center}
+ $\neg x_{1,5} \lor \neg x_{2,5}$\\
+ $\neg x_{1,5} \lor \neg x_{3,5}$\\
+ $\neg x_{2,5} \lor \neg x_{3,5}$. 
+\end{center}
+
+Assuming the CSP has $n$ variables that have a domain of size $d_i$, the transformation would in total lead to $n$ at-least-one clauses, and per variable to $\sum_{m=1}^{d_i} (m-1)$ at-most-one clauses. For the constraints however we can only give an upper bound for the number of needed clauses which is per constraint equal to the product of the domain sizes of the contained variables.
+
+\paragraph{Support Encoding \cite{kasif1990OnTheParallelComplexityOfDiscreteRelaxationInConstraintSatisfactionNetworks}\cite{gent20002ArcConsistencyInSAT}}
+\todo{continue here}
+
+\subsection{Pseudo Boolean Constraints (PBC)}
+Constraints that describe equations like $w_1x_1+w_2x_2+...+w_nx_n \leq K$ are called Pseudo Boolean Constraints. The variables $x_1$ to $x_n$ have boolean domains, the $w_i$s are called weights and K is called bound, both the weights and the bound must have integer values. If a variable $x_i$ gets assigned a truth value of true/false it gets valued 1/0 in the equation. PBC can be transformed to clauses by first converting them to Binaray Decision Diagramms (BDD), Adder Networks or Sorter Networks. Within this thesis we will use the former two variants following the ideas of \cite{En2006TranslatingPC}.
+

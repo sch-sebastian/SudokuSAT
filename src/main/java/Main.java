@@ -1,9 +1,11 @@
 package main.java;
 
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static java.lang.System.currentTimeMillis;
 import static main.java.Environment.*;
 
 public class Main {
@@ -14,7 +16,7 @@ public class Main {
         System.exit(exitCode);
     }
 
-    public static int run(String[] args) {
+    public static int run(String[] args, ClauseSet... predefined) {
         Environment.init();
         int exitCode = 0;
         if (args.length < 1) {
@@ -33,8 +35,11 @@ public class Main {
         System.out.println("Task: " + args[0]);
         System.out.println("------------------------------------------");
         System.out.println("Starting Encoding...");
-        long encodingStart = System.currentTimeMillis();
+        long encodingStart = currentTimeMillis();
         ClauseSet clauses = new ClauseSet();
+        if (predefined.length > 0) {
+            clauses.addAll(predefined[0]);
+        }
         clauses.addAll(Sudoku.oneNumberPerEntry());
 
 
@@ -50,16 +55,16 @@ public class Main {
             }
             System.out.println("Total: " + clauses.size() + " clauses and " + clauses.vars.size() + " variables.");
 
-            Environment.writeDIMACS(clauses);
+            Environment.writeDIMACS(clauses, "input.tmp");
             if (!checkUnique) {
                 clauses = null;
             }
-            System.out.println("Duration: " + (System.currentTimeMillis() - encodingStart) + "ms");
+            System.out.println("Duration: " + (currentTimeMillis() - encodingStart) + "ms");
             System.out.println("------------------------------------------");
-            System.out.println("Starting Solver " + solName + "...");
-            long start = System.currentTimeMillis();
+            System.out.println("Starting Solver " + solName + "..." + " " + new Timestamp(currentTimeMillis()));
+            long start = currentTimeMillis();
             boolean satisfiable = Solver.run(solName);
-            System.out.println("Duration: " + (System.currentTimeMillis() - start) + "ms");
+            System.out.println("Duration: " + (currentTimeMillis() - start) + "ms");
             if (satisfiable) {
                 System.out.println("Satisfiable !");
                 int[][] model = modelToArray();
@@ -76,7 +81,8 @@ public class Main {
                     exitCode = 20;
                 }
                 if (constraints.containsKey("Nurikabe")) {
-                    printIsland();
+                    System.out.println("------------------------------------------");
+                    printIsland("model.tmp");
                 }
                 if (checkUnique) {
                     boolean unique = checkUnique(clauses, solName);
@@ -131,12 +137,12 @@ public class Main {
                 clauses.addAll(baseClauses);
                 clauses.add(new Clause(100 * diff.x + 10 * diff.y + i));
                 System.out.println("Total: " + clauses.size() + " clauses and " + clauses.vars.size() + " variables.");
-                Environment.writeDIMACS(clauses);
+                Environment.writeDIMACS(clauses, "input.tmp");
                 System.out.println("------------------------------------------");
                 System.out.println("Starting Solver " + solName + "...");
-                long start = System.currentTimeMillis();
+                long start = currentTimeMillis();
                 boolean satisfiable = Solver.run(solName);
-                System.out.println("Duration: " + (System.currentTimeMillis() - start) + "ms");
+                System.out.println("Duration: " + (currentTimeMillis() - start) + "ms");
                 if (satisfiable) {
                     int[][] model = modelToArray();
                     System.out.println("------------------------------------------");
@@ -165,7 +171,7 @@ public class Main {
 
     private static boolean checkUnique(ClauseSet clauses, String solName) throws IOException {
         clauses.addAll(notKnownSolution());
-        Environment.writeDIMACS(clauses);
+        Environment.writeDIMACS(clauses, "input.tmp");
         boolean satisfiable = Solver.run(solName);
         if (satisfiable) {
             return false;

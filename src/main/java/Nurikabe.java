@@ -11,6 +11,7 @@ public class Nurikabe extends Constraint {
     private final int ocean = 1500000;
     private final int flood = 2000000;
     private final int walk = 10000000;
+    private final int maxIslands = 14;
 
     public Nurikabe(int optimized, String data) {
         super(data);
@@ -39,7 +40,7 @@ public class Nurikabe extends Constraint {
         return clauses;
     }
 
-    private ClauseSet noOceanSquare() {
+    ClauseSet noOceanSquare() {
         ClauseSet clauses = new ClauseSet();
         for (int y = 1; y <= 8; y++) {
             for (int x = 1; x <= 8; x++) {
@@ -51,7 +52,7 @@ public class Nurikabe extends Constraint {
 
     ClauseSet noRepetitionInIsland() {
         ClauseSet clauses = new ClauseSet();
-        for (int n = 1; n <= 14; n++) {
+        for (int n = 1; n <= maxIslands; n++) {
             for (int y = 1; y <= 9; y++) {
                 for (int x = 1; x <= 9; x++) {
                     for (int z = 1; z <= 9; z++) {
@@ -79,8 +80,8 @@ public class Nurikabe extends Constraint {
         ClauseSet clauses = new ClauseSet();
         for (int y = 1; y <= 9; y++) {
             for (int x = 1; x <= 9; x++) {
-                for (int n = 1; n <= 14; n++) {
-                    for (int k = 1; k <= 14; k++) {
+                for (int n = 1; n <= maxIslands; n++) {
+                    for (int k = 1; k <= maxIslands; k++) {
                         if (k == n) {
                             continue;
                         }
@@ -102,7 +103,7 @@ public class Nurikabe extends Constraint {
         ClauseSet clauses = new ClauseSet();
         for (int y = 1; y <= 9; y++) {
             for (int x = 1; x <= 9; x++) {
-                for (int n = 1; n <= 14; n++) {
+                for (int n = 1; n <= maxIslands; n++) {
                     ArrayList<Integer> literals = new ArrayList<>();
                     literals.add(-(island + 100 * n + 10 * x + y));
                     for (int d = 1; d <= 18; d++) {
@@ -193,7 +194,7 @@ public class Nurikabe extends Constraint {
                                 }
                                 break;
                             case 13:
-                                if (x - 1 >= 1 && y + 1 <= 9) {
+                                if (x + 1 <= 9 && y - 1 >= 1) {
                                     clauses.add(new Clause(-twoNeighboursDDNNXY, (island + 100 * n + 10 * x + (y - 1))));
                                     clauses.add(new Clause(-twoNeighboursDDNNXY, (island + 100 * n + 10 * (x + 1) + y)));
                                     literals.add(twoNeighboursDDNNXY);
@@ -250,10 +251,10 @@ public class Nurikabe extends Constraint {
                 int oceanXY = ocean + 10 * x + y;
                 ArrayList<Integer> literals = new ArrayList<>();
                 literals.add(oceanXY);
-                for (int n = 1; n <= 14; n++) {
+                for (int n = 1; n <= maxIslands; n++) {
                     literals.add(island + 100 * n + 10 * x + y);
                     clauses.add(new Clause(-oceanXY, -(island + 100 * n + 10 * x + y))); //ocean --> not island
-                    for (int k = n + 1; k <= 14; k++) {
+                    for (int k = n + 1; k <= maxIslands; k++) {
                         clauses.add(new Clause(-(island + 100 * n + 10 * x + y), -(island + 100 * k + 10 * x + y)));
                         //At most one island per cell
                     }
@@ -274,7 +275,7 @@ public class Nurikabe extends Constraint {
                         ArrayList<Integer> literals = new ArrayList<>();
                         literals.add(-oceanXsYs);
                         literals.add(-(ocean + 10 * x + y));
-                        for (int d = 2; d <= 49; d++) {
+                        for (int d = 1; d <= 49; d++) {
                             literals.add((flood + 10000 * d + 1000 * xS + 100 * yS + 10 * x + y));
                             for (int k = d + 1; k <= 49; k++) {
                                 clauses.add(new Clause(-(flood + 10000 * d + 1000 * xS + 100 * yS + 10 * x + y), -(flood + 10000 * k + 1000 * xS + 100 * yS + 10 * x + y)));
@@ -282,7 +283,6 @@ public class Nurikabe extends Constraint {
                             }
                             clauses.add(new Clause((ocean + 10 * x + y), -(flood + 10000 * d + 1000 * xS + 100 * yS + 10 * x + y)));
                             //not ocean --> not flooded
-                            //TODO: This makes the solver 20x slower!
                         }
                         clauses.add(new Clause(literals)); //source ocean --> cell is not ocean or at least one floodlayer
                     }
@@ -333,7 +333,7 @@ public class Nurikabe extends Constraint {
 
     ClauseSet islandContinuation() {
         ClauseSet clauses = new ClauseSet();
-        for (int n = 1; n <= 14; n++) {
+        for (int n = 1; n <= maxIslands; n++) {
             for (int y = 1; y <= 9; y++) {
                 for (int x = 1; x <= 9; x++) {
                     clauses.add(new Clause(-(island + 100 * n + 10 * x + y), (walk + 1000000 * 1 + 10000 * n + 1000 * x + 100 * y + 10 * x + y)));
@@ -343,6 +343,8 @@ public class Nurikabe extends Constraint {
                             if (x == xS && y == yS) {
                                 continue;
                             }
+                            clauses.add(new Clause(-(walk + 1000000 * 1 + 10000 * n + 1000 * xS + 100 * yS + 10 * x + y)));
+                            //Not source --> not layer 1 // this works
                             for (int d = 2; d <= 9; d++) {
                                 ArrayList<Integer> literals = new ArrayList<>();
                                 literals.add(-(walk + 1000000 * d + 10000 * n + 1000 * xS + 100 * yS + 10 * x + y));
@@ -371,7 +373,7 @@ public class Nurikabe extends Constraint {
 
     ClauseSet islandCellInOneWalkLayerPerSource() {
         ClauseSet clauses = new ClauseSet();
-        for (int n = 1; n <=14; n++) {
+        for (int n = 1; n <=maxIslands; n++) {
             for (int y = 1; y <= 9; y++) {
                 for (int x = 1; x <= 9; x++) {
                     for (int yS = 1; yS <= 9; yS++) {
@@ -386,6 +388,9 @@ public class Nurikabe extends Constraint {
                                     clauses.add(new Clause(-(walk + 1000000 * d + 10000 * n + 1000 * xS + 100 * yS + 10 * x + y), -(walk + 1000000 * k + 10000 * n + 1000 * xS + 100 * yS + 10 * x + y)));
                                     //At most one walklayer per cell and source and island
                                 }
+                                clauses.add(new Clause((island + 100 * n + 10 * x + y), -(walk + 1000000 * d + 10000 * n + 1000 * xS + 100 * yS + 10 * x + y)));
+                                //not islandNNXY -> not walkedDDNNxSySXY
+                                //this clauses increase solve time by more than 3x
                             }
                             clauses.add(new Clause(literals)); //source island --> cell is not island or at least one walklayer
                         }

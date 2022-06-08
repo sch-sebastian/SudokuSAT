@@ -26,15 +26,15 @@ public class Solver {
         }
         switch (solName) {
             case "Sat4j":
-                return runSat4j();
+                return runSat4j("input.tmp", "model.tmp");
             case "MiniSat":
-                return runMiniSat();
+                return runMiniSat("input.tmp", "model.tmp");
             case "":
                 System.out.println("Solver Warning: running default solver (Sat4j)!");
-                return runSat4j();
+                return runSat4j("input.tmp", "model.tmp");
             default:
                 System.out.println("Solver Warning: unknown solver " + solName + ", running default (Sat4j)!");
-                return runSat4j();
+                return runSat4j("input.tmp", "model.tmp");
         }
     }
 
@@ -45,20 +45,20 @@ public class Solver {
      *
      * @return if the SAT-Problem was satisfiable.
      */
-    public static boolean runSat4j() {
+    public static boolean runSat4j(String inputFile, String outputFile) {
         boolean satisfiable = false;
         ISolver solver = SolverFactory.newDefault();
         solver.setTimeout(3600); // 1 hour timeout
         Reader reader = new DimacsReader(solver);
         PrintWriter out = null;
         try {
-            out = new PrintWriter("model.tmp");
+            out = new PrintWriter(outputFile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         // CNF filename is given on the command line
         try {
-            IProblem problem = reader.parseInstance("input.tmp");
+            IProblem problem = reader.parseInstance(inputFile);
             if (problem.isSatisfiable()) {
                 satisfiable = true;
                 reader.decode(problem.model(), out);
@@ -83,7 +83,7 @@ public class Solver {
      *
      * @return if the SAT-Problem was satisfiable.
      */
-    public static boolean runMiniSat() {
+    public static boolean runMiniSat(String inputFile, String outputFile) {
         String command = "";
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             if (!checkWSL()) {
@@ -91,10 +91,10 @@ public class Solver {
                 throw new RuntimeException();
             }
             String workPath = System.getProperty("user.dir").replace("\\", "/").replace(":", "");
-            command = "wsl cd /mnt/" + workPath + "; ./MiniSat_v1.14_linux input.tmp model.tmp";
+            command = "wsl cd /mnt/" + workPath + "; ./MiniSat_v1.14_linux " + inputFile + " " + outputFile;
         } else {
             String workPath = System.getProperty("user.dir");
-            command = workPath + "/MiniSat_v1.14_linux input.tmp model.tmp";
+            command = workPath + "/MiniSat_v1.14_linux " + inputFile + " " + outputFile;
             allow(workPath);
         }
         Process p = null;
@@ -107,12 +107,10 @@ public class Solver {
                 output.add(outputLine);
                 outputLine = br.readLine();
             }
-            if (output.get(output.size() - 1).contains("SATISFIABLE")) {
-                System.out.println("Satisfiable !");
-                return true;
-            } else {
-                System.out.println("Unsatisfiable !");
+            if (output.get(output.size() - 1).contains("UNSATISFIABLE")) {
                 return false;
+            } else {
+                return true;
             }//TODO: Option for timeout
 
         } catch (IOException e) {

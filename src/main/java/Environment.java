@@ -55,8 +55,8 @@ public class Environment {
         return varCounter;
     }
 
-    public static void writeDIMACS(ClauseSet clauseSet, boolean... sort) throws IOException {
-        File file = new File("input.tmp");
+    public static void writeDIMACS(ClauseSet clauseSet, String fileName, boolean... sort) throws IOException {
+        File file = new File(fileName);
         BufferedWriter bw = new BufferedWriter(new FileWriter(file));
         bw.write("p cnf " + clauseSet.getMax() + " " + clauseSet.size() + "\n");
         if (sort.length > 0 && !sort[0]) {
@@ -137,10 +137,10 @@ public class Environment {
         return grid;
     }
 
-    public static void printIsland() throws FileNotFoundException {
+    public static void printIsland(String fileName) throws FileNotFoundException {
         int[][] grid = new int[9][9];
 
-        Scanner scanner = new Scanner(new File("model.tmp"));
+        Scanner scanner = new Scanner(new File(fileName));
         while (scanner.hasNext() && !scanner.hasNextInt()) {
             scanner.next();
         }
@@ -156,7 +156,7 @@ public class Environment {
                 }
             }
         }
-        System.out.println("------------------------------------------");
+
         System.out.println("Islands:");
         for (int y = 0; y < grid.length; y++) {
             String line = "";

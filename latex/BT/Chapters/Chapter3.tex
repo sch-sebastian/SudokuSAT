@@ -2,7 +2,7 @@
 \chapter{Sudoku Types and Constraints}
 This chapter introduces the most common Sudoku types and constraints used in CTCGH \cite{CrackingTheCryptic2021}. The aim here is to give an overview, so the descriptions are on a high level and relatively informal. A formal definition and further details on how the constraints and types are encoded to CNF can be found in the chapter (link).\todoMissing{link}
 
-\section{Normal Sudoku}
+\section{Normal Sudoku}\label{\thechapter:NormalSudoku}
 A Sudoku Puzzle consists of a 9x9 grid, partially already filled with numbers from 1 to 9 named clues. Additionally, the grid is divided into smaller sub-areas called boxes, consisting of  3x3 cells. To solve the puzzle, one has to assign a value from 1 to 9 to each free cell so that each number is present in each row, column, and box.
 For most Sudoku instances, there is the additional property that they only have one solution. There must be at least 17 clues for this to hold, as \citet{https://doi.org/10.48550/arxiv.1201.0749} shows. An example of a Normal Sudoku Puzzle can be seen in Figure \ref{fig:exampleSudoku}.
 

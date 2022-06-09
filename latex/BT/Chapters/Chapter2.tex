@@ -1,26 +1,26 @@
 % !TEX root = ../Thesis.tex
 
 \chapter{Background}
-Before we dive into how we can translate Sudokus into a language such that a computer can work on them, we first want to elaborate on some background knowledge and definitions needed to understand the used tools and formalisms.
+Before we dive into how we can translate Sudokus into a language such that a computer can work on them, we first elaborate on some background knowledge and definitions needed to understand the used tools and formalisms.
 
 \section{Propositional Logic}
-Propositional logic is a Language that provides a formal way of writing statements that can either be true or false. It is used in this thesis to describe and encode the specific rules that the diffrent sudoku variants must follow which is why this section should give a refresh about its syntax and sematics.
+Propositional logic is a language that provides a formal way of writing statements that can either be true or false. It is used in this thesis to describe and encode the specific rules that the different Sudoku variants.This section will shortly introduce the common syntax and sematics.
 
 \paragraph{Atoms}
 (also called \emph{atomic propositions}) are the smallest units used in propositional logic, and must have a truth value of true or false (often noted as digits 0 and 1).
 
 \paragraph{Literals}
-are atoms or their negation, so if $x_1$ is an \emph{atom}, then $x_1$ and $\neg x_1$ are \emph{literals}. Literals are said to be \emph{positive} or \emph{negative} respectively.
+are atoms or their negation, so if $x_1$ is an atom, then $x_1$ and $\neg x_1$ are literals. Literals are said to be \emph{positive} or \emph{negative} respectively.
 
 
-\paragraph{Formulas} are compositions of one or multiple \emph{atoms} and can be defined recursively:\\
-Every \emph{atom} is also a \emph{formula}.
-If $\varphi$ is a \emph{formula}, then so is its negation $\neg\varphi$.
-If $\varphi$ and $\psi$ are \emph{formulas}, then so is the conjunction $\varphi \land \psi$.
-If $\varphi$ and $\psi$ are \emph{formulas}, then so is the disjunction $\varphi \lor \psi$.
+\paragraph{Formulas} are compositions of one or multiple atoms and can be defined recursively:\\
+Every atom is also a formula.
+If $\varphi$ is a formula, then so is its negation $\neg\varphi$.
+If $\varphi$ and $\psi$ are formulas, then so is the conjunction $\varphi \land \psi$.
+If $\varphi$ and $\psi$ are formulas, then so is the disjunction $\varphi \lor \psi$.
 
 
-\paragraph{Interpretations} (also called truth assignments) are functions that assigns truth values to a set $A$ of \emph{atoms} $\mathcal{I}: A \rightarrow \{0,1\}$. A \emph{formula} $\varphi$ over $A$ holds (is true) under an \emph{interpretation} $\mathcal{I}$ (written $\mathcal{I} \models \varphi$) following the semantical rules:
+\paragraph{Interpretations} (also called truth assignments) are functions that assigns truth values to a set $A$ of atoms $\mathcal{I}: A \rightarrow \{0,1\}$. A formula $\varphi$ over $A$ holds (is true) under an interpretation $\mathcal{I}$ (written $\mathcal{I} \models \varphi$) following the semantical rules:
 \begin{center}
     \begin{tabular}{ l l l }
     $\mathcal{I} \models x_1$ & iff & $\mathcal{I}(x_1) = 1$\\
@@ -28,16 +28,16 @@ If $\varphi$ and $\psi$ are \emph{formulas}, then so is the disjunction $\varphi
     $\mathcal{I} \models (\psi \land \varrho)$ & iff & $\mathcal{I} \models \psi$ and $\mathcal{I} \models \varrho$\\
     $\mathcal{I} \models (\psi \lor \varrho)$ & iff & $\mathcal{I} \models \psi$ or $\mathcal{I} \models \varrho$\\
 \end{tabular}\\
-Where $\psi$ and  $\varrho$ are \emph{formulas} and $x_1$ is an \emph{atom}.
+Where $\psi$ and  $\varrho$ are formulas and $x_1$ is an atom.
 \end{center}
 
-An \emph{Interpretation} for which a \emph{formula} $\varphi$ hold is called a \textbf{Model} of $\varphi$.
+An interpretation for which a formula $\varphi$ hold is called a \emph{model} of $\varphi$.
 
 \paragraph{Equivalence}
-of two \emph{formulas} $\varphi$ and $\psi$ is given if it holds for all \emph{interpretations} $\mathcal{I}$ that, $\varphi$ holds under $\mathcal{I}$ if and only if $\psi$ holds under $\mathcal{I}$. The formulas are then called \emph {logically equivalent} ($\varphi \equiv \psi$).
+of two formulas $\varphi$ and $\psi$ is given if it holds for all interpretations $\mathcal{I}$ that, $\varphi$ holds under $\mathcal{I}$ if and only if $\psi$ holds under $\mathcal{I}$. The formulas are then called \emph {logically equivalent} ($\varphi \equiv \psi$).
 
 \paragraph{Implications / Biconditionals}
-As one might have noticed, \emph{implication} ($\rightarrow$) and \emph{biconditional} ($\leftrightarrow$) have not been mentioned in the definition of \emph{formulas} as they are abbreviations for more extended \emph{formulas} that use $\lor$, $\land$ and $\neg$.
+As one might have noticed, implication ($\rightarrow$) and biconditional ($\leftrightarrow$) have not been mentioned in the definition of formulas as they are abbreviations for more extended formulas that use $\lor$, $\land$ and $\neg$.
 \begin{center}
 \begin{tabular}{ l l l }
     $(\varphi \rightarrow \psi)$ & $\equiv$ & $(\neg\varphi \lor \psi)$\\
@@ -46,11 +46,11 @@ As one might have noticed, \emph{implication} ($\rightarrow$) and \emph{bicondit
 \end{center}
 
 \paragraph{Clauses}
-are disjunctions of literals (\emph{atoms} and/or their negations). A \emph{formula} that is a \emph{clause} is true under \emph{interpretation} $\mathcal{I}$ if one of its \emph{literals} is true.
+are disjunctions of literals (atoms and/or their negations). A formula that is a clause is true under interpretation $\mathcal{I}$ if one of its literals is true.
 
 \paragraph{Conjunctive Normal Form (CNF)}
-A \emph{formula} is said to be in \emph{conjunctive normal form} if it is a conjunction of \emph{clauses}. 
-By example given the \emph{atoms} \emph{a}, \emph{b}, \emph{c} and \emph{d} the \emph{formulas} $\varphi$, $\psi$ and $\varrho$ are in CNF:
+A formula is said to be in conjunctive normal form if it is a conjunction of clauses. 
+For example, given the atoms \emph{a}, \emph{b}, \emph{c} and \emph{d}, the formulas $\varphi$, $\psi$ and $\varrho$ are in CNF:
 \begin{center}
     \begin{tabular}{ l l l }
     $\varphi$ & $\equiv$ & $(a)$\\
@@ -58,44 +58,12 @@ By example given the \emph{atoms} \emph{a}, \emph{b}, \emph{c} and \emph{d} the 
     $\varrho$ & $\equiv$ & $((a \lor b) \land (c \lor d))$\\
 \end{tabular}
 \end{center}
-Also, it holds that every \emph{formula} can be brought into CNF \cite{LogicForComputerScientists}.
+Also, it holds that every formula can be brought into CNF \cite{LogicForComputerScientists}.
 
-\paragraph{Satisfiability} \label{Satisfiability} A \emph{formula} is called \emph{satisfiable} if there exists at least one model for it otherwise it is called \emph{unsatisfiable}. The formula $\varphi \equiv (x_1 \lor \neg x_2) \land (x_2 \lor x_3) \land (\neg x_1 \lor \neg x_3) \land (\neg x_1 \lor \neg x_2 \lor x_3)$ is \emph{satisfiable} and $\mathcal{I}:= \{x_1 \rightarrow false, x_2 \rightarrow false, x_3 \rightarrow true\}$ is a \emph{model} for it. However if this \emph{model} is explicitly ruled out as in $\psi \equiv \varphi \land (x_1 \land x_2 \land \neg x_3)$ the formula becomes unsatisfiable (example by \cite{10.5555/1121689}).
-
-
-\section{Complexity Theory}\todo{Is this section needed?}
-The time it takes a program to run depends on various factors. Complexity Theory can be used to classify problems (and the programs that solve them) by their running time. The goal of this section is to give a brief overview of how complexity is measured and how problems can be classified.\footnote{The following definitions are intentionally simplified. This section is based on \cite{IntroductionToTheTheoryOfComputation},where more detailed information can be found. Also, it is worth mentioning that the concepts of Complexity Theory not only consider time but can also be applied to other resources that might be limited and therefore could be seen as a measure of complexity.}
-
-\subsection{Time Complexity}\label{TimeComplexity}
-Time Complexity is not an estimate of seconds it takes to finish a program instance but rather a meassure of difficulty using abstract units. Such a unit could, for example, be a step that requires a comparably long constant time in a program that solves a problem. The \emph{running time} or \emph{time complexity} of a program or problem is then the maximal number such a step is needed to run the program given an input of length $n$ and can be described as a function $f(n): \mathcal{N} \rightarrow \mathcal{R}^+$. 
-
-Considering the following example where the program gets as input a list of size $n$ and $someAction()$ takes constant time:
-\lstset{basicstyle=\ttfamily}
-\begin{lstlisting}[language=java,frame=single]
-myProgramm(ArrayList<Integer> list){
-    someAction();
-    for(int i = 0; i < list.size()){
-        someAction();
-    }
-    for(int i = 0; i< list.size();i++){
-        for(int j = 0; j < list.size();j++){
-            someAction();
-            someAction();
-        }
-    }
-}
-\end{lstlisting}
-In the beginning, $someAction()$ is executed once. The first for-loop iterates $n$-times, which leads to $n$ executions of $someAction()$. The two nested for loops result in $2n^2$ executions of $someAction()$, so we find the time complexity $f(n)=2n^2+n+1$.
-
-\subsection{BIG-O Notation}
-The detailed time complexity formula is further estimated for BIG-O Notation (also called Asymptotic Notation), considering its behaviour for large inputs. In BIG-O Notation, only the highest-order term is considered lower-order terms like constants are left away. Revisiting the example of \ref{TimeComplexity} we get $f(n) = 2n^2+n+1 = O(n^2)$ and $n^2$ is called the asymptotic upper bound of $f(n)$.
-
-\subsection{P and NP}
-Problems are classified into two complexity classes, $P$ and $NP$. $P$ is the set of problems for which algorithms with polynomial time complexity are known (Example: $f(n)=2n^2+n+1$). $NP$ is the set of problems for which no algorithms with polynomial time complexity have been found, but only exponential ones (Example: $f(n)=2^n+n+1$). A problem is called NP-Hard if all other problems of the class NP can be reduced to it in polynomial time. Further, a problem is called NP-Complete if it is part of NP and is NP-Hard. If one found a problem with polynomial complexity to be NP-Hard, it would imply that all other problems in NP could be reduced to it, which would mean that P = NP. If this is the case or not is still an open question in Computer Science and Mathematics but shall not be the focus of this thesis.
 
 \newpage
 \section{SAT-Problems and SAT-Solvers}
-SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula of propositional logic is satisfiable (if there exists a \emph{model} for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem. They take a formula as input and return a boolean value (true or false) to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis, multiple SAT-Solvers are used, which are described in further detail in\todoMissing{Link}. As we will later see, the time to find solutions for particular problem instances varies between them. However if it comes to the complexity class, it holds that SAT-Problems are in NP and that they are NP-Hard\cite{10.1145/800157.805047}\cite{levin1973universal}, so the runtime of the solvers may scale exponentially with the number of clauses and variables given to them as input.
+SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula of propositional logic is satisfiable (if there exists a model for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem. They take a formula as input and return a boolean value (true or false) to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis, multiple SAT-Solvers are used, which are described in further detail in \ref{MiniSatAndSat4j}. As we will later see, the time to find solutions for particular problem instances varies between them. However when it comes to computational complexity, it holds that SAT-Problems are in NP and that they are NP-Hard\cite{10.1145/800157.805047}\cite{levin1973universal}, so the runtime of the solvers may scale exponentially with the number of clauses and variables given to them as input.
 
 
 \subsection{How SAT-Solvers solve}
@@ -124,11 +92,12 @@ p cnf 3 4
 -1 -2  3  0
 \end{lstlisting}
 
-\subsection{MiniSat} 	
-\lipsum[1]
+\subsection{MiniSat and Sat4j}\label{MiniSatAndSat4j}
+MiniSat is a light weight SAT-solver that is based on ``the ideas for conflict driven backtracking, together with watched literals and dynamic variable ordering" as the original paper \cite{EenAnExtensibleSAT-solver2004} states. Its original source code in C++ used less than 600 lines. The solver was further refined up to its current version 2.2, but for the experiments in this thesis we use version 1.4 for which precompiled binaries can be found at \cite{webMiniSat}.
 
-\subsection{Sat4j} 	
-\lipsum[1]
+Sat4j is a Java library that provides a SAT-solver that can be directly called and run in Java. It does not provide the best performance, but because it is easy to use and integrate, it is well suited for early experimenting and testing. The used version is 2.3.4, the library itself and further details can be found at \cite{webSat4j}.
+
+MiniSat+ (a special version of MiniSat) and Sat4j provide native support for pseudo boolean constraints, however this feature will not be used because this thesis aims to translate Sudoku puzzles into a form that can be solve with arbitrary SAT-solvers.
 
 \section{Constraint Networks (CN)}
 Puzzles like Sudoku can be broken down into multiple constraints that must all hold for a solution to be correct. Problems like this can be described using constraint networks. The issue of finding a solution to a constraint network is called Constraint Satisfaction Problem or short CSP. Solutions for constraint networks can be found using Backtracking Search (\cite{ArtificialAModernApproach}, page 175).However, this thesis aims to find such solutions by first encoding the Constraints into SAT-Problems that arbitrary SAT-Solvers can then solve. This section will shortly discuss how constraint networks are defined and how they can be translated directly to general SAT-Problems.
@@ -150,29 +119,27 @@ Constraints that include more than two variables are called N-nary constraints a
 There are many different ways to transform a CSP into a set of clauses that a SAT-Solver can work on, two of the most common ones we want to elaborate on here.
 
 \paragraph{Direct Encoding \cite{walsh2000SATvCSP}\cite{gent20002ArcConsistencyInSAT}}
-We assign a SAT variable $x_{i,j}$ to all possible variable values $j$ for all CSP variables $i$. So-called At-least-one clauses ensure that a CSP variable i has at least one value assigned from its domain.
+We assign a SAT variable $x_{i,j}$ to all possible variable values $j$ for all CSP variables $i$. \emph{At-least-one} clauses ensure that a CSP variable i has at least one out of the $d$ values assigned from its domain.
 \begin{center}
     $x_{i,1} \lor x_{i,2} \lor ... \lor x_{i,d}$
 \end{center}
 
-Optionally so-called At-most-one clauses ensure that a CSP variable $i$ has at most one value assigned from its domain.
+\emph{At-most-one} clauses ensure that a CSP variable $i$ has at most one value assigned from its domain.
 \begin{center}
-    for j $\neq$ k:\\
-    $\neg x_{i,j} \lor \neg x_{i,k}$
+    $\neg x_{i,j} \lor \neg x_{i,k}$\\
+    $\forall x_{i,j}, x_{i,k} \in D_i$ s.t. $j\neq k$ 
 \end{center}
 
-Conflict clauses ensure that no CSP variable value combinations are allowed that do not comply with the CSP's constraints.
-For example, The N-ary constraint "at most one CSP variable of $x_1$, $x_2$ and $x_3$ has value 5" would be transformed into the clauses:
+\emph{Conflict} clauses ensure that no CSP variable value combinations are allowed that do not comply with the CSP's constraints.
+For example, The N-ary constraint ``at most one CSP variable of $x_1$, $x_2$ and $x_3$ has value 5" would be transformed into the following conjunction of clauses:
 \begin{center}
- $\neg x_{1,5} \lor \neg x_{2,5}$\\
- $\neg x_{1,5} \lor \neg x_{3,5}$\\
- $\neg x_{2,5} \lor \neg x_{3,5}$. 
+ $(\neg x_{1,5} \lor \neg x_{2,5}) \land (\neg x_{1,5} \lor \neg x_{3,5}) \land (\neg x_{2,5} \lor \neg x_{3,5})$. 
 \end{center}
 
 Assuming the CSP has $n$ variables that have a domain of size $d_i$, the transformation would in total lead to $n$ at-least-one clauses and per variable to $\sum_{m=1}^{d_i} (m-1)$ at-most-one clauses. For the constraints, however, we can only give an upper bound for the number of needed clauses per constraint equal to the product of the domain sizes of the contained variables.
 
 \paragraph{Support Encoding \cite{kasif1990OnTheParallelComplexityOfDiscreteRelaxationInConstraintSatisfactionNetworks}\cite{gent20002ArcConsistencyInSAT}}
-The same at-least-one and at-most-one clauses are used as in the direct encoding, but instead of conflict clauses, we ad so-called support clauses. For all pairs of variables $x_i$ and $x_j$ in a constraint, we add a clause for all domain values of $x_j$. These clauses define the allowed values of the other variables of the constraint.However, not all these clauses must be necessary. They can be left away if the CSP variable value corresponding to $x_{j,d}$ is allowed with all values of CSP variable $x_i$. 
+The same at-least-one and at-most-one clauses are used as in the direct encoding, but instead of conflict clauses, we add so-called support clauses. For all pairs of variables $x_i$ and $x_j$ in a constraint, we add a clause for all domain values of $x_j$. These clauses define the allowed values of the other variables of the constraint.However, not all these clauses must be necessary. They can be left away if the CSP variable value corresponding to $x_{j,d}$ is allowed with all values of CSP variable $x_i$. 
 This is best shown in an example, assume all CSP variables have a domain of \{1, 2, 3, 4, 5\}, the N-ary constraint ``at most one CSP variable of $x_1$, $x_2$ and $x_3$ has value 5” could then be transformed to the clauses:
 \begin{center}
  $\neg x_{1,5} \lor x_{2,1} \lor x_{2,2} \lor x_{2,3} \lor x_{2,4}$\\
@@ -186,5 +153,5 @@ In this case further clauses like $\neg x_{1,1} \lor x_{2,1} \lor x_{2,2} \lor x
 
 
 \subsection{Pseudo Boolean Constraints (PBC)}
-Constraints that describe equations like $w_1x_1+w_2x_2+...+w_nx_n \leq K$ are called Pseudo Boolean Constraints. The variables $x_1$ to $x_n$ have boolean domains, the $w_i$s are called weights, and K is called bound. Both the weights and the bound must have integer values. If a variable $x_i$ gets assigned a truth value of true/false, it gets valued 1/0 in the equation. PBC can be transformed into clauses by first converting them to Binary Decision Diagrams (BDD), Adder Networks or Sorter Networks. Within this thesis, we will use the former two variants following the ideas of \cite{En2006TranslatingPC}.
+Constraints that describe equations like $w_1x_1+w_2x_2+...+w_nx_n \leq K$ are called pseudo boolean constraints. The variables $x_1$ to $x_n$ have boolean domains, the $w_i$s are called weights, and K is called bound. Both the weights and the bound must have integer values. If a variable $x_i$ gets assigned a truth value of true/false, it gets valued 1/0 in the equation. PBC can be transformed into clauses by first converting them to Binary Decision Diagrams (BDD), Adder Networks or Sorter Networks. Within this thesis, we will use the former two variants following the ideas of \cite{Een2006TranslatingPC}.
 

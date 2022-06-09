@@ -109,13 +109,20 @@ series = {STOC '71}
   publisher={Russian Academy of Sciences, Branch of Informatics}
 }
 
-@article{En2006TranslatingPC,
-  title={Translating Pseudo-Boolean Constraints into SAT},
-  author={Niklas E{\'e}n and Niklas S{\"o}rensson},
-  journal={J. Satisf. Boolean Model. Comput.},
-  year={2006},
-  volume={2},
-  pages={1-26}
+@article{Een2006TranslatingPC,
+  author    = {Niklas E{\'{e}}n and
+               Niklas S{\"{o}}rensson},
+  title     = {Translating Pseudo-Boolean Constraints into {SAT}},
+  journal   = {J. Satisf. Boolean Model. Comput.},
+  volume    = {2},
+  number    = {1-4},
+  pages     = {1--26},
+  year      = {2006},
+  url       = {https://doi.org/10.3233/sat190014},
+  doi       = {10.3233/sat190014},
+  timestamp = {Mon, 17 Aug 2020 18:32:39 +0200},
+  biburl    = {https://dblp.org/rec/journals/jsat/EenS06.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 
 @InProceedings{walsh2000SATvCSP,
@@ -157,4 +164,46 @@ doi = {https://doi.org/10.1016/0004-3702(90)90009-O},
 url = {https://www.sciencedirect.com/science/article/pii/000437029090009O},
 author = {Simon Kasif},
 abstract = {Constraint satisfaction networks have been shown to be a very useful tool for knowledge representation in Artificial Intelligence applications. These networks often utilize local constraint propagation techniques to achieve local consistency (consistent labeling in vision). Such methods have been used extensively in the context of image understanding and interpretation, as well as planning, natural language analysis and truth maintenance systems. In this paper we study the parallel complexity of discrete relaxation, one of the most commonly used constraint propagation techniques. Since the constraint propagation procedures such as discrete relaxation appear to operate locally, it has been previously believed that the relaxation approach for achieving local consistency has a natural parallel solution. Our analysis suggests that a parallel solution is unlikely to improve the known sequential solutions by much. Specifically, we prove that the problem solved by discrete relaxation (arc consistency) is log-space complete for P (the class of polynomial-time deterministic sequential algorithms). Intuitively, this implies that discrete relaxation is inherently sequential and it is unlikely that we can solve the polynomial-time version of the consistent labeling problem in logarithmic time by using only a polynomial number of processors. Some practical implications of our result are discussed. We also provide a two-way transformation between AND/OR graphs, propositional Horn satisfiability and local consistency in constraint networks that allows us to develop optimal linear-time algorithms for local consistency in constraint networks.}
+}
+
+@inproceedings{Lynce2006SudokuAsASATProblem,
+  author    = {In{\^{e}}s Lynce and
+               Jo{\"{e}}l Ouaknine},
+  title     = {Sudoku as a {SAT} {P}roblem},
+  booktitle = {International Symposium on Artificial Intelligence and Mathematics,
+               AI{\&}Math 2006, Fort Lauderdale, Florida, USA, January 4-6, 2006},
+  year      = {2006},
+  url       = {http://anytime.cs.umass.edu/aimath06/proceedings/P34.pdf},
+  timestamp = {Tue, 08 Feb 2022 09:27:30 +0100},
+  biburl    = {https://dblp.org/rec/conf/isaim/LynceO06.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{EenAnExtensibleSAT-solver2004,
+author="E{\'e}n, Niklas
+and S{\"o}rensson, Niklas",
+editor="Giunchiglia, Enrico
+and Tacchella, Armando",
+title="An {E}xtensible {SAT}-solver",
+booktitle="Theory and Applications of Satisfiability Testing",
+year="2004",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="502--518",
+abstract="In this article, we present a small, complete, and efficient SAT-solver in the style of conflict-driven learning, as exemplified by Chaff. We aim to give sufficient details about implementation to enable the reader to construct his or her own solver in a very short time. This will allow users of SAT-solvers to make domain specific extensions or adaptions of current state-of-the-art SAT-techniques, to meet the needs of a particular application area. The presented solver is designed with this in mind, and includes among other things a mechanism for adding arbitrary boolean constraints. It also supports solving a series of related SAT-problems efficiently by an incremental SAT-interface.",
+isbn="978-3-540-24605-3"
+}
+
+@misc{webMiniSat,
+  title = {{MiniSat}},
+  author="E{\'e}n, Niklas and S{\"o}rensson, Niklas",
+  howpublished = {\url{http://minisat.se/MiniSat.html}},
+  note = {Accessed: 2022-05-14}
+}
+
+@misc{webSat4j,
+  title = {{Sat4j}},
+  author = {Artois University and CNRS},
+  howpublished = {\url{https://www.sat4j.org/index.php}},
+  note = {Accessed: 2022-06-09}
 }

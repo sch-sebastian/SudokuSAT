@@ -7,28 +7,40 @@
 \subsection{Adder-Network}
 
 \section{Encoding of Sudoku Variants and Constraints}
+\lipsum[1]
+\todo{replace text}
 
 \newpage
 \subsection{Normal Sudoku}
 The normal sudoku rules as introduced in \ref{3:NormalSudoku} can be broken down into the following five constraints, which can be encoded into clauses. The following encoding can be seen as a direct encoding using at-least-one and at-most-one clauses and was proposed by \cite{Lynce2006SudokuAsASATProblem} where it is called the minimal encoding:\\
 
 
-\begin{tabular}{|l | l | r|}
-\hline
-Constraint & Formula & \#Clauses\\
-\hline
-At least one number from 1 to 9 appears in each grid cell. & (S-\ref{S-i}) & 81\\
-\hline
-Every number appears at most once per row. & (S-\ref{S-ii}) & 2916\\
-\hline
-Every number appears at most once per column. & (S-\ref{S-iii}) & 2916\\
-\hline
-Every number appears at most once per box. & (S-\ref{S-iv}) and (S-\ref{S-v}) & 2916\\
-\hline
-Every cell that contains a hint can only have that value. & (S-\ref{S-vi}) & 1/hint\\
-\hline
-\end{tabular}\\
-\\
+\begin{table}[h!]
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}}  c  c}
+        \hline
+        \\
+        Constraint & Formula & \#Clauses\\
+        \\
+        \hline
+        \\
+        At least one number from 1 to 9 appears in each grid cell. & (S-\ref{S-i}) & 81\\
+        \\
+        Every number appears at most once per row. & (S-\ref{S-ii}) & 2916\\
+        \\
+        Every number appears at most once per column. & (S-\ref{S-iii}) & 2916\\
+        \\
+        Every number appears at most once per box. & (S-\ref{S-iv}) and (S-\ref{S-v}) & 2916\\
+        \\
+        Every cell that contains a hint can only have that value. & (S-\ref{S-vi}) & 1/hint\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints of Normal Sudoku.}
+    \label{tab:NormalSudoku}
+\end{table}
+
+
 Formulae of clauses:\\
 \begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} c}
     \\
@@ -47,11 +59,32 @@ Formulae of clauses:\\
 
 \newpage
 \subsection{Anti-Knight}
-Cells that are one knight-distance apart (neighbours) must have different values:\\
-\begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} r}
+\lipsum[1]
+\todo{replace text}
+\begin{table}[h!]
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c  c}
+        \hline
+        \\
+        Constraint & Formula & \#Clauses\\
+        \\
+        \hline
+        \\
+        \makecell[cl]{Cells that are one knight-distance apart (neighbours) \\ must have different values.} & (AK-\ref{AK-i}) & ??\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints of Anti-Knight rule.}
+    \label{tab:AntiKnight}
+\end{table}
+
+
+Formula of clauses:\\
+\begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} c}
     $\displaystyle \bigwedge_{y=1}^9 \bigwedge_{x=1}^9 \bigwedge_{n:neighbours_{x,y}} \bigwedge_{z=1}^9 \neg xyz \lor \neg \{n_x\}\{n_y\}z$ &\consCount{AK} \label{AK-\roman{cons}}\\\
 \end{tabular*}\\
 
+\newpage
 \subsection{Killer}
 \paragraph{Using PBCs:} For every killer cage of the input the index numbers of all its cells are calculated and put in a list. From every list a PBC is created as follows: For every cell$_{x,y}$ of a cage we add $xy1 * 1 + xy2 * 2 + xy3 * 3 + xy4 * 4 + xy5 * 5 + xy6 * 6 + xy7 * 7 + xy8 * 8 + xy9 * 9$ to the left hand side of the PBC. In the used notation $xy1$ is a variable name and the $1$ that follows is a number. The right hand side of the PBC is set to the target sum that was given as input. The different PBC (one for every killer cage) can then be encoded into clauses as explained in \ref{EncodingOfPseudoBooleanConstraints}. As seen in (AK-\ref{AK-i})
 
@@ -61,24 +94,43 @@ The PBC approach can be further optimized, because given a fixed number of summa
 \paragraph{Using Combinations:}
 Another possibility is to completely abandon PBCs and exploit that only certain value combinations are possible given a cage with a fixed target sum and fixed number of cells that belong to it. To encode this every combination is given a corresponding variable $varNum$ which is true iff the corresponding combination is used in a certain cage. This can then be encoded in the following way:\\
 
-For every Cage $g$ and possible combination $c$ (for that cage) it holds that, either the cage's target sum is not achieved using combination $c$ or every cage cell contains at least one value of the combination:\\
-\begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} r}
-    $\displaystyle \bigwedge_{g:groups} \bigwedge_{c:combis_g} \bigwedge_{[x,y]:g} -varNum_c \lor \bigvee_{z:c}  xyz$ & \consCount{K} \label{K-\roman{cons}}\\
-\end{tabular*}\\
+\begin{table}[h!]
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c  c}
+        \hline
+        \\
+        Constraint & Formula & \#Clauses\\
+        \\
+        \hline
+        \\
+        \makecell[cl]{For every Cage $g$ and possible combination $c$ (for that \\
+        cage) it holds that, either the cage's target sum is not \\
+        achieved using combination $c$ or every cage cell \\
+        contains at least one value of the combination.} & (K-\ref{K-i}) & ??\\
+        \\
+        In every Cage $g$ at least one combination $c_a$ is used. & (K-\ref{K-ii}) & ??\\
+        \\
+        In every Cage $g$ at most one combination $c_a$ is used. & (K-\ref{K-iii}) & ??\\
+        \\
+        \makecell[cl]{Every value from 1 to 9 appears at most once within \\
+        the cells of a cage.} & (K-\ref{K-iv}) & ??\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints of Killer rule.}
+    \label{tab:Killer}
+\end{table}
 
-In every Cage $g$ at least one combination $c_a$ is used:\\
-\begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} r}
-    $\displaystyle \bigwedge_{g:cages} \bigvee_{a=1}^{\#combis_g} varNum_{a}$ & \consCount{K} \label{K-\roman{cons}}\\
-\end{tabular*}\\
-
-
-In every Cage $g$ at most one combination $c_a$ is used:\\
-\begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} r}
-    $\displaystyle \bigwedge_{g:cages} \bigwedge_{a=1}^{\#combis_g} \bigwedge_{b=a+1}^{\#combis_g} \neg varNum_a \lor \neg varNum_b$  & \consCount{K} \label{K-\roman{cons}}\\
-\end{tabular*}\\
-
-Every value from 1 to 9 appears at most once within the cells of a cage:\\
-\begin{tabular*}{\textwidth}{ l | l @{\extracolsep{\fill}} r}
+\newpage
+Formulae of clauses:\\
+\begin{tabular*}{\textwidth}{ l c @{\extracolsep{\fill}} c}
+    \\
+    $\displaystyle \bigwedge_{g:groups} \bigwedge_{c:combis_g} \bigwedge_{[x,y]:g} -varNum_c \lor \bigvee_{z:c}  xyz$ & & \consCount{K} \label{K-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{g:cages} \bigvee_{a=1}^{\#combis_g} varNum_{a}$ & & \consCount{K} \label{K-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{g:cages} \bigwedge_{a=1}^{\#combis_g} \bigwedge_{b=a+1}^{\#combis_g} \neg varNum_a \lor \neg varNum_b$  & & \consCount{K} \label{K-\roman{cons}}\\
+    \\
     $\displaystyle \bigwedge_{g:cages} \bigwedge_{[x_i,y_i]:g} \bigwedge_{[x_j,y_j]:g} \bigwedge_{z=1}^{9} \neg x_i y_i z \lor \neg x_j y_j z$ & with $[x_i,y_i] \neq [x_j,y_j]$ &\consCount{K} \label{K-\roman{cons}}\\
 \end{tabular*}\\
 

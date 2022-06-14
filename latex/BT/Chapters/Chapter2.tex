@@ -4,7 +4,7 @@
 Before we dive into how we can translate Sudokus into a language such that a computer can work on them, we first elaborate on some background knowledge and definitions needed to understand the used tools and formalisms.
 
 \section{Propositional Logic}
-Propositional logic is a language that provides a formal way of writing statements that can either be true or false. It is used in this thesis to describe and encode the specific rules that the different Sudoku variants.This section will shortly introduce the common syntax and sematics.
+Propositional logic is a language that provides a formal way of writing statements that can either be true or false. It is used in this thesis to describe and encode the specific rules of the different Sudoku variants. This section will shortly introduce the common syntax and semantics.
 
 \paragraph{Atoms}
 (also called \emph{atomic propositions}) are the smallest units used in propositional logic, and must have a truth value of true or false (often noted as digits 0 and 1).
@@ -63,11 +63,7 @@ Also, it holds that every formula can be brought into CNF \cite{LogicForComputer
 
 \newpage
 \section{SAT-Problems and SAT-Solvers}
-SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula of propositional logic is satisfiable (if there exists a model for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem. They take a formula as input and return a boolean value (true or false) to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis, multiple SAT-Solvers are used, which are described in further detail in \ref{MiniSatAndSat4j}. As we will later see, the time to find solutions for particular problem instances varies between them. However when it comes to computational complexity, it holds that SAT-Problems are in NP and that they are NP-Hard\cite{10.1145/800157.805047}\cite{levin1973universal}, so the runtime of the solvers may scale exponentially with the number of clauses and variables given to them as input.
-
-
-\subsection{How SAT-Solvers solve}
-\todo{Write about unit propagation and DPLL ?}
+SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula of propositional logic is satisfiable (if there exists a model for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem. They take a formula as input and return a boolean value (true or false) to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis, multiple SAT-Solvers are used, which are described in further detail in \ref{MiniSatAndSat4j}. As we will later see, the time to find solutions for particular problem instances varies between them. However, when it comes to computational complexity, it holds that SAT-Problems are in NP and that they are NP-Hard\cite{10.1145/800157.805047}\cite{levin1973universal}, so the runtime of the solvers may scale exponentially with the number of clauses and variables given to them as input.
 
 \subsection{DIMACS CNF File Format}
 The used SAT-Solvers require the input formula to be in CNF. Further, they expect them to be described in the DIMACS CNF File Format, often just called DIMACS. The abbreviation DIMACS stands for Center for ``Discrete Mathematics and Theoretical Computer Science", which is a collaboration between Rutgers and Princeton University and research firms. The file format was utilised in the DIMACS Implementation Challenge 1993 and since then has become the common file format for SAT-Problems\todoMissing{reference}.\\
@@ -92,12 +88,26 @@ p cnf 3 4
 -1 -2  3  0
 \end{lstlisting}
 
+
+\subsection{How SAT-Solvers solve}
+Given a formula, a SAT-solver must decide if it is satisfiable or not (We assume the formula is in CNF so it can be handled as a set of clauses). To do so, the solver tries to find a model by assigning truth values to atoms one by one. In a standard SAT-solver, this is not done randomly but by using the inference mechanism of \emph{unit propagation}. 
+A famous algorithm using this mechanism is the DPLL algorithm\cite{DavisAMachineProgramForTheoremProving1962} which can be directly implemented into a SAT-Solver.
+DPLL applies three rules:
+\begin{enumerate}
+    \item If a clause contains only one literal (or multiple literals, but only one is still unbound and all the others do not make the clause true),  the value that makes the literal true must be assigned. Otherwise, the clause and the formula would become false. If a value gets assigned, all clauses containing the corresponding true literal can be removed from the set of clauses. The corresponding false literals can be removed from all remaining clauses since they can not make them true.
+    \item If there is a literal that only appears in one polarity in all clauses (consistently positive/negative), its atom value can also be assigned to make the literals true.
+    \item  If the set of clauses becomes empty, the formula is ``satisfiable". If an empty clause is derived, the formula is ``unsatisfiable". If no further assignments can be inferred and no decision can be made about satisfiability yet, a literal gets chosen. The algorithm would then continue in two branches, one where the chosen literal gets set to be true and one where it is set to be false. The formula is then satisfiable if and only if it is satisfiable under one of the two assumptions. Repeating this procedure of assigning values creates a Search-Tree of exponential size.
+\end{enumerate}
+SAT-solvers can strongly differentiate in how they choose the next atom to assign a value to and how they learn from entering unsatisfiable branches in the search tree.
+
+
+
 \subsection{MiniSat and Sat4j}\label{MiniSatAndSat4j}
-MiniSat is a light weight SAT-solver that is based on ``the ideas for conflict driven backtracking, together with watched literals and dynamic variable ordering" as the original paper \cite{EenAnExtensibleSAT-solver2004} states. Its original source code in C++ used less than 600 lines. The solver was further refined up to its current version 2.2, but for the experiments in this thesis we use version 1.4 for which precompiled binaries can be found at \cite{webMiniSat}.
+MiniSat is a lightweight SAT-solver that is based on ``the ideas for conflict-driven backtracking, together with watched literals and dynamic variable ordering" as the original paper \cite{EenAnExtensibleSAT-solver2004} states. Its original source code in C++ used less than 600 lines. The solver was further refined up to its current version 2.2, but for the experiments in this thesis we use version 1.4 for which precompiled binaries can be found at \cite{webMiniSat}.
 
-Sat4j is a Java library that provides a SAT-solver that can be directly called and run in Java. It does not provide the best performance, but because it is easy to use and integrate, it is well suited for early experimenting and testing. The used version is 2.3.4, the library itself and further details can be found at \cite{webSat4j}.
+Sat4j is a Java library that provides a SAT-solver that can be directly called and run in Java. It does not provide the best performance, but because it is easy to use and integrate, it is well suited for early experimenting and testing. The used version is 2.3.4. The library itself and further details can be found at \cite{webSat4j}.
 
-MiniSat+ (a special version of MiniSat) and Sat4j provide native support for pseudo boolean constraints, however this feature will not be used because this thesis aims to translate Sudoku puzzles into a form that can be solve with arbitrary SAT-solvers.
+MiniSat+ (a particular version of MiniSat) and Sat4j provide native support for pseudo boolean constraints. However, this feature will not be used because this thesis aims to translate Sudoku puzzles into a form that can be solved with arbitrary SAT-solvers.
 
 \section{Constraint Networks (CN)}
 Puzzles like Sudoku can be broken down into multiple constraints that must all hold for a solution to be correct. Problems like this can be described using constraint networks. The issue of finding a solution to a constraint network is called Constraint Satisfaction Problem or short CSP. Solutions for constraint networks can be found using Backtracking Search (\cite{ArtificialAModernApproach}, page 175).However, this thesis aims to find such solutions by first encoding the Constraints into SAT-Problems that arbitrary SAT-Solvers can then solve. This section will shortly discuss how constraint networks are defined and how they can be translated directly to general SAT-Problems.

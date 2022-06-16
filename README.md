@@ -222,6 +222,45 @@ Use `SecretDirection` to specify the start cell and its value of the secret path
 In this example the path starts at the cell with coordinates (x=5, y=5) and this cell has a value of 2 from which it
 follows that the first step has length 2.
 
+### {Nurikabe:}
+
+Use `Nurikabe` to specify the position and direction of arrows in the grid, used for a nurikabe style sudoku. The
+direction of the arrows is defined using the letter `u` (up), `d` (down),`l` (left), and`r` (right). Zeros are placed in
+cells that should not contain an arrow. Example (CTCGH:85):
+
+```
+{Nurikabe:
+0 d l l 0 0 0 l 0
+0 0 0 l 0 0 0 0 0
+0 r 0 l r 0 u 0 u
+0 l 0 0 0 d 0 l 0
+d d 0 d 0 0 0 0 0
+r 0 u 0 0 0 0 0 l
+d 0 0 0 0 u 0 u 0
+0 0 l 0 0 0 u 0 0
+r u 0 r 0 0 l l 0
+}
+```
+
+### {Tower:}
+
+Use `Tower` to specify the potential sums and heights of towers (one Tower is placed in every column). First the nine
+sums are listed, then the nine heights corresponding to the towers from left to right. Finally the number of towers is
+specified that do not have increasing cell values followed by the number of towers that do not have matching sums.
+Example (CTCGH:49):
+
+```
+{Tower:
+11 30 28 34 27 31 42 3 41
+3 4 7 5 6 7 8 2 7
+2
+5
+}
+```
+
+In this example the tower of column one has a potential sum of 11 and a height of 3. Two towers do increase and five
+towers will not have a matching sum.
+
 ### {Difficulty:}
 
 Use `Difficulty` to specify a cell that can have multiple values. The different values affect the difficulty of the

@@ -16,6 +16,7 @@ public class SudokuExampleTest {
         ignore.add("nurikabeSudoku.sdq");
         ignore.add("nurikabeEmpty.sdq");
         ignore.add("nurikabeEmptyOnly.sdq");
+        ignore.add("nurikabeSudokuUnsat.sdq");
         File dir = new File(Paths.get("src", "main", "data").toString());
         File[] files = dir.listFiles();
         for (File file : files) {

@@ -373,7 +373,7 @@ public class Nurikabe extends Constraint {
 
     ClauseSet islandCellInOneWalkLayerPerSource() {
         ClauseSet clauses = new ClauseSet();
-        for (int n = 1; n <=maxIslands; n++) {
+        for (int n = 1; n <= maxIslands; n++) {
             for (int y = 1; y <= 9; y++) {
                 for (int x = 1; x <= 9; x++) {
                     for (int yS = 1; yS <= 9; yS++) {
@@ -413,7 +413,18 @@ public class Nurikabe extends Constraint {
                 islandXY[i - 1] = Environment.getVC();
                 Environment.incVC();
             }
+            if (oceanXY.length == 0) {
+                clauses.add(new Clause());
+                // An arrow that points directly outside the grid makes the puzzle unsat.
+            }
             for (int z = 1; z <= 9; z++) {
+                if (oceanXY.length < z) {
+                    clauses.add(new Clause(-(100 * arrow.get(0).get(0) + 10 * arrow.get(0).get(1) + z)));
+                    // An arrow cell value can not be larger than the number of cells in its direction.
+                    // Adding this and leaving away the corresponding PBC does not decrease the number of clauses by
+                    // much, but decreases the solving time by more than 6x.
+                    continue;
+                }
                 //Ocean-------------------------------------------------------------------------------------------------
                 PBC pbcOcean = new PBC(oceanXY, weights, z);
                 int oceanVar = Environment.getVC();

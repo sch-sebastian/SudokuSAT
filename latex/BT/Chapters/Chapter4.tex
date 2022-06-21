@@ -1,18 +1,22 @@
 % !TEX root = ../Thesis.tex
-\chapter{Encoding}
+\chapter{Encoding}\label{Encoding}
+As introduced in \ref{DIMACS}, the SAT-Solvers expect a DIMAC file as input that describes a set of clauses. This chapter details how the different Sudoku Variants and their rules can be encoded into these clause sets. We elaborate on the different variants separately, but as long as there are no direct contradictions, the different variants and rules should be freely combinable (Which can be realised by creating the Union of the corresponding clause sets). In the following formulae, we use the notation $s_{x_{n},...,x_{0}}$ to describe boolean variables, the corresponding integer numbers in the DIMACS files have the values $x_{n}*10^{n}+...+x_{0}*10^{0}$. For example, the literal $\neg s_{1,2,3}$ would be transformed to $-123$. There are two ways how we choose the name (number) for a variable during the encoding process:
 
+\begin{enumerate}
+    \item We use increasing values starting from 1. These dynamically chosen values are, by example, used for variables necessary to encode PBCs. We use $s_{v}$ to describe them in the formulae as we do not know the corresponding integers in advance.
+    \item  We use fixed intervals of numbers to encode certain constraints. Here every digit of a number has a semantic meaning. The dynamically generated variables skip these fixed intervals. A fixed interval is, for example, used for the boolean variables that describe the cell values of the Sudoku grid. The variable $s_{x,y,z}$ is true if and only if cell ($x$,$y$) has the value $z$ assigned (as proposed in \cite{Lynce2006SudokuAsASATProblem}). The other used fixed intervals are indicated in the corresponding subsections of this chapter\todo{Actually do that!}. 
+\end{enumerate}
+
+It is important to note that the numbers used as variable names are not ``continuous". There are ``gaps". For example, not all integers from 1 to 1000 are used. This is because the dynamic variables skip the entire interval from 111 to 999, and the fixed variables used to encode cell values will not use numbers like 400 because we start to count rows at 1, and the grid cells can only hold values from 1 to 9. The needed fixed intervals grow larger when encoding more complicated variants, and with them often also the ``gaps". These gaps have no effect logically, but they can have a non-negligible effect on the time needed by the solvers, which is affected by the highest integer value used to describe a variable. However, as the ``gaps" are the same when encoding Sudokus with the same rules, they should not make a difference when comparing solver-times.
 
 \section{Encoding of Pseudo Boolean Constraints}\label{EncodingOfPseudoBooleanConstraints}
 \subsection{Binary Decision Diagram}
 \subsection{Adder-Network}
 
 \section{Encoding of Sudoku Variants and Constraints}
-\lipsum[1]
-\todo{replace text}
 
-\newpage
 \subsection{Normal Sudoku}
-The normal sudoku rules as introduced in \ref{3:NormalSudoku} can be broken down into the following five constraints, which can be encoded into clauses. The following encoding can be seen as a direct encoding using at-least-one and at-most-one clauses and was proposed by \cite{Lynce2006SudokuAsASATProblem} where it is called the minimal encoding:\\
+The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down into the following five constraints, which can be encoded into clauses. The following encoding can be seen as a direct encoding using at-least-one and at-most-one clauses and was proposed by \cite{Lynce2006SudokuAsASATProblem} where it is called the minimal encoding:\\
 
 
 \begin{table}[h!]
@@ -124,7 +128,7 @@ Another possibility is to completely abandon PBCs and exploit that only certain 
 Formulae of clauses:\\
 \begin{tabular*}{\textwidth}{ l c @{\extracolsep{\fill}} c}
     \\
-    $\displaystyle \bigwedge_{g:groups} \bigwedge_{c:combis_g} \bigwedge_{[x,y]:g} -varNum_c \lor \bigvee_{z:c}  xyz$ & & \consCount{K} \label{K-\roman{cons}}\\
+    $\displaystyle \bigwedge_{g:groups} \bigwedge_{c:combis_g} \bigwedge_{[x,y]:g} -s_v \lor \bigvee_{z:c}  s_{x,y,z}$ & & \consCount{K} \label{K-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{g:cages} \bigvee_{a=1}^{\#combis_g} varNum_{a}$ & & \consCount{K} \label{K-\roman{cons}}\\
     \\

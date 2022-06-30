@@ -1,6 +1,6 @@
 % !TEX root = ../Thesis.tex
-\chapter{Sudoku Types and Constraints}\label{SudokuTypesAndConstraints}
-This chapter introduces the most common Sudoku types and constraints used in CTCGH \cite{CrackingTheCryptic2021}. The aim here is to give an overview, so the descriptions are on a high level and relatively informal. A formal definition and further details on how the constraints and types are encoded to CNF can be found in chapter \ref{Encoding}.
+\chapter{Sudoku Variants and Rules}\label{SudokuVariantsAndRules}
+This chapter introduces the most common Sudoku variants and rules used in CTCGH \cite{CrackingTheCryptic2021}, which are all based on the normal Sudoku rules introduced in Section \ref{NormalSudoku}. Meaning the normal Sudoku rules still apply, in addition to the rules of the variants introduced in this chapter. The aim here is to give an overview, so the descriptions are on a high level and relatively informal. All A formal definition and further details on how the constraints and types are encoded to CNF can be found in chapter \ref{Encoding}.
 
 \section{Killer Sudoku}
 In a Killer Sudoku, the normal Sudoku rules apply. Additionally, some (not necessarily all) orthogonally adjacent cells are grouped in so-called cages. Each cell can be part of at most one cage. For each cage, two constraints must hold, firstly, the values of all its cells must have a certain sum (\emph{target sum}), and within a cage, each value may only appear once. The cages are often marked on the grid with dashed lines or by colouring their cells, and a small number is placed in the top-left cell of a cage to specify its targeted sum. See Figure \ref{fig:exampleKiller} for an example.

@@ -8,15 +8,11 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.HashSet;
 
-public class SudokuExampleTest {
+public class SudokuKillerExperimentTest {
 
     @Test
     void Examples() {
         HashSet<String> ignore = new HashSet<>();
-        ignore.add("nurikabeSudoku.sdq");
-        ignore.add("nurikabeEmpty.sdq");
-        ignore.add("nurikabeEmptyOnly.sdq");
-        ignore.add("nurikabeSudokuUnsat.sdq");
         File dir = new File(Paths.get("src", "main", "data").toString());
         File[] files = dir.listFiles();
         for (File file : files) {
@@ -27,7 +23,7 @@ public class SudokuExampleTest {
             if (!name.endsWith(".sdq") || ignore.contains(name)) {
                 continue;
             }
-            if (name.contains("TheTimes") || ignore.contains(name)) {
+            if (!name.contains("TheTimes") || ignore.contains(name)) {
                 continue;
             }
             String[] args = {name, "MiniSat"};

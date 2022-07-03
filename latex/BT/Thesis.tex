@@ -13,6 +13,30 @@
 \renewcommand{\thecons}{\roman{cons}}
 \newcommand\consCount[1]{\refstepcounter{cons} \text{(#1-\roman{cons})}}
 
+\newcommand{\false}{$\textit{false}$}
+\newcommand{\true}{$\textit{true}$}
+\newcommand{\pseudo}{\lstset%
+{%
+    emph=[1]%
+    {%
+        If,
+        While,
+        Else,
+        For,
+        AdderNetworkEncoder,
+        BuildBDD,
+        Return,
+    },
+    emphstyle=[1]{\bfseries},
+    %
+    emph=[2]% Variable Types
+    {% 
+       false,
+       true,
+    },
+  emphstyle=[2]{\textit{}\ttfamily},
+}}
+
 
 \lstdefinelanguage{Pseudo}{
     morekeywords={If, While, Else},

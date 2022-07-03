@@ -10,91 +10,186 @@ As introduced in \ref{DIMACS}, the SAT-Solvers expect a DIMACS file as input tha
 It is important to note that the numbers used as variable names are not ``continuous". There are ``gaps". For example, not all integers from 1 to 1000 are used. This is because the dynamic variables skip the entire interval from 111 to 999, and the fixed variables used to encode cell values will not use numbers like 400 because we start to count rows at 1, and the grid cells can only hold values from 1 to 9. The needed fixed intervals grow larger when encoding more complicated variants, and with them often also the ``gaps". These gaps have no effect logically, but they can have a non-negligible effect on the time needed by the solvers, which is affected by the highest integer value used to describe a variable. However, as the ``gaps" are the same when encoding Sudokus with the same rules, they should not make a difference when comparing solver-times.
 
 \section{Encoding of PBCs using Binary Decision Diagrams}\label{PBCEncodingBDD}
-A binary decision diagram (BDD) is a directed graph that can be used to represent logical formulae. Every graph node corresponds to a partial assignment to the variables in the formula. The BDD has a root node which corresponds to the empty assignment. Every edge from a node $u$ to a node $v$ corresponds to an extension of the assignment of node $u$. Every node has at most two successors, one reachable via the edge that corresponds to assigning $true$ and one via the edge that corresponds to assigning $false$ to the next variable. Nodes store references to their successors as \emph{$true_{child}$} and \emph{$false_{child}$} respectively. Variables are considered in a fixed order. As recommended in \cite{Een2006TranslatingPC}, ordering them by decreasing\todo{do that} weight values is generally reasonable. If the variable value assignment determines the value of the entire logical formula that the BDD represents, the corresponding successor is a terminal node. Terminal nodes have no successors, as their corresponding assignment already satisfies the  logical formula, or it is impossible to extend the  assignment to satisfy the formula (The assignment of terminal nodes does not have to be a total one).\\
+A binary decision diagram (BDD) is a directed graph that can be used to represent logical formulae and PBCs. 
+Variables are considered in a fixed order. As recommended in \cite{Een2006TranslatingPC}, ordering them by decreasing\todo{do that} weight values is generally reasonable. Every graph node corresponds to a sum and a subset of variables of the formula. The BDD has a root node corresponding to the empty variable set and sum 0. If a node is $n$ edges away from the root, its variable set contains the $n$ first variables, and such a node is said to be at depth $n$. An edge from a node $u$ at depth $k$ to a node $v$ at depth $k+1$ corresponds to assigning a truth value to the $(k+1)$-th variable. Every node has at most two successors, one reachable via the edge that corresponds to assigning \true{} and one via the edge that corresponds to assigning \false{} to the next variable. Nodes store references to their successors as \emph{$\textit{true}_{child}$} and \emph{$\textit{false}_{child}$}, respectively. Paths from the root to a node correspond to variable assignments to the variables in a node´s variable set and define the node's sum, which is equal to the sum of PBC weights that are multiplied by variables that are set to \true{} by the assignment.\\
 
-Since we want to encode PBCs, it is helpful to store for each node the sum that is achieved by adding together all the weights of the variables assigned to $true$ by the (partial) assignment of the node. Also, we assign an integer number to each node which can later be used to describe a boolean variable (called \emph{assignmentVariable}) that is true if and only if the partial assignment of the node is present.\todo{``present" is not correct...formulate it better...} \\
+Terminal nodes however have no children. Terminal nodes are either nodes at depth $l$ (with $l$ equal to the total number of different variables in the formula) or nodes with a too high or too low sum regarding the variables already assigned in the paths to them.\\
 
-The BDD can be built using a Breadth-First-Search starting in the root, shown as pseudocode in \ref{CodeBDDConstruction}. The version we use for encoding PBCs differs from the one introduced in \cite{Een2006TranslatingPC} because it is written to encode equations rather than inequations. Further, the used queue has additional functionalities: Given a node, it can check if it already contains a node with the same attribute values and can return said equal node. The \emph{updated sums} of successor nodes either are the same as their predecessors ($false$ was assigned) or are equal to the sum of their predecessor plus the weight value corresponding to the edge that led to them (true was assigned).
+An integer number is assigned to each node which can later be used to describe a boolean variable (called \emph{extendable}). The  \emph{extendable} variable of a node is true if and only if the partial assignments that correspond to the paths from the root to it can be further extended to total assignments that respect the PBC the BDD represents.\\
+
+The BDD can be built using a Breadth-First-Search starting in the root, shown as pseudocode in \ref{CodeBDDConstruction}. The version we use for encoding PBCs differs from the one introduced in \cite{Een2006TranslatingPC} because it is written to encode equations rather than inequations. Further, the used queue has additional functionalities: Given a node, it can check if it already contains a node with the same attribute values and can return said equal node. The \emph{updated sums} of successor nodes either are the same as their predecessors (\false{} was assigned) or are equal to the sum of their predecessor plus the weight value corresponding to the edge that led to them (\true{} was assigned).
 
 
 
 {
-\lstset%
-{%
-    emph=[1]%
-    {%
-        If,
-        While,
-        Else,
-    },
-    emphstyle=[1]{\bfseries},
-    %
-    emph=[2]% Variable Types
-    {% 
-       false,
-       true,
-    },
-  emphstyle=[2]{\textit{}\ttfamily},
-}
-\begin{lstlisting}[frame=single,caption={Pseudo Code of BDD construction},captionpos=b, label=CodeBDDConstruction]
-queue.append(root)
-While not queue is empty:
-    Node current = queue.poll()
-    If assigning next variable leads to a total assignment:
-        Node cT = Create true successor node with updated sum
-        Node cF = Create true successor node with updated sum
-    Else:
-        Node cT = Create true successor node with updated sum
-        If cT.sum >= RHS:
-            # true successor is a terminal node
+\pseudo{}
+\begin{lstlisting}[frame=single,caption={Pseudo Code of BDD construction},captionpos=b, label=CodeBDDConstruction, basicstyle=\footnotesize]
+BuildBDD(PBC):
+    queue = empty queue
+    queue.append(createRoot())
+    While not queue is empty:
+        Node current = queue.first()
+        If assigning next variable leads to a total assignment:
+            Node cT = Create true successor node with updated sum
+            Node cF = Create true successor node with updated sum
         Else:
-            # true successor is not a terminal node
-            If cT not in queue:
-                queue.append(cT)
+            Node cT = Create true successor node with updated sum
+            If cT.sum >= RHS:
+                # true successor is a terminal node
             Else:
-                cT = queue.get(cT)
-        Node cF = Create false successor node with updated sum
-        If cF.sum + sum of remaining weights < RHS:
-            # false successor is a terminal node
-        Else:
-            # false successor is not a terminal node
-            If cF not in queue:
-                queue.append(cF)
+                # true successor is not a terminal node
+                If cT not in queue:
+                    queue.append(cT)
+                Else:
+                    cT = queue.get(cT)
+            Node cF = Create false successor node with updated sum
+            If cF.sum + sum of remaining weights < RHS:
+                # false successor is a terminal node
             Else:
-                cF = queue.get(cF)
-    current.true_child = cT
-    current.false_child = cF
+                # false successor is not a terminal node
+                If cF not in queue:
+                    queue.append(cF)
+                Else:
+                    cF = queue.get(cF)
+        current.true_child = cT
+        current.false_child = cF
+    Return root
 \end{lstlisting}
 }
 
-Once the BDD is built, we can transform it into clauses. In \cite{Een2006TranslatingPC}, it is explained how this can be achieved by treating the BDD network as a circuit of ITEs (if-then-else gates). However, it suffices to know that the BDD can be transformed by doing a second Breadth-First-Search starting from the root and that for each visited node that is not a terminal node, the following six implications must be added to the set of formulas:
+Once the BDD is built, we can transform it into clauses. In \cite{Een2006TranslatingPC}, it is explained how this can be achieved by treating the BDD network as a circuit of ITEs (if-then-else gates). However, it suffices to know that the BDD can be transformed by doing a second Breadth-First-Search starting from the root and that for each visited node that is not a terminal node, the following six implications must be added to the set of formulas \cite{Een2006TranslatingPC}:
 
 \begin{enumerate}
-    \item If the \emph{assignmentVariable} of the current node is true and the variable corresponding to the leaving edges from this node is true, then it follows that the \emph{assignmentVariable} of the $true_{child}$ node is true.
-    \item If the \emph{assignmentVariable} of the current node is true and the variable corresponding to the leaving edges from this node is false, then it follows that the \emph{assignmentVariable} of the $false_{child}$ node is true.
-    \item If the \emph{assignmentVariable} of the current node is false and the variable corresponding to the leaving edges from this node is true, then it follows that the \emph{assignmentVariable} of the $true_{child}$ node is false.
-    \item If the \emph{assignmentVariable} of the current node is false and the variable corresponding to the leaving edges from this node is false, then it follows that the \emph{assignmentVariable} of the $false_{child}$ node is false.
-    \item If the \emph{assignmentVariable} of the $true_{child}$ node is true and the \emph{assignmentVariable} of the $false_{child}$ node is true, then it follows that the \emph{assignmentVariable} of the current node is true.
-    \item If the \emph{assignmentVariable} of the $true_{child}$ node is false and the \emph{assignmentVariable} of the $false_{child}$ node is false, then it follows that \emph{assignmentVariable} of the current node is false.
+    \item If the \emph{extendable} variable of the current node is true and the variable corresponding to the leaving edges from this node is true, then it follows that the \emph{extendable} variable of the $true_{child}$ node is true.
+    \item If the \emph{extendable} variable of the current node is true and the variable corresponding to the leaving edges from this node is false, then it follows that the \emph{extendable} variable of the $false_{child}$ node is true.
+    \item If the \emph{extendable} variable of the current node is false and the variable corresponding to the leaving edges from this node is true, then it follows that the \emph{extendable} variable of the $true_{child}$ node is false.
+    \item If the \emph{extendable} variable of the current node is false and the variable corresponding to the leaving edges from this node is false, then it follows that the \emph{extendable} variable of the $false_{child}$ node is false.
+    \item If the \emph{extendable} variable of the $true_{child}$ node is true and the \emph{extendable} variable of the $false_{child}$ node is true, then it follows that the \emph{extendable} variable of the current node is true.
+    \item If the \emph{extendable} variable of the $true_{child}$ node is false and the \emph{extendable} variable of the $false_{child}$ node is false, then it follows that \emph{extendable} variable of the current node is false.
 \end{enumerate}
 
-Additionally, we add a clause that only contains the positive literal corresponding to the \emph{assignmentVariable} of the root node. Also, when visiting a node during this second Breadth-First-Search, we only append its children that are not terminal nodes. For children that are terminal nodes, we add a clause to the set of clauses: 
+Additionally, we add a clause that only contains the positive literal corresponding to the \emph{extendable} variable of the root node. Also, when visiting a node during this second Breadth-First-Search, we only append its children that are not terminal nodes. For children that are terminal nodes, we add a clause to the set of clauses: 
 \begin{itemize}
-    \item If the child's sum is equal to the RHS, a clause containing a positive literal corresponding to the \emph{assignmentVariable} of the child is added.
-    \item If the child's sum is unequal the RHS, a clause containing a negative literal corresponding to the \emph{assignmentVariable} of the child is added.
+    \item If the child's sum is equal to the RHS, a clause containing a positive literal corresponding to the \emph{extendable} variable of the child is added.
+    \item If the child's sum is unequal the RHS, a clause containing a negative literal corresponding to the \emph{extendable} variable of the child is added.
 \end{itemize}
-An example is shown in Figure \ref{fig:BDDExample} where the BDD and the clauses are depicted that are used to encode the PBC $6*v_1+4*v_2+2*v_3=6$. The already achieved sums are written inside the nodes and the nodes \emph{assignmentVariables} are denoted as $a_i$ for $i\in \{1,2,3,4,5,6,7\}$. Edges with a circle are assigning $false$. Edges with a line are assigning $true$.
+An example is shown in Figure \ref{fig:BDDExample} where the BDD and the clauses are depicted that are used to encode the PBC $6*v_1+4*v_2+2*v_3=6$. Sums are written inside the nodes, and \emph{extendable} variables are denoted as $a_i$ for $i\in \{1,2,...,10\}$. Edges with a circle correspond to assigning \false{}. Edges with a line correspond to assigning \true{}.
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{Figures/BDDExampleComposition.png}
+\includegraphics[width=\textwidth]{Figures/BDDExampleComposition3.png}
 \caption{BDD and clauses to encode $6*v_1+4*v_2+2*v_3=6$}
 \label{fig:BDDExample}
 \end{figure}
 
 
-\section{Encoding of PBCs using Adder-Networks}\label{PBCEncodingAdderNetworks}
+\section{Encoding of PBCs using Adder Networks}\label{PBCEncodingAdderNetworks}
+Adder Networks are built from Full and Half Adder nodes. A Full Adder (FA) is a node with three inputs and two outputs. A Half Adder (HA) is a node with two inputs and two outputs. The input and output values are binary (\true{}/\false{}). The outputs are name \emph{sum} and \emph{carry}, and their values are computed as follows. If at least two inputs are true, the carry output is true. Otherwise, it is false. If one or three inputs are true, the sum output is true, Otherwise it is false. This behaviour can be encoded into clauses, as shown in \ref{AdderNetworkClauses}, and as the name implies, it allows Adder Networks to compute sums over binary numbers. Binary numbers are Strings of bits, where each bit is either 1 (\true) or 0 (\false). The bit at position $k$ represents a value of $2^k$ and is called $k$-bit (This notation differs from the one used in \cite{Een2006TranslatingPC}). \\
 
+An Adder Network used to sum numbers is explained best layer by layer. When adding binary numbers, the summand k-bits get fed into layer k. Layer k then also takes the carry values from the previous layer (k-1) as input for its nodes except if k is 0.  A layer's sum outputs are fed as input to adder nodes in the same layer (potentially requiring additional nodes) until only one input value remains. The remaining value of layer k then corresponds to the value of the $k$-bit of the overall addition result. The carry outputs of a layer are ``carried over" to the next layer, where they become inputs to the adder nodes. The last layer has only one input, and its value gets directly treated as the output of this layer. Figure \ref{fig:AdderNetworkExample} shows an example network that can add three numbers, A, B and C, with values from 0 to 7 (3 bit long numbers).\\
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.72\textwidth]{Figures/AdderNetworkExample2.png}
+\caption{Adder Network computing 6 + 4 + 2 = 12}
+\label{fig:AdderNetworkExample}
+\end{figure}
+
+As shown in \cite{Een2006TranslatingPC}, Adder Networks can be used to encode PBC. The weights of the PBC are taken as inputs for the network. Every input bit gets associated with the boolean variable that is multiplied by the weight they encode in the PBC. So if a boolean variable on the LHS of a PBC is \false{}, all the input bits of the corresponding weights are 0. The outputs of the adder nodes also get boolean variables assigned, including those outputs corresponding to the bit values of the overall result. These values should be equal to the corresponding bit values of the PBC's RHS as the PBCs we want to encode are equations. To enforce this, the values get compared, and corresponding unit clauses are added to the result set of clauses.\\
+
+The encoding procedure (an adapted version of the algorithm  originally proposed in \cite{Een2006TranslatingPC}) is depicted as pseudocode in figure \ref{CodeAdderNetwork}. What makes the algorithm presented in \cite{Een2006TranslatingPC} so efficient is that only the needed adder nodes are created, depending on how many \true{} inputs there are in a layer. This dynamic generation keeps the number of adder nodes that actually get transformed into clauses as small as possible. For example, to encode the PBC $6*v_1+4*v_2+2*v_3=6$, only two adder nodes (One Half Adder in Layer-1 and one Full Adder in Layer-2) must be transformed into clauses even though seven adders are needed to add up the numbers 6, 4 and 2 (see figure \ref{fig:AdderNetworkExample}).
+
+{
+\pseudo{}
+\begin{lstlisting}[frame=single,caption={Pseudocode of PBC encoding using an Adder Network},captionpos=b, label=CodeAdderNetwork, basicstyle=\footnotesize]
+AdderNetworkEncoder(PBC):
+    clauseSet = empty Set
+    Translate PBC weights to binary
+    Translate RHS to binary
+    bucketMap = Create empty map, integer --> bucket
+    For every PBC weight:
+        For every k-bit of the weight:
+            If the bit is true:
+                If bucketMap has no key == k:
+                    bucketMap[k] = new bucket
+                Add variable that is multiplied with current weigth 
+                in the PBC to k-bucket in the bucketMap
+    output = empty list
+    currentK = 0
+    While there exists k-buckets with k >= currentK:
+        While bucketMap has no key == currentK:
+            Append false-variable to output
+            currentK++
+        While k-bucket contains at least 3 variables:
+            Create Full Adder with 3 variables of the k-bucket as input
+            Add Full Adder clauses to clauseSet
+            Create (k+1)-bucket if not present
+            Put the Full Adders carry variable in the (k+1)-bucket
+            Put the Full Adders sum variable in the k-bucket
+        While k-bucket contains at least 2 variables:
+            Create Half Adder with 2 variables of the k-bucket as input
+            Add Half Adder clauses to clauseSet
+            Create (k+1)-bucket if not present
+            Put the Half Adders carry variable in the (k+1)-bucket
+            Put the Half Adders sum variable in the k-bucket
+        Append the one remaining variable of the k-bucket to output
+        currentK++
+    While output.length < RHS.length:
+        Append false-variables to output
+    While output.length > RHS.length:
+        Append false-variables to RHS
+    For every RHS bit:
+        If bit is true:
+            Add a clause that contains a positive literal
+            of the corresponding output variable to clauseSet
+        Else:
+            Add a clause that contains a negative literal
+            of the corresponding output variable to clauseSet
+    Return clauseSet
+\end{lstlisting}
+}
+
+During algorithm \ref{PBCEncodingAdderNetworks}, Half and Full Adders are transformed into clauses, which can then be added to the result set of clauses that the procedure returns. Assuming the input variables of an adder are $x_1$, $x_2$ and $x_3$, the corresponding output variables are $s$ for the sum and $c$ for the carry. Then the needed implications (as presented in \cite{Een2006TranslatingPC} for Full Adders) to logically describe the adder nodes are as shown in Figure \ref{AdderNetworkClauses}.
+
+\begin{figure}
+    \centering
+    %\def\arraystretch{1.5}
+    \begin{tabular}{l l l}
+    %\hline
+    %&&\\
+    \multicolumn {3}{l}{Full Adder clauses:}\\
+     $\{~~x,~~y,~~z,\neg s\}$           & from & $(\neg x   \land \neg y    \land \neg z)   \rightarrow \neg s$ \\
+     $\{~~x,\neg y,\neg z,\neg s\}$     & from & $(\neg x   \land ~~y       \land ~~z)      \rightarrow \neg s$ \\
+     $\{\neg x,~~y,\neg z,\neg s\}$     & from & $(~~x      \land \neg y    \land ~~z)      \rightarrow \neg s$ \\
+     $\{\neg x,\neg y,~~z,\neg s\}$     & from & $(~~x      \land ~~y       \land \neg z)   \rightarrow \neg s$ \\
+     $\{\neg x,\neg y,\neg z, ~~s\}$    & from & $(~~x      \land ~~y       \land ~~z)      \rightarrow ~~s$ \\
+     $\{\neg x, ~~y, ~~z, ~~s\}$        & from & $(~~x      \land \neg y    \land \neg z)   \rightarrow ~~s$ \\
+     $\{~~x, \neg y, ~~z, ~~s\}$        & from & $(\neg x   \land ~~y       \land \neg z)   \rightarrow ~~s$ \\
+     $\{~~x, ~~y, \neg z, ~~s\}$        & from & $(\neg x   \land \neg y    \land ~~z)      \rightarrow ~~s$ \\
+     $\{\neg x, \neg y, ~~c\}$          & from & $(~~x      \land ~~y)      \rightarrow ~~c$ \\
+     $\{\neg x, \neg z, ~~c\}$          & from & $(~~x      \land ~~z)      \rightarrow ~~c$ \\
+     $\{\neg y, \neg z, ~~c\}$          & from & $(~~y      \land ~~z)      \rightarrow ~~c$ \\
+     $\{~~x, ~~y, \neg c\}$          & from & $(\neg x      \land \neg y)   \rightarrow \neg c$ \\
+     $\{~~x, ~~z, \neg c\}$          & from & $(\neg x      \land \neg z)   \rightarrow \neg c$ \\
+     $\{~~y, ~~z, \neg c\}$          & from & $(\neg y      \land \neg z)   \rightarrow \neg c$ \\
+     &&\\
+     \multicolumn {3}{l}{Half Adder clauses:}\\
+     $\{~~x, ~~y, \neg s\}$          & from & $(\neg x      \land \neg y)   \rightarrow \neg s$ \\
+     $\{~~x, \neg y, ~~s\}$          & from & $(\neg x      \land ~~y)      \rightarrow ~~s$ \\
+     $\{\neg x, ~~y, ~~s\}$          & from & $(~~x         \land \neg y)   \rightarrow ~~s$ \\
+     $\{\neg x, \neg y, ~~s\}$       & from & $(~~x         \land ~~y)   \rightarrow \neg s$ \\
+     $\{~~x, ~~y, \neg c\}$          & from & $(\neg x      \land \neg y)   \rightarrow \neg c$ \\
+     $\{~~x, \neg y, \neg c\}$          & from & $(\neg x      \land ~~y)      \rightarrow \neg c$ \\
+     $\{\neg x, ~~y, \neg c\}$          & from & $(~~x         \land \neg y)   \rightarrow \neg c$ \\
+     $\{\neg x, \neg y, ~~c\}$       & from & $(~~x         \land ~~y)   \rightarrow ~~c$ \\
+     %&&\\
+     %\hline
+    \end{tabular}
+    \caption{Clauses for Full and Half Adders}
+    \label{AdderNetworkClauses}
+\end{figure}
+
+\newpage
 \section{Encoding of Sudoku Variants and Constraints}
 
 \subsection{Normal Sudoku}

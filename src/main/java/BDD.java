@@ -1,5 +1,8 @@
 package main.java;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class BDD extends PBCConverter {
 
     private static class BDDNode {
@@ -33,14 +36,58 @@ public class BDD extends PBCConverter {
         }
     }
 
+    private static class VariableWeightPair implements Comparable<VariableWeightPair>{
+        int variable;
+        int weight;
+
+
+        public VariableWeightPair(int variable, int weight) {
+            this.variable = variable;
+            this.weight = weight;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            VariableWeightPair vwp = (VariableWeightPair) o;
+            return variable == vwp.variable && weight == vwp.weight;
+        }
+
+        @Override
+        public int compareTo(VariableWeightPair o) {
+           if(weight > o.weight){
+               return 1;
+           }else if(weight<o.weight){
+               return -1;
+           }else {
+               return 0;
+           }
+        }
+    }
+
+    PBC sort(PBC pbc){
+        ArrayList<VariableWeightPair> vwps = new ArrayList<>();
+        for(int i = 0; i < pbc.vars.length;i++){
+            vwps.add(new VariableWeightPair(pbc.vars[i], pbc.weights[i]));
+        }
+        Collections.sort(vwps);
+        for(int i = 0; i < pbc.vars.length;i++){
+            pbc.vars[i] = vwps.get(vwps.size()-1-i).variable;
+            pbc.weights[i] = vwps.get(vwps.size()-1-i).weight;
+        }
+        return pbc;
+    }
+
 
     public ClauseSet createClauses(PBC pbc, int pbcVar) {
 
+        //pbc = sort(pbc);
         ClauseSet clauses = new ClauseSet();
 
         //Trivial case if 0 variables
-        if(pbc.vars.length == 0){
-            if(pbc.rhs!=0){
+        if (pbc.vars.length == 0) {
+            if (pbc.rhs != 0) {
                 clauses.add(new Clause());
             }
             if (pbcVar != 0) {

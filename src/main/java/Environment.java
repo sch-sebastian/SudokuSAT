@@ -7,7 +7,7 @@ import static main.java.PowerSet.getSumCombi;
 
 public class Environment {
 
-    public static PBCConverter converter = new AdderNetwork();
+    public static PBCConverter converter =  new AdderNetwork();//new BDD();
 
     public static int[][] solution;
 
@@ -24,7 +24,7 @@ public class Environment {
     public static HashMap<Integer, ArrayList<ArrayList<Integer>>>[] sumCombinations = getSumCombi(numbers);
 
     public static void init() {
-        converter = new AdderNetwork();
+        converter = new AdderNetwork();//new BDD();
         solution = null;
         varCounter = 1;
         varCounterMap = new HashMap<>();

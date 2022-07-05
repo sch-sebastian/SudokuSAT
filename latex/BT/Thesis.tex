@@ -9,6 +9,7 @@
 \usepackage{lipsum}
 \usepackage{caption}
 \usepackage{makecell}
+\usepackage{placeins}
 \newcounter{cons}[subsection]
 \renewcommand{\thecons}{\roman{cons}}
 \newcommand\consCount[1]{\refstepcounter{cons} \text{(#1-\roman{cons})}}
@@ -36,7 +37,8 @@
     },
   emphstyle=[2]{\textit{}\ttfamily},
 }}
-
+\DeclareRobustCommand{\rchi}{{\mathpalette\irchi\relax}}
+\newcommand{\irchi}[2]{\raisebox{\depth}{$#1\chi$}} %https://tex.stackexchange.com/questions/103885/how-to-type-an-inline-chi-in-latex
 
 \lstdefinelanguage{Pseudo}{
     morekeywords={If, While, Else},

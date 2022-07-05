@@ -11,7 +11,7 @@ It is important to note that the numbers used as variable names are not ``contin
 
 \section{Encoding of PBCs using Binary Decision Diagrams}\label{PBCEncodingBDD}
 A binary decision diagram (BDD) is a directed graph that can be used to represent logical formulae and PBCs. 
-Variables are considered in a fixed order. As recommended in \cite{Een2006TranslatingPC}, ordering them by decreasing\todo{do that} weight values is generally reasonable. Every graph node corresponds to a sum and a subset of variables of the formula. The BDD has a root node corresponding to the empty variable set and sum 0. If a node is $n$ edges away from the root, its variable set contains the $n$ first variables, and such a node is said to be at depth $n$. An edge from a node $u$ at depth $k$ to a node $v$ at depth $k+1$ corresponds to assigning a truth value to the $(k+1)$-th variable. Every node has at most two successors, one reachable via the edge that corresponds to assigning \true{} and one via the edge that corresponds to assigning \false{} to the next variable. Nodes store references to their successors as \emph{$\textit{true}_{child}$} and \emph{$\textit{false}_{child}$}, respectively. Paths from the root to a node correspond to variable assignments to the variables in a node´s variable set and define the node's sum, which is equal to the sum of PBC weights that are multiplied by variables that are set to \true{} by the assignment.\\
+Variables are considered in a fixed order. As discussed in \cite{Een2006TranslatingPC}, ordering them by decreasing\todo{the otherway arround is not significatly slower, sometimes even faster!} weight values is generally reasonable. Every graph node corresponds to a sum and a subset of variables of the formula. The BDD has a root node corresponding to the empty variable set and sum 0. If a node is $n$ edges away from the root, its variable set contains the $n$ first variables, and such a node is said to be at depth $n$. An edge from a node $u$ at depth $k$ to a node $v$ at depth $k+1$ corresponds to assigning a truth value to the $(k+1)$-th variable. Every node has at most two successors, one reachable via the edge that corresponds to assigning \true{} and one via the edge that corresponds to assigning \false{} to the next variable. Nodes store references to their successors as \emph{$\textit{true}_{child}$} and \emph{$\textit{false}_{child}$}, respectively. Paths from the root to a node correspond to variable assignments to the variables in a node´s variable set and define the node's sum, which is equal to the sum of PBC weights that are multiplied by variables that are set to \true{} by the assignment.\\
 
 Terminal nodes however have no children. Terminal nodes are either nodes at depth $l$ (with $l$ equal to the total number of different variables in the formula) or nodes with a too high or too low sum regarding the variables already assigned in the paths to them.\\
 
@@ -23,6 +23,7 @@ The BDD can be built using a Breadth-First-Search starting in the root, shown as
 
 {
 \pseudo{}
+\renewcommand{\lstlistingname}{Algorithm}
 \begin{lstlisting}[frame=single,caption={Pseudo Code of BDD construction},captionpos=b, label=CodeBDDConstruction, basicstyle=\footnotesize]
 BuildBDD(PBC):
     queue = empty queue
@@ -84,72 +85,73 @@ An example is shown in Figure \ref{fig:BDDExample} where the BDD and the clauses
 
 
 \section{Encoding of PBCs using Adder Networks}\label{PBCEncodingAdderNetworks}
-Adder Networks are built from Full and Half Adder nodes. A Full Adder (FA) is a node with three inputs and two outputs. A Half Adder (HA) is a node with two inputs and two outputs. The input and output values are binary (\true{}/\false{}). The outputs are name \emph{sum} and \emph{carry}, and their values are computed as follows. If at least two inputs are true, the carry output is true. Otherwise, it is false. If one or three inputs are true, the sum output is true, Otherwise it is false. This behaviour can be encoded into clauses, as shown in \ref{AdderNetworkClauses}, and as the name implies, it allows Adder Networks to compute sums over binary numbers. Binary numbers are Strings of bits, where each bit is either 1 (\true) or 0 (\false). The bit at position $k$ represents a value of $2^k$ and is called $k$-bit (This notation differs from the one used in \cite{Een2006TranslatingPC}). \\
+Adder Networks are built from Full and Half Adder nodes. A Full Adder (FA) is a node with three inputs and two outputs. A Half Adder (HA) is a node with two inputs and two outputs. The input and output values are binary (\true{}/\false{}). The outputs are name \emph{sum} and \emph{carry}, and their values are computed as follows. If at least two inputs are true, the carry output is true. Otherwise, it is false. If one or three inputs are true, the sum output is true, Otherwise it is false. This behaviour can be encoded into clauses, and as the name implies, it allows Adder Networks to compute sums over binary numbers. Binary numbers are Strings of bits, where each bit is either $1$ (\true) or $0$ (\false). The bit at position $k$ represents a value of $2^k$ and is called $k$-bit (This notation differs from the one used in \cite{Een2006TranslatingPC}). \\
 
-An Adder Network used to sum numbers is explained best layer by layer. When adding binary numbers, the summand k-bits get fed into layer k. Layer k then also takes the carry values from the previous layer (k-1) as input for its nodes except if k is 0.  A layer's sum outputs are fed as input to adder nodes in the same layer (potentially requiring additional nodes) until only one input value remains. The remaining value of layer k then corresponds to the value of the $k$-bit of the overall addition result. The carry outputs of a layer are ``carried over" to the next layer, where they become inputs to the adder nodes. The last layer has only one input, and its value gets directly treated as the output of this layer. Figure \ref{fig:AdderNetworkExample} shows an example network that can add three numbers, A, B and C, with values from 0 to 7 (3 bit long numbers).\\
+An Adder Network used to sum numbers is explained best layer by layer. When adding binary numbers, the summand $k$-bits get fed into layer $k$. Layer $k$ then also takes the carry values from the previous layer $(k-1)$ as input for its nodes except if $k$ is $0$.  A layer's sum outputs are fed as input to adder nodes in the same layer (potentially requiring additional nodes) until only one input value remains. The remaining value of layer $k$ then corresponds to the value of the $k$-bit of the overall addition result. The carry outputs of a layer are ``carried over" to the next layer, where they become inputs to the adder nodes. The last layer has only one input, and its value gets directly treated as the output of this layer. Figure \ref{fig:AdderNetworkExample} shows an example network that can add three numbers, A, B and C, with values from $0$ to $7$ ($3$ bit long numbers).\\
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
 \centering
 \includegraphics[width=0.72\textwidth]{Figures/AdderNetworkExample2.png}
-\caption{Adder Network computing 6 + 4 + 2 = 12}
+\caption{Adder Network computing $6 + 4 + 2 = 12$}
 \label{fig:AdderNetworkExample}
 \end{figure}
 
-As shown in \cite{Een2006TranslatingPC}, Adder Networks can be used to encode PBC. The weights of the PBC are taken as inputs for the network. Every input bit gets associated with the boolean variable that is multiplied by the weight they encode in the PBC. So if a boolean variable on the LHS of a PBC is \false{}, all the input bits of the corresponding weights are 0. The outputs of the adder nodes also get boolean variables assigned, including those outputs corresponding to the bit values of the overall result. These values should be equal to the corresponding bit values of the PBC's RHS as the PBCs we want to encode are equations. To enforce this, the values get compared, and corresponding unit clauses are added to the result set of clauses.\\
+As shown in \cite{Een2006TranslatingPC}, Adder Networks can be used to encode PBC. The weights of the PBC are taken as inputs for the network. Every input bit gets associated with the boolean variable that is multiplied by the weight they encode in the PBC. In practice, this is accomplished by feeding the boolean variable into the network directly (in the case of a \true{} bit) or by feeding nothing into the network (in the case of a \false{} bit). So if a boolean variable on the LHS of a PBC is \false{}, all the input bits of the corresponding weights are interpreted as $0$ by the network. The outputs of the adder nodes also get boolean variables assigned, including those outputs corresponding to the bit values of the overall result. These values should be equal to the corresponding bit values of the PBC's RHS as the PBCs we want to encode are equations. To enforce this, the values get compared, and corresponding unit clauses are added to the result set of clauses.\\
 
-The encoding procedure (an adapted version of the algorithm  originally proposed in \cite{Een2006TranslatingPC}) is depicted as pseudocode in figure \ref{CodeAdderNetwork}. What makes the algorithm presented in \cite{Een2006TranslatingPC} so efficient is that only the needed adder nodes are created, depending on how many \true{} inputs there are in a layer. This dynamic generation keeps the number of adder nodes that actually get transformed into clauses as small as possible. For example, to encode the PBC $6*v_1+4*v_2+2*v_3=6$, only two adder nodes (One Half Adder in Layer-1 and one Full Adder in Layer-2) must be transformed into clauses even though seven adders are needed to add up the numbers 6, 4 and 2 (see figure \ref{fig:AdderNetworkExample}).
+The encoding procedure (an adapted version of the algorithm  originally proposed in \cite{Een2006TranslatingPC}) is depicted as pseudocode in Figure \ref{CodeAdderNetwork}. What makes the algorithm presented in \cite{Een2006TranslatingPC} so efficient is that only the needed adder nodes are created, depending on how many \true{} inputs there are in a layer. This dynamic generation keeps the number of adder nodes that actually get transformed into clauses as small as possible. For example, to encode the PBC $6*v_1+4*v_2+2*v_3=6$, only two adder nodes (One Half Adder in Layer-1 and one Full Adder in Layer-2) must be transformed into clauses even though seven adders are needed to add up the numbers $6$, $4$ and $2$ (see Figure \ref{fig:AdderNetworkExample}).
 
 {
 \pseudo{}
+\renewcommand{\lstlistingname}{Algorithm}
 \begin{lstlisting}[frame=single,caption={Pseudocode of PBC encoding using an Adder Network},captionpos=b, label=CodeAdderNetwork, basicstyle=\footnotesize]
 AdderNetworkEncoder(PBC):
     clauseSet = empty Set
     Translate PBC weights to binary
     Translate RHS to binary
-    bucketMap = Create empty map, integer --> bucket
+    bucket = Create empty map, integer --> set
     For every PBC weight:
         For every k-bit of the weight:
             If the bit is true:
-                If bucketMap has no key == k:
-                    bucketMap[k] = new bucket
+                If bucket has no key == k:
+                    bucket[k] = new set
                 Add variable that is multiplied with current weigth 
-                in the PBC to k-bucket in the bucketMap
-    output = empty list
-    currentK = 0
-    While there exists k-buckets with k >= currentK:
-        While bucketMap has no key == currentK:
-            Append false-variable to output
-            currentK++
-        While k-bucket contains at least 3 variables:
+                in the PBC to bucket[k]
+    networkOut = empty list
+    k = 0
+    While bucket has keys >= k:
+        While bucket has no key == k:
+            Append false-variable to networkOut
+            k++
+        While bucket[k] contains at least 3 variables:
             Create Full Adder with 3 variables of the k-bucket as input
             Add Full Adder clauses to clauseSet
             Create (k+1)-bucket if not present
-            Put the Full Adders carry variable in the (k+1)-bucket
-            Put the Full Adders sum variable in the k-bucket
-        While k-bucket contains at least 2 variables:
+            Put the Full Adders carry variable in bucket[k+1]
+            Put the Full Adders sum variable in bucket[k]
+        While bucket[k] contains at least 2 variables:
             Create Half Adder with 2 variables of the k-bucket as input
             Add Half Adder clauses to clauseSet
             Create (k+1)-bucket if not present
-            Put the Half Adders carry variable in the (k+1)-bucket
-            Put the Half Adders sum variable in the k-bucket
-        Append the one remaining variable of the k-bucket to output
-        currentK++
-    While output.length < RHS.length:
-        Append false-variables to output
-    While output.length > RHS.length:
-        Append false-variables to RHS
+            Put the Half Adders carry variable in bucket[k+1]
+            Put the Half Adders sum variable in bucket[k]
+        Append the one remaining variable of bucket[k] to networkOut
+        k++
+    While networkOut.length < RHS.length:
+        Append false-variable to networkOut
+    While networkOut.length > RHS.length:
+        Append false-variable to RHS
     For every RHS bit:
         If bit is true:
             Add a clause that contains a positive literal
-            of the corresponding output variable to clauseSet
+            of the corresponding networkOut variable to clauseSet
         Else:
             Add a clause that contains a negative literal
-            of the corresponding output variable to clauseSet
+            of the corresponding networkOut variable to clauseSet
     Return clauseSet
 \end{lstlisting}
 }
 
-During algorithm \ref{PBCEncodingAdderNetworks}, Half and Full Adders are transformed into clauses, which can then be added to the result set of clauses that the procedure returns. Assuming the input variables of an adder are $x_1$, $x_2$ and $x_3$, the corresponding output variables are $s$ for the sum and $c$ for the carry. Then the needed implications (as presented in \cite{Een2006TranslatingPC} for Full Adders) to logically describe the adder nodes are as shown in Figure \ref{AdderNetworkClauses}.
+During algorithm \ref{PBCEncodingAdderNetworks}, Half and Full Adders are transformed into clauses, which can then be added to the result set of clauses that the procedure returns. Assuming the input variables of an adder are $x$, $y$ and $z$, the corresponding output variables are $s$ for the sum and $c$ for the carry. Then the needed implications (as presented in \cite{Een2006TranslatingPC} for Full Adders) to logically describe the adder nodes are as shown in Figure \ref{AdderNetworkClauses}.
 
 \begin{figure}
     \centering
@@ -185,7 +187,8 @@ During algorithm \ref{PBCEncodingAdderNetworks}, Half and Full Adders are transf
      %&&\\
      %\hline
     \end{tabular}
-    \caption{Clauses for Full and Half Adders}
+    \caption{Clauses for Full and Half Adders.\\
+    (Inputs: $x$,$y$,$z$  Sum: $s$  Carry: $c$)}
     \label{AdderNetworkClauses}
 \end{figure}
 
@@ -193,10 +196,10 @@ During algorithm \ref{PBCEncodingAdderNetworks}, Half and Full Adders are transf
 \section{Encoding of Sudoku Variants and Constraints}
 
 \subsection{Normal Sudoku}
-The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down into the following five constraints, which can be encoded into clauses. The following encoding can be seen as a direct encoding using at-least-one and at-most-one clauses and was proposed by \cite{Lynce2006SudokuAsASATProblem} where it is called the minimal encoding:\\
+The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down into the following five constraints, which can be encoded into clauses using the variable $s_{x,y,z}$, which is true iff cell $(x,y)$ has value $z$. The following encoding can be seen as a direct encoding using at-least-one and at-most-one clauses and was proposed by \cite{Lynce2006SudokuAsASATProblem} where it is called the minimal encoding:\\
 
 
-\begin{table}[h!]
+\begin{table}[ht!]
     \centering
     \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}}  c  c}
         \hline
@@ -218,30 +221,40 @@ The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down i
         \hline
     \end{tabular*}
         \caption{Constraints of Normal Sudoku.}
-    \label{tab:NormalSudoku}
+    \label{constraints:NormalSudoku}
 \end{table}
-
-
-Formulae of clauses:\todo{Are "And" operators needed in last formula?}\\
-\begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} c}
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} c}
+    \hline
     \\
     $\displaystyle \bigwedge_{x=1}^9 \bigwedge_{y=1}^9 \bigvee_{z=1}^9 s_{x,y,z}$  & \consCount{S} \label{S-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{y=1}^9 \bigwedge_{z=1}^9 \bigwedge_{x=1}^9 \bigwedge_{i=x+1}^9 \neg s_{x,y,z} \lor \neg s_{i,y,z}$  & \consCount{S} \label{S-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{z=1}^9 \bigwedge_{x=1}^9 \bigwedge_{y=1}^9 \bigwedge_{i=y+1}^9 \neg s_{x,y,z} \lor \neg s_{x,i,z}$  & \consCount{S} \label{S-\roman{cons}}\\
+    $\displaystyle \bigwedge_{x=1}^9 \bigwedge_{z=1}^9 \bigwedge_{y=1}^9 \bigwedge_{i=y+1}^9 \neg s_{x,y,z} \lor \neg s_{x,i,z}$  & \consCount{S} \label{S-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{z=1}^9 \bigwedge_{i=0}^2 \bigwedge_{j=0}^2 \bigwedge_{x=1}^3 \bigwedge_{y=1}^3 \bigwedge_{k=y+1}^3 \neg s_{(3*i+x),(3*j+y),z} \lor \neg s_{(3*i+x),(3*j+k),z}$  & \consCount{S} \label{S-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{z=1}^9 \bigwedge_{i=0}^2 \bigwedge_{j=0}^2 \bigwedge_{x=1}^3 \bigwedge_{y=1}^3 \bigwedge_{k=x+1}^3 \bigwedge_{l=1}^3 \neg s_{(3*i+x),(3*j+y),z} \lor \neg s_{(3*i+k),(3*j+l),z}$  & \consCount{S} \label{S-\roman{cons}}\\
     \\
     $s_{x,y,input_{x,y}}$,  for every $(x,y)$ s.t. input$_{x,y}$ $\neq 0$  & \consCount{S} \label{S-\roman{cons}}\\
-\end{tabular*}\\
+    \\
+    \hline
+    \end{tabular*}
+    \caption{Formulae of clauses, Normal Sudoku.}
+    \label{formulae:NormalSudoku}
+\end{table}
+
 
     
 \subsection{Anti-Knight}
-To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), it is forbidden to have the same value as its neighbours. The term neighbour of a cell (x,y) here corresponds to the cells that are one knight distance away from it. The set of neighbours to cell (x,y) can be defined as:\\ $N(x,y) = \{(i,j)~|\texttt{ cell }(i,j) \texttt{ one knight distance from cell }(x,y)\}$.
-\begin{table}[h!]
+To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), it is forbidden to have the same value as its Knight-Neighbours (cells that are a knights distance away). The set of Knight-Neighbours to cell (x,y) can be defined as:
+\begin{center}
+    $N(x,y) = \{(i,j)~|\textnormal{ cell }(i,j) \textnormal{ one knight distance from cell }(x,y)\}$.
+\end{center}
+
+\begin{table}[ht!]
     \centering
     \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c  c}
         \hline
@@ -250,31 +263,39 @@ To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), i
         \\
         \hline
         \\
-        \makecell[cl]{Cells that are one knight-distance apart (neighbours) \\ must have different values.} & (AK-\ref{AK-i}) & 2016\\
+        \makecell[cl]{Cells that are one knight distance apart (neighbours) \\ must have different values.} & (AK-\ref{AK-i}) & 2016\\
         \\
         \hline
     \end{tabular*}
         \caption{Constraints of Anti-Knight rule.}
-    \label{tab:AntiKnight}
+    \label{constraints:AntiKnight}
 \end{table}
 
-
-Formula of clauses:\\
-\begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} c}
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} c}
+    \hline
+    \\
     $\displaystyle \bigwedge_{x=1}^9 \bigwedge_{y=1}^9 \bigwedge_{(i,j)\in N(x,y)} \bigwedge_{z=1}^9 \neg s_{x,y,z} \lor \neg s_{i,j,z}$ &\consCount{AK} \label{AK-\roman{cons}}\\\
-\end{tabular*}\\
+    \\
+    \hline
+    \end{tabular*}
+    \caption{Formulae of clause, Anti-Knight rule.}
+    \label{formulae:AntiKnight}
+\end{table}
+
 
 \newpage
 \subsection{Killer}
 \paragraph{Using PBCs:} For every killer cage of the input, we create a list of its cells. From every list, a PBC is created as follows: For every cell (x,y) of a cage, we add $\sum_{i=1}^{9} (s_{x,y,i}*i)$ to the left-hand side of the PBC. The right-hand side of the PBC is set to the target sum that was given as input. The different PBCs (one for every killer cage) can then be encoded into clauses, as explained in \ref{PBCEncodingBDD} and \ref{PBCEncodingAdderNetworks}.
 
 \paragraph{Using PBCs + Combinations:}
-The PBC approach can be further optimized, because given a fixed number of summands not all values from 1 to 9 can be used to achieve a certain sum. In example if a cage has a target sum of 8 and consists of three cells, the number of possible value combinations to achive the target sum is fairly limited. There are only two possible value combinations $1+2+5=8$ and $1+3+4=8$, so the allowed values that the cells could take are 1, 2, 3, 4 and 5. When constructing the PBC this knowladge can be used to reduce the number of variable-value products on the left hand side of the equation. For every cell in a cage we only add the variable times the corresponding value (to the left hand side) if the value is an allowed one.
+The PBC approach can be further optimized, because, given a fixed number of summands, not all values from 1 to 9 can be used to achieve a particular sum. For example, if a cage has a target sum of 8 and consists of three cells, the number of possible value combinations to achieve the target sum is fairly limited. There are only two possible value combinations $1+2+5=8$ and $1+3+4=8$, so the allowed values the cells could take are $1$, $2$, $3$, $4$ and $5$. When constructing the PBC, this knowledge can be used to reduce the number of variable-value products on the left-hand side of the equation. For every cell in a cage, we only add the variable times the corresponding value (to the left-hand side) if the value is an allowed one.
 
 \paragraph{Using Combinations:}
-Another possibility is to completely abandon PBCs and exploit that only certain value combinations are possible given a cage with a fixed target sum and fixed number of cells that belong to it. To encode this every combination is given a corresponding variable $varNum$ which is true iff the corresponding combination is used in a certain cage. This can then be encoded in the following way:\\
+Another possibility is to completely abandon PBCs and exploit that only certain value combinations are possible given a cage with a fixed target sum and fixed number of cells that belong to it. To encode this every combination is given a corresponding variable $s_{v}$, for $v \in V_g  \subset\mathbb{N}$, which is true iff the corresponding combination is used in a certain cage. The set of all cages is annotated as $G$, and the set of all possible combinations to achieve the target sum of a cage $g \in G$ is denoted as $C_g$.
 
-\begin{table}[h!]
+\begin{table}[ht!]
     \centering
     \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
         \hline
@@ -283,17 +304,17 @@ Another possibility is to completely abandon PBCs and exploit that only certain 
         \\
         \hline
         \\
-        \makecell[cl]{For every Cage $g$ and possible combination $c$ (for that \\
-        cage) it holds that, either the cage's target sum is not \\
-        achieved using combination $c$ or every cage cell \\
-        contains at least one value of the combination.} & (K-\ref{K-i})\\
+        \makecell[cl]{For every Cage $g \in G$ and possible combination $c \in C_g$ it\\
+        holds that, either the cage's target sum is not achieved using\\
+        combination $c$ or every cage cell contains at least one value\\
+        of the combination $c$.} & (K-\ref{K-i})\\
         \\
-        In every Cage $g$ at least one combination $c_a$ is used. & (K-\ref{K-ii})\\
+        In every Cage $g \in G$ at least one combination $c \in C_g$ is used. & (K-\ref{K-ii})\\
         \\
-        In every Cage $g$ at most one combination $c_a$ is used. & (K-\ref{K-iii})\\
+        In every Cage $g \in G$ at most one combination $c \in C_g$ is used. & (K-\ref{K-iii})\\
         \\
-        \makecell[cl]{Every value from 1 to 9 appears at most once within \\
-        the cells of a cage.} & (K-\ref{K-iv})\\
+        \makecell[cl]{Every value from 1 to 9 appears at most once within the\\
+        cells of a cage $g \in G$.} & (K-\ref{K-iv})\\
         \\
         \hline
     \end{tabular*}
@@ -301,16 +322,318 @@ Another possibility is to completely abandon PBCs and exploit that only certain 
     \label{tab:Killer}
 \end{table}
 
-\newpage
-Formulae of clauses:\\
-\begin{tabular*}{\textwidth}{ l c @{\extracolsep{\fill}} c}
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{ m{70mm} l @{\extracolsep{\fill}} c}
+    \hline
     \\
-    $\displaystyle \bigwedge_{g:groups} \bigwedge_{c:combis_g} \bigwedge_{[x,y]:g} -s_v \lor \bigvee_{z:c}  s_{x,y,z}$ & & \consCount{K} \label{K-\roman{cons}}\\
+    $\displaystyle \bigwedge_{g:G} \bigwedge_{c:C_g} \bigwedge_{(x,y):g} -s_v \lor \bigvee_{z:c}  s_{x,y,z}$ & & \consCount{K} \label{K-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{g:cages} \bigvee_{a=1}^{\#combis_g} varNum_{a}$ & & \consCount{K} \label{K-\roman{cons}}\\
+    $\displaystyle \bigwedge_{g:G} \bigvee_{v:V_g} s_{v}$ & & \consCount{K} \label{K-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{g:cages} \bigwedge_{a=1}^{\#combis_g} \bigwedge_{b=a+1}^{\#combis_g} \neg varNum_a \lor \neg varNum_b$  & & \consCount{K} \label{K-\roman{cons}}\\
+    $\displaystyle \bigwedge_{g:G} \bigwedge_{v':V_g} \bigwedge_{v'':V_g} \neg s_{v'} \lor \neg s_{v''}$  & with $v' < v''$ & \consCount{K} \label{K-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{g:cages} \bigwedge_{[x_i,y_i]:g} \bigwedge_{[x_j,y_j]:g} \bigwedge_{z=1}^{9} \neg x_i y_i z \lor \neg x_j y_j z$ & with $[x_i,y_i] \neq [x_j,y_j]$ &\consCount{K} \label{K-\roman{cons}}\\
-\end{tabular*}\\
+    $\displaystyle \bigwedge_{g:G} \bigwedge_{(x_i,y_i):g} \bigwedge_{(x_j,y_j):g} \bigwedge_{z=1}^{9} \neg x_i y_i z \lor \neg x_j y_j z$ & with $(x_i,y_i) \neq (x_j,y_j)$ &\consCount{K} \label{K-\roman{cons}}\\
+        \\
+    \hline
+    \end{tabular*}
+    \caption{Formulae of clauses, Killer Sudoku rules.}
+    \label{formulae:KillerSudoku}
+\end{table}
 
+\clearpage
+
+\subsection{Arrowheads}\label{Encoding:Arrowheads}
+Arrowheads demand a total or partial order between two cells. The sets of all tuples of two cells under total or partial order are respectively noted as $TO$ and $PO$. The first cell of such a tuple  $((x_1,y_1), (x_2,y_2)) \in TO \cup PO$ shall have a smaller (or equal) value than the second one $(x_2,y_2)$. To enforce this, the constraints shown in \ref{tab:ArrowHeads} are encoded into clauses using the support encoding. In formula AH-\ref{AH-i}, the values of $z_1$ go from $1$ to $9$, which ensures that the first cell of a tuple can not have a value of 9. In formula AH-\ref{AH-ii}, on the other hand, $z_1$ iterates from $2$ to $9$ because if the first cell has a value of $1$, all values from $1$ to $9$ are allowed for the second cell.\\
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
+        \hline
+        \\
+        Constraint & Formula\\
+        \\
+        \hline
+        \\
+        \makecell[cl]{For every $((x_1,y_1), (x_2,y_2)) \in TO$, either cell $(x_1,y_1)$ has not\\
+        value $z_1\in \{1,..,9\}$ or cell $(x_2,y_2)$ has value $z_2 > z_1, z_2 \in \{2,..,9\}$.} & (AH-\ref{AH-i})\\
+        \\
+        \makecell[cl]{For every $((x_1,y_1), (x_2,y_2)) \in PO$, either cell $(x_1,y_1)$ has not\\
+        value $z_1\in \{2,..,9\}$ or cell $(x_2,y_2)$ has value $z_2 \geq z_1, z_2 \in \{1,..,9\}$.} & (AH-\ref{AH-ii})\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints of Arrowhead rules.}
+    \label{tab:ArrowHeads}
+\end{table}
+\begin{table}[h!]
+    \centering
+    \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
+    \hline
+    \\
+    $\displaystyle \bigwedge_{((x_1,y_1),(x_2,y_2)):TO} \bigwedge_{z_1=1}^{9} \neg s_{x_1,y_1,z_1} \lor \bigvee_{z_2=z_1+1}^{9} s_{x_2,y_2,z_2}$ & & \consCount{AH} \label{AH-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{((x_1,y_1),(x_2,y_2)):PO} \bigwedge_{z_1=2}^{9} \neg s_{x_1,y_1,z_1} \lor \bigvee_{z_2=z_1}^{9} s_{x_2,y_2,z_2}$ & & \consCount{AH} \label{AH-\roman{cons}}\\
+        \\
+    \hline
+    \end{tabular*}
+    \caption{Formulae of clauses, Arrowhead rules.}
+    \label{formulae:Arrowhead}
+\end{table}
+
+\clearpage
+
+\subsection{Thermometers (Hidden)}
+As the Thermometer rule also demands a total (or partial) order between the cells of the thermometers, one can reuse the rules and formulas shown for Arrowheads in \ref{Encoding:Arrowheads}. Starting from a Thermometers bulb, one can conceptually place Arrowheads between every cell pair along the Thermometer, enforcing a total (or partial) order between all cells.\todoMissing{Figure of Arrowheads on Thermometer.}\\
+
+Further constraints and variables are needed for the more complicated puzzle, where the solver must also deduce the thermometer positions.  
+When encoding this puzzle, we distinguish two main cases: if the entire thermometer number $t$ fits inside the $9\times9$ grid when its bulb is placed at $(x,y)$, the clauses of TH-\ref{TH-iv}, TH-\ref{TH-v} and TH-\ref{TH-vi} are added. Otherwise the clauses of TH-\ref{TH-vii} are added.
+In the formulae the following annotations are used:
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{l c l}
+    \hline
+    \\
+    Notation: &&\\
+    \\
+    \hline
+    \\
+    $T$                     &= &list of given thermometers\\
+    $T.size$                &= &number of given thermometers\\
+    $T[t]$                  &= &thermometer number t in list of all thermometers\\
+    $T[t].size$             &= &number of cells in thermometer number $t$\\
+    $\rchi(t,x,y,d)$           &= &$x$-coordinate of the cell that is at depth $d$ of the\\
+                            &  &thermometer number $t$ if its bulb is placed in cell\\
+                            &  &$(x,y)$\\
+    $\Upsilon(t,x,y,d)$           &= &$y$-coordinate of the cell that is at depth $d$ of the\\
+                            &  &thermometer number $t$ if its bulb is placed in cell\\
+                            &  &$(x,y)$\\
+    $Arrowhead(t,x,y,d)$    &= &set of clauses needed to encode that the cell at\\
+                            &  &depth $d$ of thermometer number $t$ is smaller than\\
+                            &  &the cell at depth $d+1$, given the thermometer\\
+                            &  &has its bulb in cell $(x,y)$.\\
+    \\
+    \hline
+    \\
+    Variables:&&\\
+    $s_{t,d,x,y}$           &: &is true if and only if the cell at depth $d$ of\\
+                            &  &thermometer number $t$ is located in grid cell\\
+                            &  &$(x,y)$\\
+    \\
+    \hline
+\end{tabular}
+    \caption{Notations and variables, Thermometers Hidden rules.}
+    \label{notation:ThermometersHidden}
+\end{table}
+
+
+
+
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
+        \hline
+        \\
+        Constraint & Formula\\
+        \\
+        \hline
+        \\
+        \makecell[cl]{Every cell of every thermometer is located in at least one\\
+        grid cell.} & (TH-\ref{TH-i})\\
+        \\
+        \makecell[cl]{At most one thermometer cell is located in one grid cell.} & (TH-\ref{TH-ii}) and (TH-\ref{TH-iii})\\
+        \\
+        \makecell[cl]{If the cell at depth $d$ of thermometer number $t$ is located\\
+        in grid cell $(x, y)$, then the thermometer cell at depth\\
+        $d+1$ must be located next to it (corresponding to the\\
+        thermometer's shape), except if $d$ = T[t].size.} & (TH-\ref{TH-iv})\\
+        \\
+        \makecell[cl]{If the cell at depth $d$ of thermometer number $t$ is located\\
+        in grid cell $(x, y)$, then the thermometer cell at depth\\
+        $d-1$ must be located next to it (corresponding to the\\
+        thermometer's shape), except if $d$ = 0.} & (TH-\ref{TH-v})\\
+        \\
+        \makecell[cl]{If the cell at depth $d$ of thermometer number $t$ is located\\
+        in grid cell $(x, y)$, then the cell value of $(x,y)$ must be\\
+        lower than that of the thermometer cell at depth $d+1$.} & (TH-\ref{TH-vi})\\
+        \\
+        \makecell[cl]{If not the entire thermometer with number t is inside\\
+        the $9 \times 9$ when its bulb is placed at cell $(x,y)$, then the\\
+        cell at depth $d$ of thermometer number $t$ can not be\\
+        located at the cell it covers in this situation.} & (TH-\ref{TH-vii})\\
+        \hline
+    \end{tabular*}
+        \caption{Constraints of the Thermometers-Hidden rules.}
+    \label{Constraints:Thermometers}
+\end{table}
+\begin{table}[ht!]
+    \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
+    \hline
+    \\
+    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{d=1}^{T[t].size} \bigvee_{x=1}^{9} \bigvee_{y=1}^{9} s_{t,d,x,y}$ & & \consCount{TH} \label{TH-\roman{cons}}
+    \\
+    \\
+    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{d=1}^{T[t].size} \bigwedge_{k=d+1}^{T[t].size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9}  \neg s_{t,d,x,y} \lor \neg s_{t,k,x,y}$ & & \consCount{TH} \label{TH-\roman{cons}}
+    \\
+    \\
+    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{k=t+1}^{T.size} \bigwedge_{d=1}^{T[t].size}  \bigwedge_{l=1}^{T[t].size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \neg s_{t,d,x,y} \lor \neg s_{k,l,x,y}$ & & \consCount{TH} \label{TH-\roman{cons}}
+    \\
+    \\
+    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{d=1}^{T[t].size-1} \neg s_{t,d,\rchi(t,x,y,d), \Upsilon(t,x,y,d)} \lor s_{t,d+1,\rchi(t,x,y,d+1), \Upsilon(t,x,y,d+1)}$ & & \consCount{TH} \label{TH-\roman{cons}}
+    \\
+    \\
+    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{d=1}^{T[t].size-1} s_{t,d,\rchi(t,x,y,d), \Upsilon(t,x,y,d)} \lor \neg s_{t,d+1,\rchi(t,x,y,d+1), \Upsilon(t,x,y,d+1)}$ & & \consCount{TH} \label{TH-\roman{cons}}
+    \\
+    \\
+    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{d=1}^{T[t].size-1} \neg s_{t,d,\rchi(t,x,y,d), \Upsilon(t,x,y,d)} \lor Arrowhead(t,x,y,d)$ & & \consCount{TH} \label{TH-\roman{cons}}
+    \\
+    \\
+    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{d=1}^{T[t].size} \neg s_{t,d,\rchi(t,x,y,d), \Upsilon(t,x,y,d)}$ ~~~~~~\textnormal{with} $\rchi(), \Upsilon() \in [1,9]$ & & \consCount{TH} \label{TH-\roman{cons}}\\
+        \\
+    \hline
+\end{tabular*}
+    \caption{Formulae of clauses, Thermometers-Hidden rules.}
+    \label{formulae:thermometers}
+\end{table}
+
+\FloatBarrier
+\newpage
+\subsection{Sandwich Sum}
+Sandwich Sums can be given for rows and columns. We will elaborate on the row constraints from which the formulas for the column constraints can be derived by swapping x and y, respectively. Similar to the Killer Sudoku rules, multiple optimizations can be (incrementally) made when encoding the Sandwich Sum rules.
+
+\paragraph{Using PBCs:} Assuming that all lengths of sandwiches are possible to achieve a certain sum. We must encode all possible sandwich lengths ($0$ to $7$) and all corresponding positions for the cells with values $1$ and $9$. Also, we encode a PBC for every possible sandwich length and position. The LHS of said PBC is $\sum_{i=1}^{9} (s_{x,y,i}*i)$, and the RHS is set to the current rows sandwich sum. Since the Sandwich can only be at one position in a row at once, only one of all the PBC will be true. To ensure that a PBC's clauses are satisfied if the sandwich is not in its corresponding position, we add the negative literal of the corresponding $s_v$ to each clause (stylized in formula SW-\ref{SW-vii}). To encode the Sandwich Sum rules for rows without the incorporation of further knowledge, the following constraints/formulas are used: SW-\ref{SW-i}, SW-\ref{SW-ii}, SW-\ref{SW-vii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
+
+\paragraph{Using PBCs + Combinations for Lengths:} Given the Sandwich Sum of a row, one can already make statements about the number of cells involved in the sum. For example, given a sandwich sum of $8$, one can conclude that the sandwich has either length $3$, $2$, or $1$ (contains $3$, $2$ or $1$ cells, not counting the border cells with values $1$ and $9$). This already reduces the number of combinations of sandwich lengths and positions and can be utilized to encode the rules using the constraints/formulas: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-viii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
+
+\paragraph{Using Combinations for PBCs + Combinations for Lengths:} Given the Sandwich Sum of a row, one can not only make statements about the number of cells involved in the sum but also about the possible values of these cells given a certain sandwich length (Similar to the possible cell values in a killer cage given the cages sum and size). This reduces the number of summands of the LHS of PBCs and can be combined with the knowledge about possible sandwich lengths. To encode the sandwich sum rules using this additional knowledge, the following constraints/formulas: are used: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-ix}, SW-\ref{SW-x}, SW-\ref{SW-xi} and SW-\ref{SW-xii}.
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
+        \hline
+        \\
+        Constraint on rows & Formula\\
+        \\
+        \hline
+        \\
+        \makecell[cl]{If the sandwich of a row is at a certain position, the cells\\
+        with values 1 and 9 must be positioned accordingly.} & (SW-\ref{SW-i}) and (SW-\ref{SW-ii})\\
+        \\
+        \makecell[cl]{If the sandwich of a row (with compatible length regarding\\
+        the sandwich sum) is at a certain position, the cells with\\
+        values 1 and 9 must be positioned accordingly.} & (SW-\ref{SW-iii}) and (SW-\ref{SW-iv})\\
+        \\
+        \makecell[cl]{The cells with values 1 and 9 can not have a certain\\
+        number of cells between them, if the values from these\\
+        number of cells can not add up to the rows sandwich sum.} & (SW-\ref{SW-v}) and SW-\ref{SW-vi})\\
+        \\
+        \makecell[cl]{If the sandwich of a row is at a certain position, then the\\
+        corresponding cells must add up to the row's sandwich\\
+        sum.} & (SW-\ref{SW-vii})\\
+        \\
+        \makecell[cl]{If the sandwich of a row (with compatible length regarding\\
+        the sandwich sum) is at a certain position, then the\\
+        corresponding cells must add up to the row's sandwich\\
+        sum.} & (SW-\ref{SW-viii})\\
+        \\
+        \makecell[cl]{If the sandwich of a row (with compatible length regarding\\
+        the sandwich sum) is at a certain position, then the\\
+        corresponding cells must add up to the row's sandwich sum\\
+        using only compatible values regarding the sandwich sum.} & (SW-\ref{SW-ix})\\
+        \\
+        \makecell[cl]{The sandwich must be in at least one position.} & (SW-\ref{SW-x})\\
+        \\
+        \makecell[cl]{The sandwich must be in at most one position.} & (SW-\ref{SW-xi})\\
+        \\
+        \makecell[cl]{If the sandwich of a row is at a certain position, the cell\\
+        values of the cells that are added up to the sandwich sum\\
+        can not be incompatible regarding the sandwich sum.} & (SW-\ref{SW-xii})\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints of Sandwich Sum rules.}
+    \label{Constraints:SandwichSum}
+\end{table}
+
+
+\begin{table}
+    \centering
+    \begin{tabular}{l c l}
+    \hline
+    \\
+    Notation: &&\\
+    \\
+    \hline
+    \\
+    $PBC(x_1,x_2,y,sum)$    &= &set of clauses needed to encode that the cells\\
+                            &  &between $(x_1,y)$ and $(x_2,y)$ have values $\in \{1,...,9\}$\\
+                            &  & that add up to $sum$.\\
+    $PBC(x_1,x_2,y,sum,Val)$&= &set of clauses needed to encode that the cells\\
+                            &  &between $(x_1,y)$ and $(x_2,y)$ have values $\in \textit{Val}$\\
+                            &  &that add up to $sum$.\\
+    $L(y)$                  &= &set of numbers corresponding to the sizes of cell\\
+                            &  &sets for which it is possible to achieve the\\
+                            &  &sandwich sum of row $y$, given that each cell can\\
+                            &  &only have values from 1 to 9. $L(y)\subseteq \{0,1,...,7\}$\\
+    $\bar{L}(y)$            &= &$\{0,...,7\}\setminus L(y)$\\
+    $Z(y,l)$                &= &set of integer values for which it is possible to\\
+                            &  &achieve the sandwich sum of row $y$ if $l$ different\\
+                            &  &one of them are added.  $Z(y,l)\subseteq \{1,...,9\}$\\
+    $\bar{Z}(y,l)$          &= &$\{1,...,9\}\setminus Z(y,l)$\\
+    $\mathcal{S}(x,y,l)$    &= &corresponding $s_v$\\
+    \\
+    \hline
+    \\
+    Variables:&&\\
+    \\
+    \hline
+    \\
+    $s_v$                   &= &dynamically assigned variable for each\\
+                            &  &combination of $x$, $y$ and $l$ that is true if the\\
+                            &  &sandwich of row $y$ has its borders in cell (x,y)\\
+                            &  &and cell (x+1+l,y). $v \in V_y \subset \mathbb{N}$\\
+    \\    
+    \hline
+    \end{tabular}
+    \caption{Notations and variables, Sandwich Sum rules.}
+    \label{notation:SandwichSum}
+\end{table}
+
+
+
+
+\begin{table}[ht!]
+    \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
+    \hline
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l=0}^{7} \bigwedge_{x=1}^{9}  \neg s_{x,y,1} \lor \neg s_{(x+l+1),y,9} \lor \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l=0}^{7} \bigwedge_{x=1}^{9}  \neg s_{x,y,9} \lor \neg s_{(x+l+1),y,1} \lor \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  \neg s_{x,y,1} \lor \neg s_{(x+l+1),y,9} \lor \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  \neg s_{x,y,9} \lor \neg s_{(x+l+1),y,1} \lor \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:\bar{L}(y)} \bigwedge_{x=1}^{9-l-1}  \neg s_{x,y,1} \lor \neg s_{(x+l+1),y,9}$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:\bar{L}(y)} \bigwedge_{x=1}^{9-l-1}  \neg s_{x,y,9} \lor \neg s_{(x+l+1),y,1}$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l=0}^{7} \bigwedge_{x=1}^{9}  PBC(x,x+l+1,y,sum) \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  PBC(x,x+l+1,y,sum) \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  PBC(x,x+l+1,y,sum, Z(y,l)) \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigvee_{v:V_y} s_v$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{v':V_y} \bigwedge_{v'':V_y} \neg s_{v'} \lor \neg s_{v''}$ & with $v' < v''$ & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  \bigwedge_{z:\bar{Z}(y,l)} \bigwedge_{x'=x+1}^{x+l} \neg s_{x',y,z} \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    \\
+    \hline
+\end{tabular*}
+    \caption{Formulae of clauses, Sandwich Sum rules.}
+    \label{formulae:SandwichSum}
+\end{table}

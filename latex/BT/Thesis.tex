@@ -10,12 +10,18 @@
 \usepackage{caption}
 \usepackage{makecell}
 \usepackage{placeins}
+\usepackage{mathtools}
 \newcounter{cons}[subsection]
 \renewcommand{\thecons}{\roman{cons}}
 \newcommand\consCount[1]{\refstepcounter{cons} \text{(#1-\roman{cons})}}
 
 \newcommand{\false}{$\textit{false}$}
 \newcommand{\true}{$\textit{true}$}
+\newcommand{\ocean}{\mathcal{O}}
+\newcommand{\flood}{\digamma}
+\newcommand{\walk}{\mathcal{W}}
+\newcommand{\island}{\mathcal{I}}
+\newcommand{\nb}{\mathcal{N}}
 \newcommand{\pseudo}{\lstset%
 {%
     emph=[1]%

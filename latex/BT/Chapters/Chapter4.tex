@@ -271,7 +271,7 @@ To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), i
     \label{constraints:AntiKnight}
 \end{table}
 
-\begin{table}
+\begin{table}[ht!]
     \centering
     \begin{tabular*}{\textwidth}{ l @{\extracolsep{\fill}} c}
     \hline
@@ -417,15 +417,23 @@ In the formulae the following annotations are used:
     \hline
     \\
     Variables:&&\\
-    $s_{t,d,x,y}$           &: &is true if and only if the cell at depth $d$ of\\
-                            &  &thermometer number $t$ is located in grid cell\\
-                            &  &$(x,y)$\\
+    $s_{t,d,x,y}$           &: &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{is true if and only if the cell at depth $d$ of}\\
+                                \end{tabular}\\
+                            &  &\begin{tabular}{l c l}
+                                \multicolumn{3}{l}{thermometer number $t$ is located in grid cell}\\
+                                \multicolumn{3}{l}{$(x,y).$}\\
+                                 t      &$\in$  &$\{1,..,81\}$\\
+                                 d,x,y      &$\in$  &$\{1,..,9\}$\\
+                                 \multicolumn{3}{l}{\makecell[cl]{In practice $t$ has an offset of +10. So the actual\\
+                                 variable range is: $11111$ to $91999$.}}\\
+                            \end{tabular}\\
     \\
     \hline
 \end{tabular}
     \caption{Notations and variables, Thermometers Hidden rules.}
     \label{notation:ThermometersHidden}
-\end{table}
+\end{table}\todo{Fix Offset in variable section.}
 
 
 
@@ -503,7 +511,7 @@ In the formulae the following annotations are used:
 \subsection{Sandwich Sum}
 Sandwich Sums can be given for rows and columns. We will elaborate on the row constraints from which the formulas for the column constraints can be derived by swapping x and y, respectively. Similar to the Killer Sudoku rules, multiple optimizations can be (incrementally) made when encoding the Sandwich Sum rules.
 
-\paragraph{Using PBCs:} Assuming that all lengths of sandwiches are possible to achieve a certain sum. We must encode all possible sandwich lengths ($0$ to $7$) and all corresponding positions for the cells with values $1$ and $9$. Also, we encode a PBC for every possible sandwich length and position. The LHS of said PBC is $\sum_{i=1}^{9} (s_{x,y,i}*i)$, and the RHS is set to the current rows sandwich sum. Since the Sandwich can only be at one position in a row at once, only one of all the PBC will be true. To ensure that a PBC's clauses are satisfied if the sandwich is not in its corresponding position, we add the negative literal of the corresponding $s_v$ to each clause (stylized in formula SW-\ref{SW-vii}). To encode the Sandwich Sum rules for rows without the incorporation of further knowledge, the following constraints/formulas are used: SW-\ref{SW-i}, SW-\ref{SW-ii}, SW-\ref{SW-vii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
+\paragraph{Using PBCs:} Assuming that all lengths of sandwiches are possible to achieve a certain sum. We must encode all possible sandwich lengths ($0$ to $7$) and all corresponding positions for the cells with values $1$ and $9$. Also, we encode a PBC for every possible sandwich length and position. The LHS of said PBC is $\sum_{i=1}^{9} (s_{x,y,i}*i)$, and the RHS is set to the current rows sandwich sum. Since the Sandwich can only be at one position in a row at once, only one of all the PBC will be true. To ensure that a PBC's clauses are satisfied if the sandwich is not in its corresponding position, we add the negative literal of the corresponding $s_v$ to each clause (stylized in the formulae SW-\ref{SW-vii}, SW-\ref{SW-viii} and SW-\ref{SW-ix}). To encode the Sandwich Sum rules for rows without the incorporation of further knowledge, the following constraints/formulas are used: SW-\ref{SW-i}, SW-\ref{SW-ii}, SW-\ref{SW-vii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
 
 \paragraph{Using PBCs + Combinations for Lengths:} Given the Sandwich Sum of a row, one can already make statements about the number of cells involved in the sum. For example, given a sandwich sum of $8$, one can conclude that the sandwich has either length $3$, $2$, or $1$ (contains $3$, $2$ or $1$ cells, not counting the border cells with values $1$ and $9$). This already reduces the number of combinations of sandwich lengths and positions and can be utilized to encode the rules using the constraints/formulas: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-viii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
 
@@ -592,8 +600,8 @@ Sandwich Sums can be given for rows and columns. We will elaborate on the row co
     \\
     $s_v$                   &= &dynamically assigned variable for each\\
                             &  &combination of $x$, $y$ and $l$ that is true if the\\
-                            &  &sandwich of row $y$ has its borders in cell (x,y)\\
-                            &  &and cell (x+1+l,y). $v \in V_y \subset \mathbb{N}$\\
+                            &  &sandwich of row $y$ has its borders in cell $(x,y)$\\
+                            &  &and cell $(x+1+l,y)$. $v \in V_y \subset \mathbb{N}$\\
     \\    
     \hline
     \end{tabular}
@@ -636,4 +644,524 @@ Sandwich Sums can be given for rows and columns. We will elaborate on the row co
 \end{tabular*}
     \caption{Formulae of clauses, Sandwich Sum rules.}
     \label{formulae:SandwichSum}
+\end{table}
+
+\FloatBarrier
+\newpage
+\subsection{Secret Direction}
+To encode the secret direction rules, we introduce a variable that is true iff a cell (x,y) is part of the hidden path at a certain depth $d$. We define the initial cell to have depth $0$ and its successors in the path have depths $1$, $2$ and so forth. The depth can be used to ensure that every cell can only be in the path once, those prohibiting loops. That loops can not be part of the solution path, can be inferred from the definition of the next step in the path, which is always determined by the position of the value $9$ in the current $(3\times3)$-box and the value of the current path cell, those making it impossible that one cell of the path has two different successors. So loops can not be part of the solution path, because it would not be possible to break out of them.\\
+\\
+From the fact that the position of the value $9$ is needed to determine the direction in which the successor of a cell in the path lays, we can also derive that if the center of a $(3\times3)$-box has value $9$, all other cells of that box can not be in the path, because for them no successor direction would be defined.\\
+\\
+Since the Sudoku grid has only a size of $9\times9$ and the cell value of a cell in the path determines the distance to its successor, we can conclude that cells with value $9$ can not be part of the path (except as final cell) because after them the path would step outside the grid.\\
+\\
+Combining the previous two deductions we can compute a sufficiently low upper bound for the maximal path length of: $81-8-8 = 65$. Given these analyses the constraints shown in \ref{Constraints:SecretDirection} can be formulated and encoded into clauses as shown in \ref{formulae:SecretDirection}.
+
+
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
+        \hline
+        \\
+        Constraint & Formula\\
+        \\
+        \hline
+        \\
+        \makecell[cl]{At least one $(3\times 3)$-box has a cell with value 9 as center.} & (SD-\ref{SD-i})\\
+        \\
+        \makecell[cl]{At most $(3\times 3)$-box has a cell with value 9 as center.} & (SD-\ref{SD-ii}) and (SD-\ref{SD-iii})\\
+        \\
+        \makecell[cl]{A $(3\times 3)$-box center cell that has value 9 is part of the\\
+        path in some depth.} & (SD-\ref{SD-iv})\\
+        \\
+        \makecell[cl]{A cell can be at most once in the path (can only be in\\
+        at most one depth).} & (SD-\ref{SD-v})\\
+        \\
+        \makecell[cl]{The path can have at most one cell in every depth.} & (SD-\ref{SD-vi}) and (SD-\ref{SD-vii})\\
+        \\
+        \makecell[cl]{Cells that are in the path, and are center cells of a\\
+        $(3\times 3)$-box, have not the value 9. (All cells with value 9,\\
+        that are in the path are center cells.)} & (SD-\ref{SD-viii})\\
+        \\
+        \makecell[cl]{The non center cells of the $(3\times 3)$-box with a center cell\\
+        that has value 9, are not in the path.} & (SD-\ref{SD-vi}) and (SD-\ref{SD-ix})\\
+        \\
+        \makecell[cl]{If a cell (x,y) is not the center cell of a $(3\times 3)$-box, has\\
+        value $z$, is in the path at depth $d$, and the the position of\\
+        the $9$-valued cell in the same $(3\times3)$-box hints in a certain\\
+        direction. Then the cell $(x_s,y_s)$ that is $z$ steps in certain\\
+        direction away from (x,y) is also in the path, at layer\\
+        $(d+1)$.} & (SD-\ref{SD-xi})\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints of Secret Direction rules.}
+    \label{Constraints:SecretDirection}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{m{1.5em} c l}
+    \hline
+    \\
+    \multicolumn{3}{l}{Notation:}\\
+    \\
+    \hline
+    \\
+    $M$             &= &\{(2,2), (2,5), (2,8), (5,2), (5,5), (5,8), (8,2), (8,5), (8,8)\}\\
+    \\
+    $\Psi$          &= &\{(1,1), (1,2), (1,3), (2,1), (2,3), (3,1), (3,2), (3,3)\}\\
+    \\
+    $\mathcal{F}_1$   &= &$\begin{cases}
+    \neg s_{1,(3*x_b+x'),(3*y_b+y'),d} \lor \neg s_{(3*x_b+x_n),(3*y_b+y_n),9} \lor \neg s_{x,y,z}  & (x_s,y_s) \notin \mathcal{G} \\
+    \neg s_{1,(3*x_b+x'),(3*y_b+y'),d} \lor \neg s_{(3*x_b+x_n),(3*y_b+y_n),9} \lor \neg s_{x,y,z}  \lor h& (x_s,y_s) \in \mathcal{G}
+    \end{cases}$\\
+    \\
+    $h$             &= & $s_{1,x_s,y_s,(d+1)}$\\
+    \\
+    $\mathcal{G}$   &= & $\{(a,b)~|~a,b\in \{1,2,3,4,5,6,7,8,9\}\}$\\
+    \\
+    $x_s$           &= &$\begin{cases}
+    (3*x_b+x')-z    & x_n = 1 \\
+    (3*x_b+x')      & x_n = 2 \\
+    (3*x_b+x')+z    & x_n = 3 \\
+    \end{cases}$\\
+    \\
+    $y_s$           &= &$\begin{cases}
+    (3*y_b+y')-z    & y_n = 1 \\
+    (3*y_b+y')      & y_n = 2 \\
+    (3*y_b+y')+z    & y_n = 3 \\
+    \end{cases}$\\
+    \\
+    \hline
+    \\
+    \multicolumn{3}{l}{Variables:}\\
+    \\
+    \hline
+    \\
+    $s_{1,x,y,d}$       &:  &\begin{tabular}{l c l}
+                                \multicolumn{3}{l}{Is true if and only if the cell (x,y) is in the path,}\\
+                                \end{tabular}\\
+                        &   &\begin{tabular}{l c l}
+                                \multicolumn{3}{l}{at depth d.}\\
+                                    d      &$\in$  &$\{0,..,64\}$\\
+                                    x,y    &$\in$  &$\{1,..,9\}$\\
+                                    \multicolumn{3}{l}{Variable range : $11100$ to $19964$.}\\
+                                    Digits      &:      &$1xydd$\\
+                                    Range       &:      &$11100$ to $19964$\\
+                                 \end{tabular}\\
+    \\
+    \hline
+    \end{tabular*}
+    \caption{Notations and variables, Secret Direction rules.}
+    \label{notation:SecretDirection}
+\end{table}\todo{Fix Offset in variable section.}
+
+
+\begin{table}[ht!]
+    \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
+    \hline
+    \\
+    $\displaystyle \bigvee_{\substack{x=2 \\ ++3}}^{8} \bigvee_{\substack{y=2 \\ ++3}}^{8} s_{x,y,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{\substack{x=2 \\ ++3}}^{8} \bigwedge_{\substack{y=2 \\ ++3}}^{8} \bigwedge_{\substack{k=y+3 \\ ++3}}^{8} \neg s_{x,y,9} \lor \neg s_{x,k,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{\substack{x=2 \\ ++3}}^{8} \bigwedge_{\substack{y=2 \\ ++3}}^{8} \bigwedge_{\substack{k=x+3 \\ ++3}}^{8} \bigwedge_{\substack{l=2 \\ ++3}}^{8}\neg s_{x,y,9} \lor \neg s_{k,l,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{\substack{x=2 \\ ++3}}^{8} \bigwedge_{\substack{y=2 \\ ++3}}^{8}  \neg s_{x,y,9} \lor \bigvee_{d=0}^{64} s_{1,x,y,d}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9}  \bigwedge_{d=0}^{63}  \bigwedge_{k=d+1}^{64} \neg s_{1,x,y,d} \lor \neg s_{1,x,y,k}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{d=0}^{64} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{k=y+1}^{9} \neg s_{1,x,y,d} \lor \neg s_{1,x,k,d}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{d=0}^{64} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{k=x+1}^{9} \bigwedge_{l=1}^{9} \neg s_{1,x,y,d} \lor \neg s_{1,k,l,d}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{d=0}^{64} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \neg s_{1,x,y,d} \lor \neg s_{x,y,9}$ & where $(x,y) \notin M$& \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{\substack{x=2 \\ ++3}}^{8} \bigwedge_{\substack{y=2 \\ ++3}}^{8} \bigwedge_{x'=-1}^{1} \bigwedge_{y'=-1}^{1} \bigwedge_{d=0}^{64} \neg s_{x,y,9} \lor \neg s_{1,(x+x'),(y+y'),d}$ & where $(x',y') \neq (0,0)$& \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $s_{1,x_r,y_r,0}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    $\displaystyle  \bigwedge_{x_b=0}^{2} \bigwedge_{y_b=0}^{2} \bigwedge_{x'=1}^{3} \bigwedge_{y'=1}^{3} \bigwedge_{d=0}^{63} \bigwedge_{(x_n,y_n):\Psi} \bigwedge_{z=1}^{8} \mathcal{F}_1$ && \consCount{SD} \label{SD-\roman{cons}}\\
+    \\
+    \hline
+\end{tabular*}
+    \caption{Formulae of clauses, Secret Direction rules.}
+    \label{formulae:SecretDirection}
+\end{table}
+
+\FloatBarrier
+\newpage
+\subsection{Fawlty Towers}
+\todoMissing{Description, Constraints, Formulae}
+
+\FloatBarrier
+\newpage
+\subsection{Nurikabe Sudoku}
+\todoMissing{Description Text}
+
+\begin{table}[hb!]
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
+        \hline
+        \\
+        Constraint &Formula\\
+        \\
+        \hline
+        \\
+        \makecell[cl]{No $(2 \times 2)$-square can only consist of ocean cells.} & (NK-\ref{NK-i})\\
+        \\
+        \makecell[cl]{Cells that are part of the same island can not have the\\
+        same value.} & (NK-\ref{NK-ii}) and (NK-\ref{NK-iii})\\
+        \\
+        \makecell[cl]{Island cells of different islands can not touch each\\
+        other orthogonally.} & (NK-\ref{NK-iv}) and (NK-\ref{NK-v})\\
+        \\
+        \makecell[cl]{Island cells must be in at least one constellation with\\
+        two neighbouring cells.} & (NK-\ref{NK-vi})\\
+        \\
+        \makecell[cl]{If cell $(x,y)$ is part of island $n$ and is in a constellation\\
+        that includes the two neighbouring cells $(x',y')$ and\\
+        $(x'',y'')$ then the two neighbouring cells must be part\\
+        of the same island $n$.} & (NK-\ref{NK-vii}) and (NK-\ref{NK-viii})\\
+        \\
+        \makecell[cl]{Cells must be part of the ocean or part of at least one\\
+        island.} & (NK-\ref{NK-ix})\\
+        \\
+        \makecell[cl]{Cells that are part of the ocean, are not part of any\\
+        island.} & (NK-\ref{NK-x})\\
+        \\
+        \makecell[cl]{Cells can be part of at most one island.} & (NK-\ref{NK-xi})\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints-1 of Nurikabe Sudoku rules.}
+    \label{Constraints:NurikabeSudoku1}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
+        \hline
+        \\
+        \makecell[cl]{An ocean cell $(x,y)$ must be in at least one depth of\\
+        any flood that has a source $(x_s,y_s)$ which is also an\\
+        ocean cell.} & (NK-\ref{NK-xii})\\
+        \\
+        \makecell[cl]{Cells can be in at most one depth per flood with\\
+        source $(x_s,y_s)$.} & (NK-\ref{NK-xiii})\\
+        \\
+        \makecell[cl]{Cells that are not part of the ocean are not flooded.} & (NK-\ref{NK-xiv})\\
+        \\
+        \makecell[cl]{If cell (x,y) is part of the ocean, it is in depth 1 of the\\
+        flood with source (x,y).} & (NK-\ref{NK-xv})\\
+        \\
+        \makecell[cl]{Only the source cell of a flood can be in depth 1 of a\\
+        flood (where it is source).} & (NK-\ref{NK-xvi})\\
+        \\
+        \makecell[cl]{If a cell $(x,y)$ is in depth d of a flood with source\\
+        $(x_s,y_s)$, and $(x,y) \neq (x_s,y_s)$, and the cell $(x_s,y_s)$ is\\
+        part of the ocean, then there must be an orthogonally\\
+        adjacent cell to $(x,y)$ which is in depth $d-1$ of the\\
+        flood with source $(x_s,y_s)$.} & (NK-\ref{NK-xvii})\\
+        \\
+        \makecell[cl]{If a cell $(x,y)$ is part of island $n$, then the cell (x,y) is\\
+        at depth 1 of the walk on island $n$ with source (x,y).} & (NK-\ref{NK-xviii})\\
+        \\
+        \makecell[cl]{Only the source cell of a walk can be in depth 1 of a\\
+        walk (where it is source).} & (NK-\ref{NK-xix})\\
+        \\
+        \makecell[cl]{If a cell $(x,y)$ is in depth d of a walk on island $n$ with\\
+        source $(x_s,y_s)$, and $(x,y) \neq (x_s,y_s)$, and the cell\\
+        $(x_s,y_s)$ is part of island $n$, then there must be an\\
+        orthogonally adjacent cell to $(x,y)$ which is in depth\\
+        $d-1$ of the walk on island $n$ with source $(x_s,y_s)$.} & (NK-\ref{NK-xx})\\
+        \\
+        \makecell[cl]{If cell $(x,y)$ is part of island $n$ and cell $(x_s,y_s)$ is part\\
+        of island $n$, then cell $(x,y)$ must be in at least one\\
+        depth of the walk on island $n$ that has source $(x_s,y_s)$.} & (NK-\ref{NK-xxi})\\
+        \\
+        \makecell[cl]{A cell $(x,y)$ can be in at most one depth of a walk on\\
+        an island $n$ that has source $(x_s,y_s)$.} & (NK-\ref{NK-xxii})\\
+        \\
+        \makecell[cl]{Cells that are not part of an island $n$ can not be in\\
+        any depth of a walk on island $n$.} & (NK-\ref{NK-xxiii})\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints-2 of Nurikabe Sudoku rules.}
+    \label{Constraints:NurikabeSudoku2}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
+        \hline
+        \\
+        \makecell[cl]{If a cell that is part of the ocean contains an arrow,\\
+        and has value $z$, then there are $z$ cells that are part\\
+        of the ocean in the direction the arrow points.} & (NK-\ref{NK-xxiv})\\
+        \\
+        \makecell[cl]{If a cell that is not part of the ocean contains an\\
+        arrow, and has value $z$, then there are $z$ cells that are\\
+        not part of the ocean in the direction the arrow points.} & (NK-\ref{NK-xxv})\\
+        \\
+        \makecell[cl]{There is no solution, if a cell that is part of the grid's\\
+        edge contains an arrow that points directly outside\\
+        the grid.} & (NK-\ref{NK-xxvi})\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints-3 of Nurikabe Sudoku rules.}
+    \label{Constraints:NurikabeSudoku3}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l c l}
+    \hline
+    \\
+    \multicolumn{3}{l}{Variables:}\\
+    \\
+    \hline
+    \\
+    $\ocean(x,y)$               &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$s_{1,5,0,0,0,x,y}$}\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{True iff cell $(x,y)$ is part of the ocean.}\\
+                                    $x,y$       &$\in$  &$\{1,..,9\}$\\
+                                    Digits      &:      &$15000xy$\\
+                                    Range       &:      &$1500011$ to $1500099$ 
+                            \end{tabular}\\
+    \\
+    $\island(n,x,y)$            &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$s_{1,4,0,n,x,y}$}\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{True iff cell $(x,y)$ is part of island $n$.}\\
+                                    $x,y$   &$\in$  &$\{1,..,9\}$\\
+                                    $n$     &$\in$  &$\{1,..,14\}$\\
+                                    Digits  &:      &$140nnxy$\\
+                                    Range   &:      &$1400111$ to $1401499$\\
+                            \end{tabular}\\
+    \\
+    $\flood(d,x_s,y_s,x,y)$     &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$s_{2,d,x_s,y_s,x,y}$}\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{True iff cell $(x,y)$ is in flood-depth $d$}\\
+                                    \multicolumn{3}{l}{of the flood with source $(x_s,y_s)$.}\\
+                                    $x,y$       &$\in$  &$\{1,..,9\}$\\
+                                    $x_s,y_s$   &$\in$  &$\{1,..,9\}$\\
+                                    $d$         &$\in$  &$\{1,..,49\}$\\
+                                    Digits      &:      &$2ddx_sy_sxy$\\
+                                    Range       &:      &$2011111$ to $2499999$\\
+                            \end{tabular}\\
+    \\
+    $\walk(d,n,x_s,y_s,x,y)$    &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$s_{1,d,n,x_s,y_s,x,y}$}\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{True iff cell $(x,y)$ is in depth $d$ of the}\\
+                                    \multicolumn{3}{l}{walk on island $n$ with source $(x_s,y_s)$.}\\
+                                    $x,y$       &$\in$  &$\{1,..,9\}$\\
+                                    $x_s,y_s$   &$\in$  &$\{1,..,9\}$\\
+                                    $d$         &$\in$  &$\{1,..,9\}$\\
+                                    $n$         &$\in$  &$\{1,..,14\}$\\
+                                    Digits      &:      &$1dnnx_sy_sxy$\\
+                                    Range       &:      &$11011111$ to $19149999$\\
+                            \end{tabular}\\
+    \\
+    $\nb(c,n,x,y)$              &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$s_{1,0,c,n,x,y}$}\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{True iff cell $(x,y)$ belongs to island $n$,}\\
+                                    \multicolumn{3}{l}{and has two adjacent neighbours that}\\
+                                    \multicolumn{3}{l}{also belong to  island $n$, and that are}\\
+                                    \multicolumn{3}{l}{in constellation $c$ with cell $(x,y)$.}\\
+                                    $c$         &$\in$  &$\{1,..,18\}$\\
+                                    $n$         &$\in$  &$\{1,..,14\}$\\
+                                    $x,y$       &$\in$  &$\{1,..,9\}$\\
+                                    Digits      &:      &$1ccnnxy$\\
+                                    Range       &:      &$1010111$ to $1181499$\\
+                            \end{tabular}\\
+    \\
+    \hline
+    \end{tabular*}
+    \caption{Variables, Nurikabe Sudoku rules.}
+    \label{variables:NurikabeSudoku}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l c l}
+    \hline
+    \\
+    \multicolumn{3}{l}{Notation:}\\
+    \\
+    \hline
+    \\
+    $\eta(c) $   &= &$\begin{cases}
+    ((x,y-1),(x,y-2))       & c = 1 \\
+    ((x,y-1),(x+1,y-1))     & c = 2 \\
+    ((x+1,y),(x+1,y-1))     & c = 3 \\
+    ((x+1,y),(x+2,y))       & c = 4 \\
+    ((x+1,y),(x+1,y+1))     & c = 5 \\
+    ((x,y+1),(x+1,y+1))     & c = 6 \\
+    ((x,y+1),(x,y+2))       & c = 7 \\
+    ((x,y+1),(x-1,y+1))     & c = 8 \\
+    ((x-1,y),(x-1,y+1))     & c = 9 \\
+    ((x-1,y),(x-2,y))       & c = 10 \\
+    ((x-1,y),(x-1,y-1))     & c = 11 \\
+    ((x,y-1),(x-1,y-1))     & c = 12 \\
+    ((x,y-1),(x+1,y))       & c = 13 \\
+    ((x,y-1),(x,y+1))       & c = 14 \\
+    ((x,y-1),(x-1,y))       & c = 15 \\
+    ((x+1,y),(x,y+1))       & c = 16 \\
+    ((x-1,y),(x+1,y))       & c = 17 \\
+    ((x-1,y),(x,y+1))       & c = 18 \\
+    \end{cases}$\\
+    \\
+    $\mathcal{F}_2(d,x_y,y_s)$          &= & $\displaystyle \neg \ocean(x_s,x_y) \lor \bigvee_{\mathclap{(x',y'):\mathcal{B}(x,y)}} \flood(d-1,x_y,y_s,x',y')~~s.t.~~(x',y') \in \mathcal{G}$\\
+        \\
+    $\mathcal{F}_3(d,n,x_y,y_s)$        &= & $\displaystyle \neg \island(n,x_s,x_y) \lor \bigvee_{\mathclap{(x',y'):\mathcal{B}(x,y)}} \walk(d-1,n,x_y,y_s,x',y')~~s.t.~~(x',y') \in \mathcal{G}$\\
+    \\
+    $\mathcal{G}$           &= & $\{(a,b)~|~a,b\in \{1,2,3,4,5,6,7,8,9\}\}$\\
+    \\
+    $\mathcal{A}$           &= & $\{(x,y)~|~(x,y) \textnormal{is grid cell that contains an arrow}\}$\\
+    \\
+    $\mathcal{B}(x,y)$      &= & $\{(x+1,y), (x-1,y), (x,y+1), (x,y-1)\}$\\
+    \\
+    \hline
+    \end{tabular*}
+    \caption{Notations, Nurikabe Sudoku rules.}
+    \label{notation:NurikabeSudoku}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l c l}
+    \hline
+    \\
+    $PBC_O(x,y,z)$          &= & Set of clauses needed to encode that in the direction where\\
+                            &  & the arrow of cell (x,y) points, there are $z$ cells that are part\\
+                            &  & of the ocean.\\
+                            &  & LHS = $\begin{cases}
+                                        \displaystyle\sum_{\substack{k=y-1\\--k}}^{1} 1*\ocean(x,k)       & (x,y) \textnormal{ contains}  \uparrow\\
+                                        \\
+                                        \displaystyle\sum_{\substack{k=y+1\\++k}}^{9} 1*\ocean(x,k)       & (x,y) \textnormal{ contains}  \downarrow\\
+                                        \\
+                                        \displaystyle\sum_{\substack{k=x-1\\--k}}^{1} 1*\ocean(k,y)       & (x,y) \textnormal{ contains}  \leftarrow\\
+                                        \\
+                                        \displaystyle\sum_{\substack{k=x+1\\++k}}^{9} 1*\ocean(k,y)       & (x,y) \textnormal{ contains}  \rightarrow\\
+                                        \end{cases}$\\
+                            &  & RHS = $z$\\
+    \\
+    $PBC_I(x,y,z)$          &= & Set of clauses needed to encode that in the direction where\\
+                            &  & the arrow of cell (x,y) points, there are $z$ cells that are not\\
+                            &  & part of the ocean.\\
+                            &  & LHS = $\begin{cases}
+                                        \displaystyle\sum_{\substack{k=y-1\\--k}}^{1} 1*\neg\ocean(x,k)       & (x,y) \textnormal{ contains}  \uparrow\\
+                                        \\
+                                        \displaystyle\sum_{\substack{k=y+1\\++k}}^{9} 1*\neg\ocean(x,k)       & (x,y) \textnormal{ contains}  \downarrow\\
+                                        \\
+                                        \displaystyle\sum_{\substack{k=x-1\\--k}}^{1} 1*\neg\ocean(k,y)       & (x,y) \textnormal{ contains}  \leftarrow\\
+                                        \\
+                                        \displaystyle\sum_{\substack{k=x+1\\++k}}^{9} 1*\neg\ocean(k,y)       & (x,y) \textnormal{ contains}  \rightarrow\\
+                                        \end{cases}$\\
+                            &  & RHS = $z$\\
+                            &  & (As we only defined PBCs for positive literals, we must in\\
+                            &  &practice introduce an additional variable $s_v$ for each\\
+                            &  &$\neg\ocean(x,y)$. The corresponding variable  $s_v$ is defined to\\
+                            &  &be true iff $\neg\ocean(x,y)$ is true (iff $\ocean(x,y)$ is false).)\\
+    \\
+    \hline
+    \end{tabular*}
+    \caption{PBCs, Nurikabe Sudoku rules.}
+    \label{PBC:NurikabeSudoku}
+\end{table}
+
+\begin{table}[ht!]
+    \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
+    \hline
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{x = 1}^{8} \bigwedge_{y = 1}^{8} \neg \ocean(x,y) \lor \neg \ocean(x+1,y) \lor \neg \ocean(x,y+1) \lor \neg \ocean(x+1,y+1)$} & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{z = 1}^{9} \bigwedge_{k = y+1}^{9} \neg \island(n,x,y) \lor \neg \island(n,x,k) \lor \neg s_{x,y,z} \lor \neg s_{x,k,z}$} & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{z = 1}^{9} \bigwedge_{k = x+1}^{9} \bigwedge_{l = 1}^{9} \neg \island(n,x,y) \lor \neg \island(n,k,l) \lor \neg s_{x,y,z} \lor \neg s_{k,l,z}$}& \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{8} \bigwedge_{y = 1}^{9} \bigwedge_{\substack{k = 1\\ k\neq n}}^{14} \neg \island(n,x,y) \lor \neg \island(k,x+1,y)$} & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{8} \bigwedge_{\substack{k = 1\\ k\neq n}}^{14} \neg \island(n,x,y) \lor \neg \island(k,x,y+1)$} & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \neg \island(n,x,y) \lor \bigvee_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c)}}^{18} \nb(c,n,x,y)$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c)}}^{18} \neg \nb(c,n,x,y) \lor \island(n,x',y')$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c)}}^{18} \neg\nb(c,n,x,y) \lor \island(n,x'',y'')$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \ocean(x,y) \lor \bigvee_{n = 1}^{14} \island(n,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \neg \ocean(x,y) \lor \neg \island(n,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{k = n+1}^{14} \neg \island(n,x,y) \lor \neg \island(k,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    \hline
+\end{tabular*}
+    \caption{Formulae-1 of clauses, Nurikabe Sudoku rules.}
+    \label{formulae:NurikabeSudoku1}
+\end{table}
+
+\begin{table}[ht!]
+    \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
+    \hline
+    \\
+    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \neg \ocean(n,x_s,y_s) \lor \neg \ocean(n,x,y) \lor \bigvee_{d=1}^{49} \flood(d,x_s,y_s,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \bigwedge_{d=1}^{49} \bigwedge_{k=d+1}^{49} \neg \flood(d,x_s,y_s,x,y) \lor \neg \flood(k,x_s,y_s,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \bigwedge_{d=1}^{49} \ocean(x,y) \lor \neg \flood(d,x_s,y_s,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \neg \ocean(x,y) \lor \flood(1,x,y,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \neg \flood(1,x_s,y_s,x,y)$~~~~with $(x,y) \neq (x_s,y_s)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{\substack{y_s = 1\\ (x,y) \neq (x_s,y_s)}}^{9} \bigwedge_{d = 2}^{49} \neg \flood(d,x_s,y_s,x,y) \lor \mathcal{F}_2(d,x_y,y_s) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \neg \island(n,x,y) \lor \walk(1,n,x,y,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{\substack{y_s = 1\\ (x,y) \neq (x_s,y_s)}}^{9} \neg \walk(1,n,x_s,y_s,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{\substack{y_s = 1\\ (x,y) \neq (x_s,y_s)}}^{9} \bigwedge_{d = 2}^{49} \neg \walk(d,n,x_s,y_s,x,y) \lor \mathcal{F}_3(d,n,x_y,y_s) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \neg \island(n,x_s,y_s) \lor \neg \island(n,x,y) \lor \bigvee_{d = 1}^{9} \walk(d,n,x_s,y_s,x,y) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \bigwedge_{d = 1}^{9} \bigwedge_{k = d+1}^{9} \neg  \walk(d,n,x_s,y_s,x,y) \lor \neg \walk(k,n,x_s,y_s,x,y) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \bigwedge_{d = 1}^{9} \island(n,x,y) \lor \neg \walk(d,n,x_s,y_s,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    \hline
+\end{tabular*}
+    \caption{Formulae-2 of clauses, Nurikabe Sudoku rules.}
+    \label{formulae:NurikabeSudoku2}
+\end{table}
+
+\begin{table}[ht!]
+    \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
+    \hline
+     \\
+    $\displaystyle \bigwedge_{(x,y):\mathcal{A}} \bigwedge_{z = 1}^{9} \neg \ocean(x,y) \lor \neg s_{x,y,z} \lor PBC_O(x,y,z)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\displaystyle \bigwedge_{(x,y):\mathcal{A}} \bigwedge_{z = 1}^{9} \ocean(x,y) \lor \neg s_{x,y,z} \lor PBC_I(x,y,z)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    $\square$ if the grid contains an arrow that points directly outside the grid. & & \consCount{NK} \label{NK-\roman{cons}}\\
+    \\
+    \hline
+\end{tabular*}
+    \caption{Formulae-3 of clauses, Nurikabe Sudoku rules.}
+    \label{formulae:NurikabeSudoku3}
 \end{table}

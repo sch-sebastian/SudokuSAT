@@ -85,7 +85,7 @@ An example is shown in Figure \ref{fig:BDDExample} where the BDD and the clauses
 
 
 \section{Encoding of PBCs using Adder Networks}\label{PBCEncodingAdderNetworks}
-Adder Networks are built from Full and Half Adder nodes. A Full Adder (FA) is a node with three inputs and two outputs. A Half Adder (HA) is a node with two inputs and two outputs. The input and output values are binary (\true{}/\false{}). The outputs are name \emph{sum} and \emph{carry}, and their values are computed as follows. If at least two inputs are true, the carry output is true. Otherwise, it is false. If one or three inputs are true, the sum output is true, Otherwise it is false. This behaviour can be encoded into clauses, and as the name implies, it allows Adder Networks to compute sums over binary numbers. Binary numbers are Strings of bits, where each bit is either $1$ (\true) or $0$ (\false). The bit at position $k$ represents a value of $2^k$ and is called $k$-bit (This notation differs from the one used in \cite{Een2006TranslatingPC}). \\
+Adder Networks are built from Full and Half Adder nodes. A Full Adder (FA) is a node with three inputs and two outputs. A Half Adder (HA) is a node with two inputs and two outputs. The input and output values are binary (\true{}/\false{}). The outputs are name \emph{sum} and \emph{carry}, and their values are computed as follows. If at least two inputs are true, the carry output is true. Otherwise, it is false. So the carry value is already determined if two of three possible inputs are given. If one or three inputs are true, the sum output is true. Otherwise, it is false. This behaviour can be encoded into clauses, and as the name implies, it allows Adder Networks to compute sums over binary numbers. Binary numbers are Strings of bits, where each bit is either $1$ (\true) or $0$ (\false). The bit at position $k$ represents a value of $2^k$ and is called $k$-bit (This notation differs from the one used in \cite{Een2006TranslatingPC}). \\
 
 An Adder Network used to sum numbers is explained best layer by layer. When adding binary numbers, the summand $k$-bits get fed into layer $k$. Layer $k$ then also takes the carry values from the previous layer $(k-1)$ as input for its nodes except if $k$ is $0$.  A layer's sum outputs are fed as input to adder nodes in the same layer (potentially requiring additional nodes) until only one input value remains. The remaining value of layer $k$ then corresponds to the value of the $k$-bit of the overall addition result. The carry outputs of a layer are ``carried over" to the next layer, where they become inputs to the adder nodes. The last layer has only one input, and its value gets directly treated as the output of this layer. Figure \ref{fig:AdderNetworkExample} shows an example network that can add three numbers, A, B and C, with values from $0$ to $7$ ($3$ bit long numbers).\\
 
@@ -196,7 +196,7 @@ During algorithm \ref{PBCEncodingAdderNetworks}, Half and Full Adders are transf
 \section{Encoding of Sudoku Variants and Constraints}
 
 \subsection{Normal Sudoku}
-The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down into the following five constraints, which can be encoded into clauses using the variable $s_{x,y,z}$, which is true iff cell $(x,y)$ has value $z$. The following encoding can be seen as a direct encoding using at-least-one and at-most-one clauses and was proposed by \cite{Lynce2006SudokuAsASATProblem} where it is called the minimal encoding:\\
+The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down into the five constraints shown in Table \ref{constraints:NormalSudoku}, which can be encoded into clauses using the variable $s_{x,y,z}$, which is true iff cell $(x,y)$ has value $z$. The variable $s_{x,y,z}$ will be used further during the later shown formulae of other Sudoku Variants as the cell values play an important role in all of them. The encoding formulated in Table \ref{formulae:NormalSudoku} can be seen as a direct encoding using at-least-one and at-most-one clauses and was proposed by \cite{Lynce2006SudokuAsASATProblem} where it is called the minimal encoding.\\
 
 
 \begin{table}[ht!]
@@ -249,7 +249,7 @@ The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down i
 
     
 \subsection{Anti-Knight}
-To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), it is forbidden to have the same value as its Knight-Neighbours (cells that are a knights distance away). The set of Knight-Neighbours to cell (x,y) can be defined as:
+To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), it is forbidden to have the same value as its Knight-Neighbours (cells that are a knights distance away). The one constraint needed to formulate the Anti-Knight rule is stated in Table \ref{constraints:AntiKnight}. The corresponding formula to encode it into clauses is shown in Table \ref{formulae:AntiKnight}. The set of Knight-Neighbours to cell (x,y) can be defined as:
 \begin{center}
     $N(x,y) = \{(i,j)~|\textnormal{ cell }(i,j) \textnormal{ one knight distance from cell }(x,y)\}$.
 \end{center}
@@ -293,7 +293,7 @@ To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), i
 The PBC approach can be further optimized, because, given a fixed number of summands, not all values from 1 to 9 can be used to achieve a particular sum. For example, if a cage has a target sum of 8 and consists of three cells, the number of possible value combinations to achieve the target sum is fairly limited. There are only two possible value combinations $1+2+5=8$ and $1+3+4=8$, so the allowed values the cells could take are $1$, $2$, $3$, $4$ and $5$. When constructing the PBC, this knowledge can be used to reduce the number of variable-value products on the left-hand side of the equation. For every cell in a cage, we only add the variable times the corresponding value (to the left-hand side) if the value is an allowed one.
 
 \paragraph{Using Combinations:}
-Another possibility is to completely abandon PBCs and exploit that only certain value combinations are possible given a cage with a fixed target sum and fixed number of cells that belong to it. To encode this every combination is given a corresponding variable $s_{v}$, for $v \in V_g  \subset\mathbb{N}$, which is true iff the corresponding combination is used in a certain cage. The set of all cages is annotated as $G$, and the set of all possible combinations to achieve the target sum of a cage $g \in G$ is denoted as $C_g$.
+Another possibility is to completely abandon PBCs and exploit that only certain value combinations are possible given a cage with a fixed target sum and fixed number of cells that belong to it. To encode this every combination is given a corresponding variable $s_{v}$, for $v \in V_g  \subset\mathbb{N}$, which is true iff the corresponding combination is used in a certain cage. The set of all cages is annotated as $G$, and the set of all possible combinations to achieve the target sum of a cage $g \in G$ is denoted as $C_g$. The constraints needed to encode the Killer Sudoku rules without the use of PBCs are stated in Table \ref{constraints:Killer}, further the formulae that encode these constraint to clauses are described in Table \ref{formulae:KillerSudoku}.
 
 \begin{table}[ht!]
     \centering
@@ -319,7 +319,7 @@ Another possibility is to completely abandon PBCs and exploit that only certain 
         \hline
     \end{tabular*}
         \caption{Constraints of Killer Sudoku rules.}
-    \label{tab:Killer}
+    \label{constraints:Killer}
 \end{table}
 
 \begin{table}
@@ -344,7 +344,7 @@ Another possibility is to completely abandon PBCs and exploit that only certain 
 \clearpage
 
 \subsection{Arrowheads}\label{Encoding:Arrowheads}
-Arrowheads demand a total or partial order between two cells. The sets of all tuples of two cells under total or partial order are respectively noted as $TO$ and $PO$. The first cell of such a tuple  $((x_1,y_1), (x_2,y_2)) \in TO \cup PO$ shall have a smaller (or equal) value than the second one $(x_2,y_2)$. To enforce this, the constraints shown in \ref{tab:ArrowHeads} are encoded into clauses using the support encoding. In formula AH-\ref{AH-i}, the values of $z_1$ go from $1$ to $9$, which ensures that the first cell of a tuple can not have a value of 9. In formula AH-\ref{AH-ii}, on the other hand, $z_1$ iterates from $2$ to $9$ because if the first cell has a value of $1$, all values from $1$ to $9$ are allowed for the second cell.\\
+Arrowheads demand a total or partial order between two cells. The sets of all tuples of two cells under total or partial order are respectively noted as $TO$ and $PO$. The first cell $(x_1,y_1)$ of such a tuple  $((x_1,y_1), (x_2,y_2)) \in TO \cup PO$ shall have a smaller (or equal) value than the second one $(x_2,y_2)$. To enforce this, the constraints shown in \ref{tab:ArrowHeads} are encoded into clauses using the support encoding (sea Table \ref{formulae:Arrowhead}). In formula AH-\ref{AH-i}, the values of $z_1$ go from $1$ to $9$, which ensures that the first cell of a tuple can not have a value of 9. In formula AH-\ref{AH-ii}, on the other hand, $z_1$ iterates from $2$ to $9$ because if the first cell has a value of $1$, all values from $1$ to $9$ are allowed for the second cell.\\
 
 \begin{table}[ht!]
     \centering
@@ -386,9 +386,8 @@ Arrowheads demand a total or partial order between two cells. The sets of all tu
 \subsection{Thermometers (Hidden)}
 As the Thermometer rule also demands a total (or partial) order between the cells of the thermometers, one can reuse the rules and formulas shown for Arrowheads in \ref{Encoding:Arrowheads}. Starting from a Thermometers bulb, one can conceptually place Arrowheads between every cell pair along the Thermometer, enforcing a total (or partial) order between all cells.\todoMissing{Figure of Arrowheads on Thermometer.}\\
 
-Further constraints and variables are needed for the more complicated puzzle, where the solver must also deduce the thermometer positions.  
-When encoding this puzzle, we distinguish two main cases: if the entire thermometer number $t$ fits inside the $9\times9$ grid when its bulb is placed at $(x,y)$, the clauses of TH-\ref{TH-iv}, TH-\ref{TH-v} and TH-\ref{TH-vi} are added. Otherwise the clauses of TH-\ref{TH-vii} are added.
-In the formulae the following annotations are used:
+Further constraints and variables are needed for the more complicated puzzle, where the solver must also deduce the thermometer positions. When encoding this puzzle, we distinguish two main cases: if the entire thermometer number $t$ fits inside the $9\times9$ grid when its bulb is placed at $(x,y)$, the clauses of TH-\ref{TH-iv}, TH-\ref{TH-v} and TH-\ref{TH-vi} are added. Otherwise the clauses of TH-\ref{TH-vii} are added. The corresponding constraints are defined in Table \ref{Constraints:Thermometers}, and the formulae in Table \ref{formulae:thermometers} show how to encode them into clauses. Details on the used notation and variables within the formulae can be found in Table \ref{notation:ThermometersHidden}.
+
 
 \begin{table}[!ht]
     \centering
@@ -498,7 +497,7 @@ In the formulae the following annotations are used:
     $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{d=1}^{T[t].size-1} \neg s_{t,d,\rchi(t,x,y,d), \Upsilon(t,x,y,d)} \lor Arrowhead(t,x,y,d)$ & & \consCount{TH} \label{TH-\roman{cons}}
     \\
     \\
-    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{d=1}^{T[t].size} \neg s_{t,d,\rchi(t,x,y,d), \Upsilon(t,x,y,d)}$ ~~~~~~\textnormal{with} $\rchi(), \Upsilon() \in [1,9]$ & & \consCount{TH} \label{TH-\roman{cons}}\\
+    $\displaystyle \bigwedge_{t=1}^{T.size} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{d=1}^{T[t].size} \neg s_{t,d,\rchi(t,x,y,d), \Upsilon(t,x,y,d)}$ ~~~~~~\textnormal{with} $\rchi(\cdot), \Upsilon(\cdot) \in [1,9]$ & & \consCount{TH} \label{TH-\roman{cons}}\\
         \\
     \hline
 \end{tabular*}
@@ -509,13 +508,15 @@ In the formulae the following annotations are used:
 \FloatBarrier
 \newpage
 \subsection{Sandwich Sum}
-Sandwich Sums can be given for rows and columns. We will elaborate on the row constraints from which the formulas for the column constraints can be derived by swapping x and y, respectively. Similar to the Killer Sudoku rules, multiple optimizations can be (incrementally) made when encoding the Sandwich Sum rules.
+Sandwich Sums can be given for rows and columns. We will elaborate on the row constraints from which the formulas for the column constraints can be derived by swapping $x$ and $y$, respectively. Similar to the Killer Sudoku rules, multiple optimizations can be (incrementally) made when encoding the Sandwich Sum rules.
 
-\paragraph{Using PBCs:} Assuming that all lengths of sandwiches are possible to achieve a certain sum. We must encode all possible sandwich lengths ($0$ to $7$) and all corresponding positions for the cells with values $1$ and $9$. Also, we encode a PBC for every possible sandwich length and position. The LHS of said PBC is $\sum_{i=1}^{9} (s_{x,y,i}*i)$, and the RHS is set to the current rows sandwich sum. Since the Sandwich can only be at one position in a row at once, only one of all the PBC will be true. To ensure that a PBC's clauses are satisfied if the sandwich is not in its corresponding position, we add the negative literal of the corresponding $s_v$ to each clause (stylized in the formulae SW-\ref{SW-vii}, SW-\ref{SW-viii} and SW-\ref{SW-ix}). To encode the Sandwich Sum rules for rows without the incorporation of further knowledge, the following constraints/formulas are used: SW-\ref{SW-i}, SW-\ref{SW-ii}, SW-\ref{SW-vii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
+\paragraph{Using PBCs:} Assuming that all lengths of sandwiches are possible to achieve a certain sum. We must encode all possible sandwich lengths ($0$ to $7$) and all corresponding positions for the cells with values $1$ and $9$. Also, we encode a PBC for every possible sandwich length and position. The LHS of said PBC is $\sum_{i=1}^{9} (s_{x,y,i}*i)$, and the RHS is set to the current rows sandwich sum. Since the Sandwich can only be at one position in a row at once, only one of all the PBC will be true. To ensure that a PBC's clauses are satisfied if the sandwich is not in its corresponding position, we add the negative literal of the corresponding $s_v$ to each clause (sea formulae SW-\ref{SW-vii}, SW-\ref{SW-viii} and SW-\ref{SW-ix} in Table \ref{formulae:SandwichSum}). To encode the Sandwich Sum rules for rows without the incorporation of further knowledge, the following constraints/formulas are used: SW-\ref{SW-i}, SW-\ref{SW-ii}, SW-\ref{SW-vii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
 
 \paragraph{Using PBCs + Combinations for Lengths:} Given the Sandwich Sum of a row, one can already make statements about the number of cells involved in the sum. For example, given a sandwich sum of $8$, one can conclude that the sandwich has either length $3$, $2$, or $1$ (contains $3$, $2$ or $1$ cells, not counting the border cells with values $1$ and $9$). This already reduces the number of combinations of sandwich lengths and positions and can be utilized to encode the rules using the constraints/formulas: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-viii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
 
-\paragraph{Using Combinations for PBCs + Combinations for Lengths:} Given the Sandwich Sum of a row, one can not only make statements about the number of cells involved in the sum but also about the possible values of these cells given a certain sandwich length (Similar to the possible cell values in a killer cage given the cages sum and size). This reduces the number of summands of the LHS of PBCs and can be combined with the knowledge about possible sandwich lengths. To encode the sandwich sum rules using this additional knowledge, the following constraints/formulas: are used: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-ix}, SW-\ref{SW-x}, SW-\ref{SW-xi} and SW-\ref{SW-xii}.
+\paragraph{Using Combinations for PBCs + Combinations for Lengths:} Given the Sandwich Sum of a row, one can not only make statements about the number of cells involved in the sum but also about the possible values of these cells given a certain sandwich length (Similar to the possible cell values in a killer cage given the cages sum and size). This reduces the number of summands of the LHS of PBCs and can be combined with the knowledge about possible sandwich lengths. To encode the sandwich sum rules using this additional knowledge, the following constraints/formulas: are used: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-ix}, SW-\ref{SW-x}, SW-\ref{SW-xi} and SW-\ref{SW-xii}.\\
+\\
+The different constraints and formulae used for these three encoding versions are listed in Tables \ref{Constraints:SandwichSum} and \ref{formulae:SandwichSum}, respectively. Notation and variables used in the formulae are further explained in Table \ref{notation:SandwichSum}.
 
 \begin{table}
     \centering
@@ -527,11 +528,12 @@ Sandwich Sums can be given for rows and columns. We will elaborate on the row co
         \hline
         \\
         \makecell[cl]{If the sandwich of a row is at a certain position, the cells\\
-        with values 1 and 9 must be positioned accordingly.} & (SW-\ref{SW-i}) and (SW-\ref{SW-ii})\\
+        with values 1 and 9 must be positioned at its left and right\\
+        end.} & (SW-\ref{SW-i}) and (SW-\ref{SW-ii})\\
         \\
         \makecell[cl]{If the sandwich of a row (with compatible length regarding\\
         the sandwich sum) is at a certain position, the cells with\\
-        values 1 and 9 must be positioned accordingly.} & (SW-\ref{SW-iii}) and (SW-\ref{SW-iv})\\
+        values 1 and 9 must be positioned at its left and right end.} & (SW-\ref{SW-iii}) and (SW-\ref{SW-iv})\\
         \\
         \makecell[cl]{The cells with values 1 and 9 can not have a certain\\
         number of cells between them, if the values from these\\
@@ -571,38 +573,36 @@ Sandwich Sums can be given for rows and columns. We will elaborate on the row co
     \begin{tabular}{l c l}
     \hline
     \\
-    Notation: &&\\
+    Notation and Variables: &&\\
     \\
     \hline
     \\
     $PBC(x_1,x_2,y,sum)$    &= &set of clauses needed to encode that the cells\\
                             &  &between $(x_1,y)$ and $(x_2,y)$ have values $\in \{1,...,9\}$\\
                             &  & that add up to $sum$.\\
+    \\
     $PBC(x_1,x_2,y,sum,Val)$&= &set of clauses needed to encode that the cells\\
                             &  &between $(x_1,y)$ and $(x_2,y)$ have values $\in \textit{Val}$\\
                             &  &that add up to $sum$.\\
+    \\
     $L(y)$                  &= &set of numbers corresponding to the sizes of cell\\
                             &  &sets for which it is possible to achieve the\\
                             &  &sandwich sum of row $y$, given that each cell can\\
                             &  &only have values from 1 to 9. $L(y)\subseteq \{0,1,...,7\}$\\
+    \\
     $\bar{L}(y)$            &= &$\{0,...,7\}\setminus L(y)$\\
+    \\
     $Z(y,l)$                &= &set of integer values for which it is possible to\\
                             &  &achieve the sandwich sum of row $y$ if $l$ different\\
                             &  &one of them are added.  $Z(y,l)\subseteq \{1,...,9\}$\\
+    \\
     $\bar{Z}(y,l)$          &= &$\{1,...,9\}\setminus Z(y,l)$\\
-    $\mathcal{S}(x,y,l)$    &= &corresponding $s_v$\\
     \\
-    \hline
-    \\
-    Variables:&&\\
-    \\
-    \hline
-    \\
-    $s_v$                   &= &dynamically assigned variable for each\\
+    $\mathcal{S}(x,y,l)$    &= &dynamically assigned variable for each\\
                             &  &combination of $x$, $y$ and $l$ that is true if the\\
                             &  &sandwich of row $y$ has its borders in cell $(x,y)$\\
                             &  &and cell $(x+1+l,y)$. $v \in V_y \subset \mathbb{N}$\\
-    \\    
+    \\
     \hline
     \end{tabular}
     \caption{Notations and variables, Sandwich Sum rules.}
@@ -628,11 +628,11 @@ Sandwich Sums can be given for rows and columns. We will elaborate on the row co
     \\
     $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:\bar{L}(y)} \bigwedge_{x=1}^{9-l-1}  \neg s_{x,y,9} \lor \neg s_{(x+l+1),y,1}$ & & \consCount{SW} \label{SW-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l=0}^{7} \bigwedge_{x=1}^{9}  PBC(x,x+l+1,y,sum) \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l=0}^{7} \bigwedge_{x=1}^{9} \bigwedge_{\varphi \in PBC(x,x+l+1,y,sum)} \varphi \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  PBC(x,x+l+1,y,sum) \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  \bigwedge_{\varphi \in PBC(x,x+l+1,y,sum)} \varphi \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  PBC(x,x+l+1,y,sum, Z(y,l)) \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
+    $\displaystyle \bigwedge_{y=1}^{9} \bigwedge_{l:L(y)} \bigwedge_{x=1}^{9}  \bigwedge_{\varphi \in PBC(x,x+l+1,y,sum, Z(y,l))} \varphi \lor \neg \mathcal{S}(x,y,l)$ & & \consCount{SW} \label{SW-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{y=1}^{9} \bigvee_{v:V_y} s_v$ & & \consCount{SW} \label{SW-\roman{cons}}\\
     \\
@@ -649,13 +649,13 @@ Sandwich Sums can be given for rows and columns. We will elaborate on the row co
 \FloatBarrier
 \newpage
 \subsection{Secret Direction}
-To encode the secret direction rules, we introduce a variable that is true iff a cell (x,y) is part of the hidden path at a certain depth $d$. We define the initial cell to have depth $0$ and its successors in the path have depths $1$, $2$ and so forth. The depth can be used to ensure that every cell can only be in the path once, those prohibiting loops. That loops can not be part of the solution path, can be inferred from the definition of the next step in the path, which is always determined by the position of the value $9$ in the current $(3\times3)$-box and the value of the current path cell, those making it impossible that one cell of the path has two different successors. So loops can not be part of the solution path, because it would not be possible to break out of them.\\
+To encode the secret direction rules, we introduce a variable that is true iff a cell $(x,y)$ is part of the hidden path at a certain depth $d$. We define the initial cell to have a depth of $0$, and its successors in the path have depths $1$, $2$, et cetera. The depth can be used to ensure that every cell can only be in the path once, those prohibiting loops. That loops can not be part of the solution path can be inferred from the definition of the next step in a path, which is always determined by the position of the value $9$ in the current $(3\times3)$-box and the value of the current path cell, making it impossible that one cell of the path has two different successors. So loops cannot be part of the solution path because it would not be possible to break out of them.\\
 \\
-From the fact that the position of the value $9$ is needed to determine the direction in which the successor of a cell in the path lays, we can also derive that if the center of a $(3\times3)$-box has value $9$, all other cells of that box can not be in the path, because for them no successor direction would be defined.\\
+From the fact that the position of the value $9$ is needed to determine the direction in which the successor of a cell in the path lays, we can also derive that if the center of a $(3\times3)$-box has value $9$, all other cells of that box cannot be in the path, because for them no successor direction would be defined.\\
 \\
-Since the Sudoku grid has only a size of $9\times9$ and the cell value of a cell in the path determines the distance to its successor, we can conclude that cells with value $9$ can not be part of the path (except as final cell) because after them the path would step outside the grid.\\
+Since the Sudoku grid has only a size of $9\times9$ and the cell value of a cell in the path determines the distance to its successor, we can conclude that cells with a value of $9$ can not be part of the path (except as final cell) because after them the path would step outside the grid.\\
 \\
-Combining the previous two deductions we can compute a sufficiently low upper bound for the maximal path length of: $81-8-8 = 65$. Given these analyses the constraints shown in \ref{Constraints:SecretDirection} can be formulated and encoded into clauses as shown in \ref{formulae:SecretDirection}.
+Combining the previous two deductions, we can compute a sufficiently low upper bound for the maximal path length of $81-8-8 = 65$. Given these analyses, the constraints shown in \ref{Constraints:SecretDirection} can be formulated and encoded into clauses as shown in \ref{formulae:SecretDirection}. Details about the used notation and helping functions can be found in \ref{notation:SecretDirection}.
 
 
 
@@ -687,11 +687,11 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
         \makecell[cl]{The non center cells of the $(3\times 3)$-box with a center cell\\
         that has value 9, are not in the path.} & (SD-\ref{SD-vi}) and (SD-\ref{SD-ix})\\
         \\
-        \makecell[cl]{If a cell (x,y) is not the center cell of a $(3\times 3)$-box, has\\
+        \makecell[cl]{If a cell $(x,y)$ is not the center cell of a $(3\times 3)$-box, has\\
         value $z$, is in the path at depth $d$, and the the position of\\
         the $9$-valued cell in the same $(3\times3)$-box hints in a certain\\
         direction. Then the cell $(x_s,y_s)$ that is $z$ steps in certain\\
-        direction away from (x,y) is also in the path, at layer\\
+        direction away from $(x,y)$ is also in the path, at layer\\
         $(d+1)$.} & (SD-\ref{SD-xi})\\
         \\
         \hline
@@ -702,10 +702,10 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
 
 \begin{table}
     \centering
-    \begin{tabular*}{\textwidth}{m{1.5em} c l}
+    \begin{tabular*}{\textwidth}{m{40mm} m{1mm} l}
     \hline
     \\
-    \multicolumn{3}{l}{Notation:}\\
+    \multicolumn{3}{l}{Notation and Variables:}\\
     \\
     \hline
     \\
@@ -713,32 +713,29 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
     \\
     $\Psi$          &= &\{(1,1), (1,2), (1,3), (2,1), (2,3), (3,1), (3,2), (3,3)\}\\
     \\
-    $\mathcal{F}_1$   &= &$\begin{cases}
-    \neg s_{1,(3*x_b+x'),(3*y_b+y'),d} \lor \neg s_{(3*x_b+x_n),(3*y_b+y_n),9} \lor \neg s_{x,y,z}  & (x_s,y_s) \notin \mathcal{G} \\
-    \neg s_{1,(3*x_b+x'),(3*y_b+y'),d} \lor \neg s_{(3*x_b+x_n),(3*y_b+y_n),9} \lor \neg s_{x,y,z}  \lor h& (x_s,y_s) \in \mathcal{G}
-    \end{cases}$\\
-    \\
-    $h$             &= & $s_{1,x_s,y_s,(d+1)}$\\
-    \\
     $\mathcal{G}$   &= & $\{(a,b)~|~a,b\in \{1,2,3,4,5,6,7,8,9\}\}$\\
     \\
-    $x_s$           &= &$\begin{cases}
-    (3*x_b+x')-z    & x_n = 1 \\
-    (3*x_b+x')      & x_n = 2 \\
-    (3*x_b+x')+z    & x_n = 3 \\
+    $\mathcal{F}_1(x_b,y_b,x',y',d,x_n,y_n,z)$   &= &$\begin{cases}
+    \makecell[cl]{(\neg s_{1,(3*x_b+x'),(3*y_b+y'),d}\\
+    ~~\lor \neg s_{(3*x_b+x_n),(3*y_b+y_n),9}\\
+    ~~\lor \neg s_{x,y,z})} & (x_s,y_s) \notin \mathcal{G}\\
+    \makecell[cl]{(\neg s_{1,(3*x_b+x'),(3*y_b+y'),d}\\
+    ~~\lor \neg s_{(3*x_b+x_n),(3*y_b+y_n),9}\\
+    ~~\lor \neg s_{x,y,z}\\
+    ~~\lor s_{1,succ_x(x_b,x',x_n,z),succ_y(y_b,y',y_n,z),(d+1)})} & (x_s,y_s) \in \mathcal{G}
     \end{cases}$\\
     \\
-    $y_s$           &= &$\begin{cases}
-    (3*y_b+y')-z    & y_n = 1 \\
-    (3*y_b+y')      & y_n = 2 \\
-    (3*y_b+y')+z    & y_n = 3 \\
-    \end{cases}$\\
+    $succ_x(x_b,x',x_n,z)$  &= &$\begin{cases}
+                                    (3*x_b+x')-z    & x_n = 1 \\
+                                    (3*x_b+x')      & x_n = 2 \\
+                                    (3*x_b+x')+z    & x_n = 3 \\
+                                    \end{cases}$\\
     \\
-    \hline
-    \\
-    \multicolumn{3}{l}{Variables:}\\
-    \\
-    \hline
+    $succ_y(y_b,y',y_n,z)$  &= &$\begin{cases}
+                                    (3*y_b+y')-z    & y_n = 1 \\
+                                    (3*y_b+y')      & y_n = 2 \\
+                                    (3*y_b+y')+z    & y_n = 3 \\
+                                    \end{cases}$\\
     \\
     $s_{1,x,y,d}$       &:  &\begin{tabular}{l c l}
                                 \multicolumn{3}{l}{Is true if and only if the cell (x,y) is in the path,}\\
@@ -747,7 +744,6 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
                                 \multicolumn{3}{l}{at depth d.}\\
                                     d      &$\in$  &$\{0,..,64\}$\\
                                     x,y    &$\in$  &$\{1,..,9\}$\\
-                                    \multicolumn{3}{l}{Variable range : $11100$ to $19964$.}\\
                                     Digits      &:      &$1xydd$\\
                                     Range       &:      &$11100$ to $19964$\\
                                  \end{tabular}\\
@@ -763,13 +759,13 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
     \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
     \hline
     \\
-    $\displaystyle \bigvee_{\substack{x=2 \\ ++3}}^{8} \bigvee_{\substack{y=2 \\ ++3}}^{8} s_{x,y,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    $\displaystyle \bigvee_{x\in\{2,3,8\}} \bigvee_{y\in\{2,3,8\}} s_{x,y,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{\substack{x=2 \\ ++3}}^{8} \bigwedge_{\substack{y=2 \\ ++3}}^{8} \bigwedge_{\substack{k=y+3 \\ ++3}}^{8} \neg s_{x,y,9} \lor \neg s_{x,k,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    $\displaystyle \bigwedge_{x\in\{2,3,8\}} \bigwedge_{y\in\{2,3,8\}}  \bigwedge_{\substack{k\in\{3,8\}\\ k>y}} \neg s_{x,y,9} \lor \neg s_{x,k,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{\substack{x=2 \\ ++3}}^{8} \bigwedge_{\substack{y=2 \\ ++3}}^{8} \bigwedge_{\substack{k=x+3 \\ ++3}}^{8} \bigwedge_{\substack{l=2 \\ ++3}}^{8}\neg s_{x,y,9} \lor \neg s_{k,l,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    $\displaystyle \bigwedge_{x\in\{2,3,8\}} \bigwedge_{y\in\{2,3,8\}}  \bigwedge_{\substack{k\in\{3,8\}\\ k>x}} \bigwedge_{l\in\{2,3,8\}} \neg s_{x,y,9} \lor \neg s_{k,l,9}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{\substack{x=2 \\ ++3}}^{8} \bigwedge_{\substack{y=2 \\ ++3}}^{8}  \neg s_{x,y,9} \lor \bigvee_{d=0}^{64} s_{1,x,y,d}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
+    $\displaystyle \bigwedge_{x\in\{2,3,8\}} \bigwedge_{y\in\{2,3,8\}}  \neg s_{x,y,9} \lor \bigvee_{d=0}^{64} s_{1,x,y,d}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9}  \bigwedge_{d=0}^{63}  \bigwedge_{k=d+1}^{64} \neg s_{1,x,y,d} \lor \neg s_{1,x,y,k}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
     \\
@@ -777,13 +773,13 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
     \\
     $\displaystyle \bigwedge_{d=0}^{64} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \bigwedge_{k=x+1}^{9} \bigwedge_{l=1}^{9} \neg s_{1,x,y,d} \lor \neg s_{1,k,l,d}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{d=0}^{64} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \neg s_{1,x,y,d} \lor \neg s_{x,y,9}$ & where $(x,y) \notin M$& \consCount{SD} \label{SD-\roman{cons}}\\
+    $\displaystyle \bigwedge_{d=0}^{64} \bigwedge_{x=1}^{9} \bigwedge_{y=1}^{9} \neg s_{1,x,y,d} \lor \neg s_{x,y,9}$ & s.t. $(x,y) \notin M$& \consCount{SD} \label{SD-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{\substack{x=2 \\ ++3}}^{8} \bigwedge_{\substack{y=2 \\ ++3}}^{8} \bigwedge_{x'=-1}^{1} \bigwedge_{y'=-1}^{1} \bigwedge_{d=0}^{64} \neg s_{x,y,9} \lor \neg s_{1,(x+x'),(y+y'),d}$ & where $(x',y') \neq (0,0)$& \consCount{SD} \label{SD-\roman{cons}}\\
+    $\displaystyle \bigwedge_{x\in\{2,3,8\}} \bigwedge_{y\in\{2,3,8\}} \bigwedge_{x'=-1}^{1} \bigwedge_{y'=-1}^{1} \bigwedge_{d=0}^{64} \neg s_{x,y,9} \lor \neg s_{1,(x+x'),(y+y'),d}$ & s.t. $(x',y') \neq (0,0)$& \consCount{SD} \label{SD-\roman{cons}}\\
     \\
     $s_{1,x_r,y_r,0}$ & & \consCount{SD} \label{SD-\roman{cons}}\\
     \\
-    $\displaystyle  \bigwedge_{x_b=0}^{2} \bigwedge_{y_b=0}^{2} \bigwedge_{x'=1}^{3} \bigwedge_{y'=1}^{3} \bigwedge_{d=0}^{63} \bigwedge_{(x_n,y_n):\Psi} \bigwedge_{z=1}^{8} \mathcal{F}_1$ && \consCount{SD} \label{SD-\roman{cons}}\\
+    $\displaystyle  \bigwedge_{x_b=0}^{2} \bigwedge_{y_b=0}^{2} \bigwedge_{x'=1}^{3} \bigwedge_{y'=1}^{3} \bigwedge_{d=0}^{63} \bigwedge_{(x_n,y_n):\Psi} \bigwedge_{z=1}^{8} \mathcal{F}_1(x_b,y_b,x',y',d,x_n,y_n,z)$ && \consCount{SD} \label{SD-\roman{cons}}\\
     \\
     \hline
 \end{tabular*}
@@ -799,7 +795,16 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
 \FloatBarrier
 \newpage
 \subsection{Nurikabe Sudoku}
-\todoMissing{Description Text}
+As one part of the solution to a Nurikabe Sudoku is marking island and ocean cells, we introduce corresponding variables that encode if a cell $(x,y)$ is part of the ocean or part of island $n$ (further detailed in  Table \ref{variables:NurikabeSudoku} as $\ocean(x,y)$ and  $\island(n,x,y)$). We note that there is only one ocean but multiple islands. Since an island must consist of at least three orthogonally adjacent cells and there are only 81 cells in the grid, a safe upper bound for the number of islands can be calculated by $81/3=27$. However, this number can be lowered because of the additional rule that islands may not touch each other orthogonally and that there is only one ocean. Considering this, the maximum number of islands found (by hand) to fit in the grid is 13, but we will use an upper bound of 14 for the encoding just to be sure. An example of how 13 islands can be placed in the grid that complies with the rules of Nurikabe Sudoku can be seen in Figure\todoMissing{13 Island Figure}.\\
+\\
+The rule that an island must consist of at least three adjacent cells can be broken down to each individual cell of an island, by stating that each cell that is part of an island must have at least two orthogonally adjacent neighbouring cells that are part of the same island. As shown in Figure \todoMissing{Figure Constelations}, there are 18 different possibilities (\emph{constellations}) for such two neighbouring cells. To encode this rule, we introduce a new variable which is further explained in Table \ref{variables:NurikabeSudoku} in the definition of $\nb(c,n,x,y)$.\\
+\\
+Further, we must enforce that islands are continuous. So from every cell that is part of an island  $n$ it must be possible to reach any other cell of island $n$, without crossing an ocean cell. This reachability can be enforced by constraints describing a Floodfill methodology. However, we will call this \emph{walk} as the word \emph{flood} is better suited to describe the similar idea used for the ocean cells. A walk is defined by its corresponding island $n$ and its source $(x_s,y_s)$, which is said to be at depth 1 of the walk. Outgoing from the source, orthogonally adjacent cells are walked with increasing depth numbers. As we model a Floodfill multiple cells can be at the same depth of a walk. At depth 9, the walk will have covered all cells of an island because the rules state that there are no value repetitions within an island which limits the size of an island to at most nine cells. The variable used to encode walks is further described in Table \ref{variables:NurikabeSudoku} in the definition of $\walk(d,n,x_s,y_s,x,y)$. An example walk on an island is illustrated in Figure \todoMissing{Figure Walk}.\\
+
+The rules also dictate that there may only be one continuous ocean, which can be enforced with an approach similar to the one used for the continuousness of islands. However, as value repetitions are allowed within the ocean, its size is not limited to nine cells.The depth needed by a flood to cover all ocean cells is maximized if there are as few cells as possible in every depth. With only one cell in each depth, an upper bound of 81 can be given as the grid contains a total of 81 cells. But this number can be lowered as more than one cell will be at the same depth in practice. After experimenting with possible island placements by hand, we found an upper limit for the flood depth of 49 to be likely. Examples of island placements that require this flood depth can be seen in Figure \todoMissing{Figure Flood-1} and Figure \todoMissing{Figure Flood-2}. The variable used to encode floods is further described in Table \ref{variables:NurikabeSudoku} in the definition of $\flood(d,x_s,y_s,x,y)$.\\
+\\
+The constraints to encode Nurikabe Sudoku are stated in the Figures \ref{Constraints:NurikabeSudoku1}, \ref{Constraints:NurikabeSudoku2} and \ref{Constraints:NurikabeSudoku3}. How the constraints are encoded into clauses is shown in the Figures \ref{formulae:NurikabeSudoku1}, \ref{formulae:NurikabeSudoku2} and \ref{formulae:NurikabeSudoku3}.
+
 
 \begin{table}[hb!]
     \centering
@@ -1004,7 +1009,17 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
     \\
     \hline
     \\
-    $\eta(c) $   &= &$\begin{cases}
+    $\mathcal{A}$           &= & $\{(x,y)~|~(x,y)~\textnormal{is grid cell that contains an arrow}\}$\\
+    \\
+    $\mathcal{B}(x,y)$      &= & $\{(x+1,y), (x-1,y), (x,y+1), (x,y-1)\}$\\
+    \\
+    $\mathcal{G}$           &= & $\{(a,b)~|~a,b\in \{1,2,3,4,5,6,7,8,9\}\}$\\
+    \\
+    $\mathcal{F}_2(d,x,y,x_s,y_s)$          &= & $\displaystyle \neg \ocean(x_s,y_s) \lor \bigvee_{\mathclap{(x',y'):\mathcal{B}(x,y)}} \flood(d-1,x_s,y_s,x',y')~~s.t.~~(x',y') \in \mathcal{G}$\\
+        \\
+    $\mathcal{F}_3(d,n,x,y,x_s,y_s)$        &= & $\displaystyle \neg \island(n,x_s,y_s) \lor \bigvee_{\mathclap{(x',y'):\mathcal{B}(x,y)}} \walk(d-1,n,x_s,y_s,x',y')~~s.t.~~(x',y') \in \mathcal{G}$\\
+    \\
+    $\eta(c,x,y) $   &= &$\begin{cases}
     ((x,y-1),(x,y-2))       & c = 1 \\
     ((x,y-1),(x+1,y-1))     & c = 2 \\
     ((x+1,y),(x+1,y-1))     & c = 3 \\
@@ -1025,16 +1040,6 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
     ((x-1,y),(x,y+1))       & c = 18 \\
     \end{cases}$\\
     \\
-    $\mathcal{F}_2(d,x_y,y_s)$          &= & $\displaystyle \neg \ocean(x_s,x_y) \lor \bigvee_{\mathclap{(x',y'):\mathcal{B}(x,y)}} \flood(d-1,x_y,y_s,x',y')~~s.t.~~(x',y') \in \mathcal{G}$\\
-        \\
-    $\mathcal{F}_3(d,n,x_y,y_s)$        &= & $\displaystyle \neg \island(n,x_s,x_y) \lor \bigvee_{\mathclap{(x',y'):\mathcal{B}(x,y)}} \walk(d-1,n,x_y,y_s,x',y')~~s.t.~~(x',y') \in \mathcal{G}$\\
-    \\
-    $\mathcal{G}$           &= & $\{(a,b)~|~a,b\in \{1,2,3,4,5,6,7,8,9\}\}$\\
-    \\
-    $\mathcal{A}$           &= & $\{(x,y)~|~(x,y) \textnormal{is grid cell that contains an arrow}\}$\\
-    \\
-    $\mathcal{B}(x,y)$      &= & $\{(x+1,y), (x-1,y), (x,y+1), (x,y-1)\}$\\
-    \\
     \hline
     \end{tabular*}
     \caption{Notations, Nurikabe Sudoku rules.}
@@ -1050,13 +1055,13 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
                             &  & the arrow of cell (x,y) points, there are $z$ cells that are part\\
                             &  & of the ocean.\\
                             &  & LHS = $\begin{cases}
-                                        \displaystyle\sum_{\substack{k=y-1\\--k}}^{1} 1*\ocean(x,k)       & (x,y) \textnormal{ contains}  \uparrow\\
+                                        \displaystyle\sum_{\substack{k \in \{1,...,8\}\\k<y}} 1*\ocean(x,k)       & (x,y) \textnormal{ contains}  \uparrow\\
                                         \\
-                                        \displaystyle\sum_{\substack{k=y+1\\++k}}^{9} 1*\ocean(x,k)       & (x,y) \textnormal{ contains}  \downarrow\\
+                                        \displaystyle\sum_{k=y+1}^{9} 1*\ocean(x,k)       & (x,y) \textnormal{ contains}  \downarrow\\
                                         \\
-                                        \displaystyle\sum_{\substack{k=x-1\\--k}}^{1} 1*\ocean(k,y)       & (x,y) \textnormal{ contains}  \leftarrow\\
+                                        \displaystyle\sum_{\substack{k\in\{1,...,8\}\\k<x}} 1*\ocean(k,y)       & (x,y) \textnormal{ contains}  \leftarrow\\
                                         \\
-                                        \displaystyle\sum_{\substack{k=x+1\\++k}}^{9} 1*\ocean(k,y)       & (x,y) \textnormal{ contains}  \rightarrow\\
+                                        \displaystyle\sum_{k=x+1}^{9} 1*\ocean(k,y)       & (x,y) \textnormal{ contains}  \rightarrow\\
                                         \end{cases}$\\
                             &  & RHS = $z$\\
     \\
@@ -1064,13 +1069,13 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
                             &  & the arrow of cell (x,y) points, there are $z$ cells that are not\\
                             &  & part of the ocean.\\
                             &  & LHS = $\begin{cases}
-                                        \displaystyle\sum_{\substack{k=y-1\\--k}}^{1} 1*\neg\ocean(x,k)       & (x,y) \textnormal{ contains}  \uparrow\\
+                                        \displaystyle\sum_{\substack{k \in \{1,...,8\}\\k<y}} 1*\neg\ocean(x,k)       & (x,y) \textnormal{ contains}  \uparrow\\
                                         \\
-                                        \displaystyle\sum_{\substack{k=y+1\\++k}}^{9} 1*\neg\ocean(x,k)       & (x,y) \textnormal{ contains}  \downarrow\\
+                                        \displaystyle\sum_{k=y+1}^{9} 1*\neg\ocean(x,k)       & (x,y) \textnormal{ contains}  \downarrow\\
                                         \\
-                                        \displaystyle\sum_{\substack{k=x-1\\--k}}^{1} 1*\neg\ocean(k,y)       & (x,y) \textnormal{ contains}  \leftarrow\\
+                                        \displaystyle\sum_{\substack{k\in\{1,...,8\}\\k<x}} 1*\neg\ocean(k,y)       & (x,y) \textnormal{ contains}  \leftarrow\\
                                         \\
-                                        \displaystyle\sum_{\substack{k=x+1\\++k}}^{9} 1*\neg\ocean(k,y)       & (x,y) \textnormal{ contains}  \rightarrow\\
+                                        \displaystyle\sum_{k=x+1}^{9} 1*\neg\ocean(k,y)       & (x,y) \textnormal{ contains}  \rightarrow\\
                                         \end{cases}$\\
                             &  & RHS = $z$\\
                             &  & (As we only defined PBCs for positive literals, we must in\\
@@ -1098,11 +1103,11 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
     \\
     \multicolumn{2}{l}{$\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{8} \bigwedge_{\substack{k = 1\\ k\neq n}}^{14} \neg \island(n,x,y) \lor \neg \island(k,x,y+1)$} & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \neg \island(n,x,y) \lor \bigvee_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c)}}^{18} \nb(c,n,x,y)$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \neg \island(n,x,y) \lor \bigvee_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c,x,y)}}^{18} \nb(c,n,x,y)$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c)}}^{18} \neg \nb(c,n,x,y) \lor \island(n,x',y')$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c,x,y)}}^{18} \neg \nb(c,n,x,y) \lor \island(n,x',y')$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c)}}^{18} \neg\nb(c,n,x,y) \lor \island(n,x'',y'')$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{\substack{c=1\\ ((x',y'),(x'',y''))=\eta(c,x,y)}}^{18} \neg\nb(c,n,x,y) \lor \island(n,x'',y'')$ &s.t.$\substack{(x'',y'') \in \mathcal{G}\\ (x',y') \in \mathcal{G}}$ & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \ocean(x,y) \lor \bigvee_{n = 1}^{14} \island(n,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
@@ -1130,13 +1135,13 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
     \\
     $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \neg \flood(1,x_s,y_s,x,y)$~~~~with $(x,y) \neq (x_s,y_s)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{\substack{y_s = 1\\ (x,y) \neq (x_s,y_s)}}^{9} \bigwedge_{d = 2}^{49} \neg \flood(d,x_s,y_s,x,y) \lor \mathcal{F}_2(d,x_y,y_s) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    $\displaystyle \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{\substack{y_s = 1\\ (x,y) \neq (x_s,y_s)}}^{9} \bigwedge_{d = 2}^{49} \neg \flood(d,x_s,y_s,x,y) \lor \mathcal{F}_2(d,x,y,x_s,y_s) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \neg \island(n,x,y) \lor \walk(1,n,x,y,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{\substack{y_s = 1\\ (x,y) \neq (x_s,y_s)}}^{9} \neg \walk(1,n,x_s,y_s,x,y)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{\substack{y_s = 1\\ (x,y) \neq (x_s,y_s)}}^{9} \bigwedge_{d = 2}^{49} \neg \walk(d,n,x_s,y_s,x,y) \lor \mathcal{F}_3(d,n,x_y,y_s) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{\substack{y_s = 1\\ (x,y) \neq (x_s,y_s)}}^{9} \bigwedge_{d = 2}^{9} \neg \walk(d,n,x_s,y_s,x,y) \lor \mathcal{F}_3(d,n,x,y,x_s,y_s) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
     $\displaystyle \bigwedge_{n = 1}^{14} \bigwedge_{x = 1}^{9} \bigwedge_{y = 1}^{9} \bigwedge_{x_s = 1}^{9} \bigwedge_{y_s = 1}^{9} \neg \island(n,x_s,y_s) \lor \neg \island(n,x,y) \lor \bigvee_{d = 1}^{9} \walk(d,n,x_s,y_s,x,y) $ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
@@ -1154,9 +1159,9 @@ Combining the previous two deductions we can compute a sufficiently low upper bo
     \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
     \hline
      \\
-    $\displaystyle \bigwedge_{(x,y):\mathcal{A}} \bigwedge_{z = 1}^{9} \neg \ocean(x,y) \lor \neg s_{x,y,z} \lor PBC_O(x,y,z)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    $\displaystyle \bigwedge_{(x,y):\mathcal{A}} \bigwedge_{z = 1}^{9} \bigwedge_{\varphi \in PBC_O(x,y,z)} \neg \ocean(x,y) \lor \neg s_{x,y,z} \lor \varphi $ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
-    $\displaystyle \bigwedge_{(x,y):\mathcal{A}} \bigwedge_{z = 1}^{9} \ocean(x,y) \lor \neg s_{x,y,z} \lor PBC_I(x,y,z)$ & & \consCount{NK} \label{NK-\roman{cons}}\\
+    $\displaystyle \bigwedge_{(x,y):\mathcal{A}} \bigwedge_{z = 1}^{9} \bigwedge_{\varphi \in PBC_I(x,y,z)} \ocean(x,y) \lor \neg s_{x,y,z} \lor \varphi$ & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\
     $\square$ if the grid contains an arrow that points directly outside the grid. & & \consCount{NK} \label{NK-\roman{cons}}\\
     \\

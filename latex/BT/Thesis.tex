@@ -11,9 +11,13 @@
 \usepackage{makecell}
 \usepackage{placeins}
 \usepackage{mathtools}
+\usepackage{hyperref}
 \newcounter{cons}[subsection]
 \renewcommand{\thecons}{\roman{cons}}
 \newcommand\consCount[1]{\refstepcounter{cons} \text{(#1-\roman{cons})}}
+
+\newcounter{rownumber}[table]
+\renewcommand{\therownumber}{\thefigure.\arabic{rownumber}}
 
 \newcommand{\false}{$\textit{false}$}
 \newcommand{\true}{$\textit{true}$}

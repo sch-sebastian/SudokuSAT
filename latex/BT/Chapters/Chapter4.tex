@@ -4,12 +4,15 @@ As introduced in \ref{DIMACS}, the SAT-Solvers expect a DIMACS file as input tha
 
 \begin{enumerate}
     \item We use increasing values starting from 1. These dynamically chosen values are, by example, used for variables necessary to encode PBCs. We use $s_{v}$, for $v \in \mathbb{N}$, to describe them in the formulae as we do not know the corresponding integers in advance.
-    \item  We use fixed intervals of numbers to encode certain constraints. Here every digit of a number has a semantic meaning. The dynamically generated variables skip these fixed intervals. For example, a fixed interval is used for the boolean variables that describe the cell values of the Sudoku grid. The variable $s_{x,y,z}$ is true if and only if cell ($x$,$y$) has the value $z$ assigned (as proposed in \cite{Lynce2006SudokuAsASATProblem}). The other used fixed intervals are indicated in the corresponding subsections of this chapter\todo{Actually do that!}. 
+    \item  We use fixed intervals of numbers to encode certain constraints. Here every digit of a number has a semantic meaning. The dynamically generated variables skip these fixed intervals. For example, a fixed interval is used for the boolean variables that describe the cell values of the Sudoku grid. The variable $s_{x,y,z}$ is true if and only if cell ($x$,$y$) has the value $z$ assigned (as proposed in \cite{Lynce2006SudokuAsASATProblem}). The other used fixed intervals are indicated in the corresponding sections of this chapter. 
 \end{enumerate}
 
 It is important to note that the numbers used as variable names are not ``continuous". There are ``gaps". For example, not all integers from 1 to 1000 are used. This is because the dynamic variables skip the entire interval from 111 to 999, and the fixed variables used to encode cell values will not use numbers like 400 because we start to count rows at 1, and the grid cells can only hold values from 1 to 9. The needed fixed intervals grow larger when encoding more complicated variants, and with them often also the ``gaps". These gaps have no effect logically, but they can have a non-negligible effect on the time needed by the solvers, which is affected by the highest integer value used to describe a variable. However, as the ``gaps" are the same when encoding Sudokus with the same rules, they should not make a difference when comparing solver-times.
 
-\section{Encoding of PBCs using Binary Decision Diagrams}\label{PBCEncodingBDD}
+\section{Encoding of PBCs}
+In the following two subsections (\ref{PBCEncodingBDD} and \ref{PBCEncodingAdderNetworks}), we will elaborate on how PBCs can be encoded into clauses. As teased earlier, we will follow the ideas of \cite{Een2006TranslatingPC} and use Binary Decision Diagrams and Adder Networks to perform this translation. The two methods approach their task rather differently, so we will compare their results and performance in section \todoMissing{ReferenceExperiment Section}.
+
+\subsection{Encoding of PBCs using Binary Decision Diagrams}\label{PBCEncodingBDD}
 A binary decision diagram (BDD) is a directed graph that can be used to represent logical formulae and PBCs. 
 Variables are considered in a fixed order. As discussed in \cite{Een2006TranslatingPC}, ordering them by decreasing\todo{the otherway arround is not significatly slower, sometimes even faster!} weight values is generally reasonable. Every graph node corresponds to a sum and a subset of variables of the formula. The BDD has a root node corresponding to the empty variable set and sum 0. If a node is $n$ edges away from the root, its variable set contains the $n$ first variables, and such a node is said to be at depth $n$. An edge from a node $u$ at depth $k$ to a node $v$ at depth $k+1$ corresponds to assigning a truth value to the $(k+1)$-th variable. Every node has at most two successors, one reachable via the edge that corresponds to assigning \true{} and one via the edge that corresponds to assigning \false{} to the next variable. Nodes store references to their successors as \emph{$\textit{true}_{child}$} and \emph{$\textit{false}_{child}$}, respectively. Paths from the root to a node correspond to variable assignments to the variables in a node´s variable set and define the node's sum, which is equal to the sum of PBC weights that are multiplied by variables that are set to \true{} by the assignment.\\
 
@@ -18,9 +21,7 @@ Terminal nodes however have no children. Terminal nodes are either nodes at dept
 An integer number is assigned to each node which can later be used to describe a boolean variable (called \emph{extendable}). The  \emph{extendable} variable of a node is true if and only if the partial assignments that correspond to the paths from the root to it can be further extended to total assignments that respect the PBC the BDD represents.\\
 
 The BDD can be built using a Breadth-First-Search starting in the root, shown as pseudocode in \ref{CodeBDDConstruction}. The version we use for encoding PBCs differs from the one introduced in \cite{Een2006TranslatingPC} because it is written to encode equations rather than inequations. Further, the used queue has additional functionalities: Given a node, it can check if it already contains a node with the same attribute values and can return said equal node. The \emph{updated sums} of successor nodes either are the same as their predecessors (\false{} was assigned) or are equal to the sum of their predecessor plus the weight value corresponding to the edge that led to them (\true{} was assigned).
-
-
-
+\newpage
 {
 \pseudo{}
 \renewcommand{\lstlistingname}{Algorithm}
@@ -57,7 +58,7 @@ BuildBDD(PBC):
     Return root
 \end{lstlisting}
 }
-
+\newpage
 Once the BDD is built, we can transform it into clauses. In \cite{Een2006TranslatingPC}, it is explained how this can be achieved by treating the BDD network as a circuit of ITEs (if-then-else gates). However, it suffices to know that the BDD can be transformed by doing a second Breadth-First-Search starting from the root and that for each visited node that is not a terminal node, the following six implications must be added to the set of formulas \cite{Een2006TranslatingPC}:
 
 \begin{enumerate}
@@ -83,8 +84,8 @@ An example is shown in Figure \ref{fig:BDDExample} where the BDD and the clauses
 \label{fig:BDDExample}
 \end{figure}
 
-
-\section{Encoding of PBCs using Adder Networks}\label{PBCEncodingAdderNetworks}
+\clearpage
+\subsection{Encoding of PBCs using Adder Networks}\label{PBCEncodingAdderNetworks}
 Adder Networks are built from Full and Half Adder nodes. A Full Adder (FA) is a node with three inputs and two outputs. A Half Adder (HA) is a node with two inputs and two outputs. The input and output values are binary (\true{}/\false{}). The outputs are name \emph{sum} and \emph{carry}, and their values are computed as follows. If at least two inputs are true, the carry output is true. Otherwise, it is false. So the carry value is already determined if two of three possible inputs are given. If one or three inputs are true, the sum output is true. Otherwise, it is false. This behaviour can be encoded into clauses, and as the name implies, it allows Adder Networks to compute sums over binary numbers. Binary numbers are Strings of bits, where each bit is either $1$ (\true) or $0$ (\false). The bit at position $k$ represents a value of $2^k$ and is called $k$-bit (This notation differs from the one used in \cite{Een2006TranslatingPC}). \\
 
 An Adder Network used to sum numbers is explained best layer by layer. When adding binary numbers, the summand $k$-bits get fed into layer $k$. Layer $k$ then also takes the carry values from the previous layer $(k-1)$ as input for its nodes except if $k$ is $0$.  A layer's sum outputs are fed as input to adder nodes in the same layer (potentially requiring additional nodes) until only one input value remains. The remaining value of layer $k$ then corresponds to the value of the $k$-bit of the overall addition result. The carry outputs of a layer are ``carried over" to the next layer, where they become inputs to the adder nodes. The last layer has only one input, and its value gets directly treated as the output of this layer. Figure \ref{fig:AdderNetworkExample} shows an example network that can add three numbers, A, B and C, with values from $0$ to $7$ ($3$ bit long numbers).\\
@@ -193,9 +194,7 @@ During algorithm \ref{PBCEncodingAdderNetworks}, Half and Full Adders are transf
 \end{figure}
 
 \newpage
-\section{Encoding of Sudoku Variants and Constraints}
-
-\subsection{Normal Sudoku}
+\section{Normal Sudoku}
 The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down into the five constraints shown in Table \ref{constraints:NormalSudoku}, which can be encoded into clauses using the variable $s_{x,y,z}$, which is true iff cell $(x,y)$ has value $z$. The variable $s_{x,y,z}$ will be used further during the later shown formulae of other Sudoku Variants as the cell values play an important role in all of them. The encoding formulated in Table \ref{formulae:NormalSudoku} can be seen as a direct encoding using at-least-one and at-most-one clauses and was proposed by \cite{Lynce2006SudokuAsASATProblem} where it is called the minimal encoding.\\
 
 
@@ -248,7 +247,7 @@ The normal Sudoku rules as introduced in \ref{NormalSudoku} can be broken down i
 
 
     
-\subsection{Anti-Knight}
+\section{Anti-Knight}
 To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), it is forbidden to have the same value as its Knight-Neighbours (cells that are a knights distance away). The one constraint needed to formulate the Anti-Knight rule is stated in Table \ref{constraints:AntiKnight}. The corresponding formula to encode it into clauses is shown in Table \ref{formulae:AntiKnight}. The set of Knight-Neighbours to cell (x,y) can be defined as:
 \begin{center}
     $N(x,y) = \{(i,j)~|\textnormal{ cell }(i,j) \textnormal{ one knight distance from cell }(x,y)\}$.
@@ -286,7 +285,7 @@ To encode the Anti-Knight rule, one must ensure that for each grid cell (x,y), i
 
 
 \newpage
-\subsection{Killer}
+\section{Killer Sudoku}\label{encoding:killer}
 \paragraph{Using PBCs:} For every killer cage of the input, we create a list of its cells. From every list, a PBC is created as follows: For every cell (x,y) of a cage, we add $\sum_{i=1}^{9} (s_{x,y,i}*i)$ to the left-hand side of the PBC. The right-hand side of the PBC is set to the target sum that was given as input. The different PBCs (one for every killer cage) can then be encoded into clauses, as explained in \ref{PBCEncodingBDD} and \ref{PBCEncodingAdderNetworks}.
 
 \paragraph{Using PBCs + Combinations:}
@@ -343,7 +342,7 @@ Another possibility is to completely abandon PBCs and exploit that only certain 
 
 \clearpage
 
-\subsection{Arrowheads}\label{Encoding:Arrowheads}
+\section{Arrowheads}\label{Encoding:Arrowheads}
 Arrowheads demand a total or partial order between two cells. The sets of all tuples of two cells under total or partial order are respectively noted as $TO$ and $PO$. The first cell $(x_1,y_1)$ of such a tuple  $((x_1,y_1), (x_2,y_2)) \in TO \cup PO$ shall have a smaller (or equal) value than the second one $(x_2,y_2)$. To enforce this, the constraints shown in \ref{tab:ArrowHeads} are encoded into clauses using the support encoding (sea Table \ref{formulae:Arrowhead}). In formula AH-\ref{AH-i}, the values of $z_1$ go from $1$ to $9$, which ensures that the first cell of a tuple can not have a value of 9. In formula AH-\ref{AH-ii}, on the other hand, $z_1$ iterates from $2$ to $9$ because if the first cell has a value of $1$, all values from $1$ to $9$ are allowed for the second cell.\\
 
 \begin{table}[ht!]
@@ -383,7 +382,7 @@ Arrowheads demand a total or partial order between two cells. The sets of all tu
 
 \clearpage
 
-\subsection{Thermometers (Hidden)}
+\section{Thermometers (Hidden)}
 As the Thermometer rule also demands a total (or partial) order between the cells of the thermometers, one can reuse the rules and formulas shown for Arrowheads in \ref{Encoding:Arrowheads}. Starting from a Thermometers bulb, one can conceptually place Arrowheads between every cell pair along the Thermometer, enforcing a total (or partial) order between all cells.\todoMissing{Figure of Arrowheads on Thermometer.}\\
 
 Further constraints and variables are needed for the more complicated puzzle, where the solver must also deduce the thermometer positions. When encoding this puzzle, we distinguish two main cases: if the entire thermometer number $t$ fits inside the $9\times9$ grid when its bulb is placed at $(x,y)$, the clauses of TH-\ref{TH-iv}, TH-\ref{TH-v} and TH-\ref{TH-vi} are added. Otherwise the clauses of TH-\ref{TH-vii} are added. The corresponding constraints are defined in Table \ref{Constraints:Thermometers}, and the formulae in Table \ref{formulae:thermometers} show how to encode them into clauses. Details on the used notation and variables within the formulae can be found in Table \ref{notation:ThermometersHidden}.
@@ -391,48 +390,70 @@ Further constraints and variables are needed for the more complicated puzzle, wh
 
 \begin{table}[!ht]
     \centering
-    \begin{tabular}{l c l}
+    \begin{tabular*}{\textwidth}{l c l}
     \hline
     \\
-    Notation: &&\\
-    \\
-    \hline
-    \\
-    $T$                     &= &list of given thermometers\\
-    $T.size$                &= &number of given thermometers\\
-    $T[t]$                  &= &thermometer number t in list of all thermometers\\
-    $T[t].size$             &= &number of cells in thermometer number $t$\\
-    $\rchi(t,x,y,d)$           &= &$x$-coordinate of the cell that is at depth $d$ of the\\
-                            &  &thermometer number $t$ if its bulb is placed in cell\\
-                            &  &$(x,y)$\\
-    $\Upsilon(t,x,y,d)$           &= &$y$-coordinate of the cell that is at depth $d$ of the\\
-                            &  &thermometer number $t$ if its bulb is placed in cell\\
-                            &  &$(x,y)$\\
-    $Arrowhead(t,x,y,d)$    &= &set of clauses needed to encode that the cell at\\
-                            &  &depth $d$ of thermometer number $t$ is smaller than\\
-                            &  &the cell at depth $d+1$, given the thermometer\\
-                            &  &has its bulb in cell $(x,y)$.\\
+    Notation and Variables: &&\\
     \\
     \hline
     \\
-    Variables:&&\\
-    $s_{t,d,x,y}$           &: &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{is true if and only if the cell at depth $d$ of}\\
+    $T$                     &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{List of given thermometers}\\
+                                    \end{tabular}\\
+    \\
+    $T.size$                &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Number of given thermometers}\\
+                                    \end{tabular}\\
+    \\
+    $T[t]$                  &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Thermometer number t in list of all thermometers}\\
+                                    \end{tabular}\\
+    \\
+    $T[t].size$             &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Number of cells in thermometer number $t$}\\
+                                    \end{tabular}\\
+    \\
+    $\rchi(t,x,y,d)$        &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$x$-coordinate of the cell that is at depth $d$ of the}\\
                                 \end{tabular}\\
                             &  &\begin{tabular}{l c l}
-                                \multicolumn{3}{l}{thermometer number $t$ is located in grid cell}\\
-                                \multicolumn{3}{l}{$(x,y).$}\\
-                                 t      &$\in$  &$\{1,..,81\}$\\
+                                \multicolumn{3}{l}{thermometer number $t$ if its bulb is placed in cell $(x,y)$}\\
+                            \end{tabular}\\
+    \\
+    $\Upsilon(t,x,y,d)$     &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$y$-coordinate of the cell that is at depth $d$ of the}\\
+                                \end{tabular}\\
+                            &  &\begin{tabular}{l c l}
+                                \multicolumn{3}{l}{thermometer number $t$ if its bulb is placed in cell $(x,y)$}\\
+                            \end{tabular}\\
+    \\
+    $Arrowhead(t,x,y,d)$    &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Set of clauses needed to encode that the cell at depth}\\
+                                \end{tabular}\\
+                            &  &\begin{tabular}{l c l}
+                                \multicolumn{3}{l}{$d$ of thermometer number $t$ is smaller than the cell at}\\
+                                \multicolumn{3}{l}{depth $d+1$, given the thermometer has its bulb in cell}\\
+                                \multicolumn{3}{l}{$(x,y)$.}\\
+                            \end{tabular}\\
+    \\
+    $s_{t,d,x,y}$           &: &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Is true if and only if the cell at depth $d$ of thermometer}\\
+                                \end{tabular}\\
+                            &  &\begin{tabular}{l c l}
+                                \multicolumn{3}{l}{number $t$ is located in grid cell $(x,y).$}\\
+                                 t          &$\in$  &$\{1,..,81\}$\\
                                  d,x,y      &$\in$  &$\{1,..,9\}$\\
-                                 \multicolumn{3}{l}{\makecell[cl]{In practice $t$ has an offset of +10. So the actual\\
-                                 variable range is: $11111$ to $91999$.}}\\
+                                 Digits     &:      &ttdxy\\
+                                 Range:     &:      &$01111$ to $81999$\\
+                                 \multicolumn{3}{l}{\makecell[cl]{In practice $t$ has an offset of +10 to avoid the leading 0.\\
+                                 So the actual variable range is: $11111$ to $91999$.}}\\
                             \end{tabular}\\
     \\
     \hline
-\end{tabular}
+\end{tabular*}
     \caption{Notations and variables, Thermometers Hidden rules.}
     \label{notation:ThermometersHidden}
-\end{table}\todo{Fix Offset in variable section.}
+\end{table}
 
 
 
@@ -507,7 +528,7 @@ Further constraints and variables are needed for the more complicated puzzle, wh
 
 \FloatBarrier
 \newpage
-\subsection{Sandwich Sum}
+\section{Sandwich Sum}
 Sandwich Sums can be given for rows and columns. We will elaborate on the row constraints from which the formulas for the column constraints can be derived by swapping $x$ and $y$, respectively. Similar to the Killer Sudoku rules, multiple optimizations can be (incrementally) made when encoding the Sandwich Sum rules.
 
 \paragraph{Using PBCs:} Assuming that all lengths of sandwiches are possible to achieve a certain sum. We must encode all possible sandwich lengths ($0$ to $7$) and all corresponding positions for the cells with values $1$ and $9$. Also, we encode a PBC for every possible sandwich length and position. The LHS of said PBC is $\sum_{i=1}^{9} (s_{x,y,i}*i)$, and the RHS is set to the current rows sandwich sum. Since the Sandwich can only be at one position in a row at once, only one of all the PBC will be true. To ensure that a PBC's clauses are satisfied if the sandwich is not in its corresponding position, we add the negative literal of the corresponding $s_v$ to each clause (sea formulae SW-\ref{SW-vii}, SW-\ref{SW-viii} and SW-\ref{SW-ix} in Table \ref{formulae:SandwichSum}). To encode the Sandwich Sum rules for rows without the incorporation of further knowledge, the following constraints/formulas are used: SW-\ref{SW-i}, SW-\ref{SW-ii}, SW-\ref{SW-vii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
@@ -570,41 +591,43 @@ The different constraints and formulae used for these three encoding versions ar
 
 \begin{table}
     \centering
-    \begin{tabular}{l c l}
+    \begin{tabular*}{\textwidth}{l c l}
     \hline
     \\
     Notation and Variables: &&\\
     \\
     \hline
     \\
-    $PBC(x_1,x_2,y,sum)$    &= &set of clauses needed to encode that the cells\\
-                            &  &between $(x_1,y)$ and $(x_2,y)$ have values $\in \{1,...,9\}$\\
-                            &  & that add up to $sum$.\\
+    $PBC(x_1,x_2,y,sum)$    &= &Set of clauses needed to encode that the cells between\\
+                            &  &$(x_1,y)$ and $(x_2,y)$ have values $\in \{1,...,9\}$ that add up\\
+                            &  &to $sum$.\\
     \\
-    $PBC(x_1,x_2,y,sum,Val)$&= &set of clauses needed to encode that the cells\\
-                            &  &between $(x_1,y)$ and $(x_2,y)$ have values $\in \textit{Val}$\\
-                            &  &that add up to $sum$.\\
+    $PBC(x_1,x_2,y,sum,Val)$&= &Set of clauses needed to encode that the cells between\\
+                            &  &$(x_1,y)$ and $(x_2,y)$ have values $\in \textit{Val}$ that add up to\\
+                            &  &$sum$.\\
     \\
-    $L(y)$                  &= &set of numbers corresponding to the sizes of cell\\
-                            &  &sets for which it is possible to achieve the\\
-                            &  &sandwich sum of row $y$, given that each cell can\\
-                            &  &only have values from 1 to 9. $L(y)\subseteq \{0,1,...,7\}$\\
+    $L(y)$                  &= &Set of numbers corresponding to the sizes of cell sets\\
+                            &  &for which it is possible to achieve the sandwich sum of\\
+                            &  &row $y$, given that each cell can only have values from\\
+                            &  &1 to 9.\\
+                            &  &$L(y)\subseteq \{0,1,...,7\}$
     \\
     $\bar{L}(y)$            &= &$\{0,...,7\}\setminus L(y)$\\
     \\
-    $Z(y,l)$                &= &set of integer values for which it is possible to\\
-                            &  &achieve the sandwich sum of row $y$ if $l$ different\\
-                            &  &one of them are added.  $Z(y,l)\subseteq \{1,...,9\}$\\
+    $Z(y,l)$                &= &Set of integer values for which it is possible to achieve\\
+                            &  &the sandwich sum of row $y$ if $l$ different one of them\\
+                            &  &are added.\\
+                            &  &$Z(y,l)\subseteq \{1,...,9\}$
     \\
     $\bar{Z}(y,l)$          &= &$\{1,...,9\}\setminus Z(y,l)$\\
     \\
-    $\mathcal{S}(x,y,l)$    &= &dynamically assigned variable for each\\
-                            &  &combination of $x$, $y$ and $l$ that is true if the\\
-                            &  &sandwich of row $y$ has its borders in cell $(x,y)$\\
-                            &  &and cell $(x+1+l,y)$. $v \in V_y \subset \mathbb{N}$\\
+    $\mathcal{S}(x,y,l)$    &= &Dynamically assigned variable $s_v$ for each combination\\
+                            &  &of $x$, $y$ and $l$ that is true if the sandwich of row $y$ has\\
+                            &  &its borders in cell $(x,y)$ and cell $(x+1+l,y)$. \\
+                            &  &$v \in V_y \subset \mathbb{N}$\\
     \\
     \hline
-    \end{tabular}
+    \end{tabular*}
     \caption{Notations and variables, Sandwich Sum rules.}
     \label{notation:SandwichSum}
 \end{table}
@@ -648,7 +671,7 @@ The different constraints and formulae used for these three encoding versions ar
 
 \FloatBarrier
 \newpage
-\subsection{Secret Direction}
+\section{Secret Direction}
 To encode the secret direction rules, we introduce a variable that is true iff a cell $(x,y)$ is part of the hidden path at a certain depth $d$. We define the initial cell to have a depth of $0$, and its successors in the path have depths $1$, $2$, et cetera. The depth can be used to ensure that every cell can only be in the path once, those prohibiting loops. That loops can not be part of the solution path can be inferred from the definition of the next step in a path, which is always determined by the position of the value $9$ in the current $(3\times3)$-box and the value of the current path cell, making it impossible that one cell of the path has two different successors. So loops cannot be part of the solution path because it would not be possible to break out of them.\\
 \\
 From the fact that the position of the value $9$ is needed to determine the direction in which the successor of a cell in the path lays, we can also derive that if the center of a $(3\times3)$-box has value $9$, all other cells of that box cannot be in the path, because for them no successor direction would be defined.\\
@@ -752,7 +775,7 @@ Combining the previous two deductions, we can compute a sufficiently low upper b
     \end{tabular*}
     \caption{Notations and variables, Secret Direction rules.}
     \label{notation:SecretDirection}
-\end{table}\todo{Fix Offset in variable section.}
+\end{table}
 
 
 \begin{table}[ht!]
@@ -789,12 +812,195 @@ Combining the previous two deductions, we can compute a sufficiently low upper b
 
 \FloatBarrier
 \newpage
-\subsection{Fawlty Towers}
-\todoMissing{Description, Constraints, Formulae}
+\section{Fawlty Towers}
+To encode the Fawlty Tower rules, we introduce three new variables for each tower, which are true iff a tower is faulty, has increasing values or if the cell values of a tower add up to the indicated sum, respectively. Details about these three variables can be found in Table \ref{variables:FawltyTowers}. We can encode the needed increasing values of a tower by placing Arrowheads between each neighbouring pair of its cells. Arrowheads can be encoded as shown in \ref{Encoding:Arrowheads}. To encode that the cells of a tower must have values that add up to the indicated sum, we can place a killer cage over them and set the cage's sum to the indicated one. The killer cage can then be encoded, as explained in \ref{encoding:killer}. Further, we can use PBCs to ensure that the correct number of towers is faulty, has increasing values or has cell values that add up to the indicated sum. The three PBCs used for this are detailed in Table \ref{notation:FawltyTowers}. The constraints derived from the Fawlty Tower rules are shown in Table \ref{Constraints:FawltyTowers}, and the formulae to encode these constraints into clauses are displayed in Table \ref{formulae:FawltyTower}.\\
+\begin{table}[hb!]
+    \centering
+    \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
+        \hline
+        \\
+        Constraint &Formula\\
+        \\
+        \hline
+        \\
+        \makecell[cl]{A tower in column $x$ is faulty if and only if either the\\
+        sum of its cell values is not equal to the indicated one\\
+        for column $x$ or its cell values are not increasing (but\\
+        not both at once).} & (FT-\ref{FT-i}) and (FT-\ref{FT-ii})\\
+        \\
+        \makecell[cl]{If a tower has increasing cell values, all the clauses of\\
+        the corresponding Arrowheads placed between its cells\\
+        must be true.} & (FT-\ref{FT-iii})\\
+        \\
+        \makecell[cl]{If the cells of a tower in column $x$ have values that add\\
+        up to the sum indicated for column $x$, all the\\
+        clauses of the corresponding killer cage must be true.} & (FT-\ref{FT-iv})\\
+        \\
+        \makecell[cl]{The number of faulty towers must be equal to the one\\
+        given in the puzzle description.} & (FT-\ref{FT-v})\\
+        \\
+        \makecell[cl]{The number of towers with increasing cell values must\\
+        be equal to the one given in the puzzle description.} & (FT-\ref{FT-vi})\\
+        \\
+        \makecell[cl]{The number of towers with cell values that add up to\\
+        the sum indicated for the corresponding column must\\
+        be equal to the one given in the puzzle description.} & (FT-\ref{FT-vii})\\
+        \\
+        \hline
+    \end{tabular*}
+        \caption{Constraints of Fawlty Tower rules.}
+    \label{Constraints:FawltyTowers}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l c l}
+    \hline
+    \\
+    \multicolumn{3}{l}{Notation:}\\
+    \\
+    \hline
+    \\
+    $Arrowhead(x',y',x'',y'')$      &= &\begin{tabular}{l c l}
+                                            \multicolumn{3}{l}{Set of clauses needed to encode that the cell $(x',y')$ }\\
+                                            \end{tabular}\\
+                                        &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{contains a smaller value than the cell $(x'',y'')$ as if }\\
+                                    \multicolumn{3}{l}{there were an Arrowhead placed between $(x',y')$ and }\\
+                                    \multicolumn{3}{l}{$(x'',y'')$. Arrowheads can be encoded as explained in}\\ \multicolumn{3}{l}{\ref{Encoding:Arrowheads}.}\\
+                            \end{tabular}\\
+                                \\
+    $Killer(x',y',x'',y'')$      &= &\begin{tabular}{l c l}
+                                            \multicolumn{3}{l}{Set of clauses needed to encode that the cells between}\\
+                                            \end{tabular}\\
+                                        &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$(x',y')$ and $(x'',y'')$ (including $(x',y')$ and $(x'',y'')$)}\\
+                                    \multicolumn{3}{l}{have values that add up to the indicated sum for the}\\
+                                    \multicolumn{3}{l}{tower in column $x$. This encoding is similar to the one}\\
+                                    \multicolumn{3}{l}{for killer cages which is explained in \ref{encoding:killer}.}\\
+                            \end{tabular}\\
+        \\
+    $PBC_{faulty}$            &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Set of clauses needed to encode that the number of }\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{columns containing a faulty tower matches the one}\\
+                                    \multicolumn{3}{l}{stated in the puzzle description.}\\
+                                    $LHS$       &=  &$\displaystyle\sum_{x=1}^9 1*faulty(x)$\\
+                                    $RHS$       &=  &Number of faulty towers demanded in\\
+                                                &   &puzzle description.\\
+                            \end{tabular}\\
+    \\
+    $PBC_{inc}$            &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Set of clauses needed to encode that the number of }\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{columns containing a tower with increasing cell values}\\
+                                    \multicolumn{3}{l}{matches the one stated in the puzzle description.}\\
+                                    $LHS$       &=  &$\displaystyle\sum_{x=1}^9 1*inc(x)$\\
+                                    $RHS$       &=  &Number of increasing towers demanded in\\
+                                                &   &puzzle description.\\
+                            \end{tabular}\\
+    \\
+    $PBC_{sum}$            &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Set of clauses needed to encode that the number of }\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{columns containing a tower with cell values that add}\\
+                                    \multicolumn{3}{l}{up to the correspondingly indicated sum is matches}\\
+                                    \multicolumn{3}{l}{the one stated in the puzzle description.}\\
+                                    $LHS$       &=  &$\displaystyle\sum_{x=1}^9 1*sum(x)$\\
+                                    $RHS$       &=  &Number of towers with a cell value sum \\
+                                                &   &matching the indicated one.\\
+                            \end{tabular}\\
+                                \\
+    $h(x)$                  &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{Height (number of contained cells) of tower in column}\\
+                                    \end{tabular}\\
+                            &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$x$.}\\
+                                    \end{tabular}\\  
+    \\
+        \hline
+    \end{tabular*}
+    \caption{Notation, Fawlty Tower rules.}
+    \label{notation:FawltyTowers}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular*}{\textwidth}{l c l}
+    \hline
+    \\
+    \multicolumn{3}{l}{Variables:}\\
+    \\
+    \hline
+    \\
+    $faulty(x)$               &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$s_{1,1,x,0}$}\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{True iff the tower in column $x$ is a faulty tower.}\\
+                                    $x$       &$\in$  &$\{1,..,9\}$\\
+                                    Digits      &:      &$11x0$\\
+                                    Range       &:      &$1110$ to $1190$ 
+                            \end{tabular}\\
+    \\
+    $inc(x)$            &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$s_{1,1,x,1}$}\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{True iff the cells of the tower in column $x$ is contain increasing values}\\
+                                    \multicolumn{3}{l}{from the bottom to the top.}\\
+                                    $x$       &$\in$  &$\{1,..,9\}$\\
+                                    Digits      &:      &$11x1$\\
+                                    Range       &:      &$1111$ to $1191$ 
+                            \end{tabular}\\
+    \\
+    $sum(x)$     &= &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{$s_{1,1,x,2}$}\\
+                                    \end{tabular}\\
+                                &  &\begin{tabular}{l c l}
+                                    \multicolumn{3}{l}{True iff the cell values of the tower in column $x$ add up to the}\\
+                                    \multicolumn{3}{l}{indicated value.}\\
+                                    $x$       &$\in$  &$\{1,..,9\}$\\
+                                    Digits      &:      &$11x2$\\
+                                    Range       &:      &$1112$ to $1192$ 
+                            \end{tabular}\\
+    \\
+    \hline
+    \end{tabular*}
+    \caption{Variables, Fawlty Tower rules.}
+    \label{variables:FawltyTowers}
+\end{table}
+
+\begin{table}
+    \begin{tabular*}{\textwidth}{ l l @{\extracolsep{\fill}} c}
+    \hline
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{x = 1}^{9}  (\neg faulty(x) \lor sum(x) \lor inc(x)) \land (\neg faulty(x) \lor \neg sum(x) \lor \neg inc(x))$} & \consCount{FT} \label{FT-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{x = 1}^{9}  (faulty(x) \lor sum(x) \lor \neg inc(x)) \land (faulty(x) \lor \neg sum(x) \lor inc(x))$} & \consCount{FT} \label{FT-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{x = 1}^{9}  \bigwedge_{y = 11-h(x)}^{9} \bigwedge_{\varphi\in Arrowhead(x,y,x,y-1)}\neg inc(x) \lor \varphi $} & \consCount{FT} \label{FT-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle \bigwedge_{x = 1}^{9}  \bigwedge_{y = 11-h(x)}^{9} \bigwedge_{\varphi\in Killer(x,10-h(x),x,9)}\neg sum(x) \lor \varphi $} & \consCount{FT} \label{FT-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle PBC_{faulty}$} & \consCount{FT} \label{FT-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle PBC_{inc}$} & \consCount{FT} \label{FT-\roman{cons}}\\
+    \\
+    \multicolumn{2}{l}{$\displaystyle PBC_{sum}$} & \consCount{FT} \label{FT-\roman{cons}}\\
+    \\
+    \hline
+\end{tabular*}
+    \caption{Formulae of clauses, Fawlty Tower rules.}
+    \label{formulae:FawltyTower}
+\end{table}
 
 \FloatBarrier
 \newpage
-\subsection{Nurikabe Sudoku}
+\section{Nurikabe Sudoku}
 As one part of the solution to a Nurikabe Sudoku is marking island and ocean cells, we introduce corresponding variables that encode if a cell $(x,y)$ is part of the ocean or part of island $n$ (further detailed in  Table \ref{variables:NurikabeSudoku} as $\ocean(x,y)$ and  $\island(n,x,y)$). We note that there is only one ocean but multiple islands. Since an island must consist of at least three orthogonally adjacent cells and there are only 81 cells in the grid, a safe upper bound for the number of islands can be calculated by $81/3=27$. However, this number can be lowered because of the additional rule that islands may not touch each other orthogonally and that there is only one ocean. Considering this, the maximum number of islands found (by hand) to fit in the grid is 13, but we will use an upper bound of 14 for the encoding just to be sure. An example of how 13 islands can be placed in the grid that complies with the rules of Nurikabe Sudoku can be seen in Figure\todoMissing{13 Island Figure}.\\
 \\
 The rule that an island must consist of at least three adjacent cells can be broken down to each individual cell of an island, by stating that each cell that is part of an island must have at least two orthogonally adjacent neighbouring cells that are part of the same island. As shown in Figure \todoMissing{Figure Constelations}, there are 18 different possibilities (\emph{constellations}) for such two neighbouring cells. To encode this rule, we introduce a new variable which is further explained in Table \ref{variables:NurikabeSudoku} in the definition of $\nb(c,n,x,y)$.\\

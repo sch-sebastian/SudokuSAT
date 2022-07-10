@@ -82,7 +82,7 @@ public class BDD extends PBCConverter {
 
     public ClauseSet createClauses(PBC pbc, int pbcVar) {
 
-        //pbc = sort(pbc);
+        pbc = sort(pbc);
         ClauseSet clauses = new ClauseSet();
 
         //Trivial case if 0 variables

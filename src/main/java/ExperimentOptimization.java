@@ -1,16 +1,15 @@
 package main.java;
 
 
-public class ExperimentKiller {
+public class ExperimentOptimization {
 
     public static void main(String[] args) {
         int roundsConf = 60;
-        int[] killerOptimize = {0};
+        int[] killerOptimize = {0,1,2};
         String[] solvers = {"Sat4j"};
-        String[] pbcEncoder = {"BDD", "AdderNetwork"};
+        String[] pbcEncoder = {"AdderNetwork"};
 
-        String[] puzzles = new String[]{"TheTimesUK191.sdq", "TheTimesUK192.sdq", "TheTimesUK193.sdq" ,"TheTimesUK194.sdq",
-                    "TheTimesUK195.sdq", "TheTimesUK196.sdq", "TheTimesUK197.sdq", "TheTimesUK198.sdq", "TheTimesUK199.sdq", "TheTimesUK200.sdq"};
+        String[] puzzles = new String[]{"TheTimesUK198.sdq", "TheTimesUK199.sdq", "TheTimesUK200.sdq"};
 
 
         boolean notFound = false;

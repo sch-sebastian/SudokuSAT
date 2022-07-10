@@ -83,7 +83,7 @@ public class SandwichSum extends Constraint {
                                 }
                             }
                         } else {
-                            //optimized = 1
+                            //optimized = 0 or 1
                             pbc = toRowPBC(x, x + l + 1, y, sum);
                         }
                         clauses.addAll(Environment.toClauses(pbc, sumVar));

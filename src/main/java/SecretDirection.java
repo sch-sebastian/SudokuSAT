@@ -53,15 +53,6 @@ public class SecretDirection extends Constraint {
         ClauseSet clauses = new ClauseSet();
         //PathXY0 is true for root
         clauses.add(new Clause(10000 + 1000 * xR + 100 * yR + 0));
-        //PathXY0 is false for all except the root
-        for (int y = 1; y <= 9; y++) {
-            for (int x = 1; x <= 9; x++) {
-                if (x == xR && y == yR) {
-                    continue;
-                }
-                clauses.add(new Clause(-(10000 + 1000 * x + 100 * y + 0)));
-            }
-        }
         for (int yBox = 0; yBox < 3; yBox++) {
             for (int xBox = 0; xBox < 3; xBox++) {
                 for (int yIB = 1; yIB <= 3; yIB++) {
@@ -162,8 +153,8 @@ public class SecretDirection extends Constraint {
 
     ClauseSet atMostOnceInPath() {
         ClauseSet clauses = new ClauseSet();
-        for (int y = 2; y <= 8; y = y + 3) {
-            for (int x = 2; x <= 8; x = x + 3) {
+        for (int y = 1; y <= 9; y = y + 1) {
+            for (int x = 1; x <= 9; x = x + 1) {
                 for (int d = 0; d <= 63; d++) {
                     for (int k = d + 1; k <= 64; k++) {
                         clauses.add(new Clause(-(10000 + 1000 * x + 100 * y + d), -(10000 + 1000 * x + 100 * y + k)));

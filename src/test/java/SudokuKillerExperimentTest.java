@@ -26,7 +26,7 @@ public class SudokuKillerExperimentTest {
             if (!name.contains("TheTimes") || ignore.contains(name)) {
                 continue;
             }
-            String[] args = {name, "MiniSat"};
+            String[] args = {name, "Sat4j"};
             Assert.assertEquals(0, Main.run(args));
         }
     }

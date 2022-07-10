@@ -9,8 +9,10 @@ public class ExperimentKiller {
         String[] solvers = {"Sat4j"};
         String[] pbcEncoder = {"BDD", "AdderNetwork"};
 
-        String[] puzzles = new String[]{"TheTimesUK191.sdq", "TheTimesUK192.sdq", "TheTimesUK193.sdq" ,"TheTimesUK194.sdq",
-                    "TheTimesUK195.sdq", "TheTimesUK196.sdq", "TheTimesUK197.sdq", "TheTimesUK198.sdq", "TheTimesUK199.sdq", "TheTimesUK200.sdq"};
+        String[] puzzles = new String[]{"TheTimesK016.sdq", "TheTimesK017.sdq", "TheTimesK018.sdq", "TheTimesK019.sdq",
+                "TheTimesK020.sdq", "TheTimesK021.sdq", "TheTimesK022.sdq", "TheTimesK023.sdq", "TheTimesK024.sdq",
+                "TheTimesK025.sdq","TheTimesUK191.sdq", "TheTimesUK192.sdq", "TheTimesUK193.sdq" ,"TheTimesUK194.sdq",
+                "TheTimesUK195.sdq", "TheTimesUK196.sdq", "TheTimesUK197.sdq", "TheTimesUK198.sdq", "TheTimesUK199.sdq", "TheTimesUK200.sdq"};
 
 
         boolean notFound = false;

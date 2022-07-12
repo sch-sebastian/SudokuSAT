@@ -1,2 +1,205 @@
 % !TEX root = ../Thesis.tex
-\chapter{Conclusion}
+\chapter{Experiments}
+This chapter elaborates on how the different encodings perform and how the different Sudoku Variants compare.
+The program to encode the various  puzzle instances is written in Java. We also use Java to call the different Solvers (introduced in \ref{MiniSatAndSat4j}) and to log the resulting data. All experiments are run on a personal computer using Windows 10. The PC has an AMD Ryzen 7 5800X 8-Core Processor (3.80 GHz) and 32 GB of RAM (from which the Java Virtual Machine (JVM) is allowed to use 28GB).\\
+
+The configurations we test for each puzzle instance differ by: 
+\begin{itemize}
+    \item The used Solver: Sat4j or MiniSat
+    \item The used PBC-Encoding: Binary Decision Diagrams or Adder Networks
+    \item The used optimization level: what is encoded as PBC (only for Killer Sudoku)
+\end{itemize}
+
+Conducting runtime experiments on a personal computer using Java comes with the caveat that the reported times all include some noise because their executions may be affected by other processes running in the background or by JVM events like garbage collections. To mediate that, we run 60 instances for every experiment configuration and report the average runtime and corresponding standard deviations.\\
+
+\newpage
+\section{Disclaimer}
+Early testing showed that the solving times depend heavily on the order in which clauses and literals are given to the solvers. This is critical because we store clauses in sets and treat them as sets themselves. So the order of clauses (and literals) is not strictly defined and can vary from run to run. To still obtain comparable results, we order the clauses by length and the literals by the absolute values that encode them. We arbitrarily decided to pass the clauses containing the most literals first and to sort the literals within a clause by increasing absolute values. Like this, the solvers get the same encoding as input if a problem is encoded and solved multiple times. However, eliminating this additional noise comes at the cost of having to sort all the clauses after they are created.\\
+\\
+Because we use a relatively small test set of different puzzle instances, it is important to note that assumptions made based on insights from the conducted experiments may not be applied to a general case. The reason for the limited size of the test set is that in the case of puzzles from CTCGH, they are very exotic and often unique. For Killer Sudokus Puzzles, many instances can be found, but writing the puzzle down into a format that the program can work on is very time-consuming as it has to be done manually.
+
+\section{CTCGH Sudoku Variants compared using Sat4j and MiniSat}
+Tables \ref{Experimnet:CTCGHMiniSatAdderNetworks} and \ref{Experimnet:CTCGHSat4jAdderNetworks} show the  outcome of encoding and solving thirteen different Sudoku instances with Sat4j and MiniSat, respectively. For puzzles where PBCs were needed, Adder Networks were used to encode them. The shown puzzle instances are from CTCGH and combine different variants and rules. An overview of which rules are present in each instance is given in Table \todoMissing{Rule Table}.\\
+
+Studying the two tables, one can see that the solving times using MiniSat are significantly higher than the ones of Sat4j. This may have to do with the fact that the Sat4j library and its functions can be accessed directly by the Java program, whereas the MiniSat-Solver is called as an external executable. For all further experiments, we are only using Sat4j (which internally also contains a version of MiniSat). There is one exception to Sat4j always being faster. ``The Original Sandwich'' seems to perform much better with MiniSat, which we have no explanation for, but could, of course, also be the case for other instances we did not test.\\
+
+Comparing the times needed for encoding to the ones needed for solving (using Sat4j), it turns out that for instances without PBCs, the encoding times are all higher than the solving times, which does not hold if PBCs are involved, where it differs from instance to instance which part takes longer.
+
+\section{Adder Networks vs. Binary Decision Diagrams}
+To analyze the Encoding of PBCs, we conducted further experiments using Killer Sudoku instances from the books ``The Times Ultimate Killer Su Doku Book 14"\cite{TheTimesUltimateKillerSuDokuBook14} and ``The Times Killer Su Doku (Book 18)''\cite{TheTimesKillerSuDokuBook18} both of which are the latest collections of Killer Sudoku Puzzles arranged by ``The Times''. In these books, puzzles are further categorized into categories of hardness, which reach from the easiest, ``Moderate'', to ``Extra Deadly'', the hardest. With ten instances from each of the categories, "Moderate" and  ``Extra Deadly'', we can compare how Binary Decision Diagrams and Adder Networks perform when encoding PBCs.\\
+\\
+As Plot \ref{killerBDDencode} shows, there is a strong correlation between the number of clauses and the time needed to encode if BDDs are used. In the case of Adder Networks (Plot \ref{killerANencode}), it is harder to make such a statement, as some instances with few clauses require more time to encode compared to instances with fewer clauses.\\
+\\
+Looking at the ratio of solving time per clause (shown in Plots \ref{killerBDDsolve} and \ref{killerANsolve}), it seems that in both cases, the variance in solving time between the different instances seems to increase the more clauses are needed to encode them.\\
+\\
+Finally, when comparing the solving times (Plot \ref{killerCompareSolve}), one can see that neither encoding with BDDs nor encoding with Adder Networks gives a clear advantage, as it depends on the puzzle instance, which method leads to a faster solving process. However, using Adder Networks has the advantage of being much faster in the encoding part itself, which can be seen in Plot \ref{killerCompareEncode}.\\
+\\
+Additionally, as one can see in the corresponding plots of this section, there also seems to be a clear trend that the Sudoku instances of the harder category demand more clauses to encode them. However, this does not necessarily mean that they take longer to encode, or at least not if Adder Networks are used (see \ref{killerANencode}). If it comes to the time needed by the solver, it may seem intuitive that puzzles that are hard to solve for humans also take longer to be solved by a SAT-Solver. Surprisingly this assumption which is by no means trivially given seems to be correct, as Plot \ref{killerCompareSolve} shows. 
+
+
+\section{Test optimization of Killer Sudoku encoding}
+Using the same Killer Sudoku Instances as explained in the previous section, we can compare the encoding and solving times of the two optimization ideas introduced in \ref{encoding:killer} to the standard approach of using PBCs. Plots \ref{opt_encode_2_1} and \ref{opt_solve_2_1} show that only generating the PBC for possible value combinations given the cages size and target sum leads to a measurable but neglectable performance gain. However, encoding Killer Sudokus completely without using PBCs can result in large savings, especially in solving time (see \ref{opt_encode_3_1} and \ref{opt_solve_3_1}).
+
+
+\clearpage
+\begin{table}
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|l|r|r|r|r|r|}
+    \hline
+    \multicolumn{1}{|c|}{\multirow{2}{*}{Variant}} & \multicolumn{2}{c|}{\makecell[c]{$t$-avg.\\(ms)}} & \multicolumn{2}{c|}{\makecell[c]{$t$-std.\\(ms)}} & \multicolumn{1}{c|}{\multirow{2}{*}{\#clauses}}\\\cline{2-5}
+    & \makecell[c]{encode} & \makecell[c]{solve} & \makecell[c]{encode} & \makecell[c]{solve} &\\
+    
+    \hline
+    9 Marks The Spot& 4428.017   &  1179.533  &    211.034   &    519.181   &  727636 \\
+    \hline
+    Chess Sudoku&  29.05  &    1061.05    &    1.096   &    241.937    &   8912 \\
+    \hline
+    Fawlty Towers&  65.383   &   904.617   &    12.311  &     127.421   &   17632 \\
+    \hline
+    Frozen Picnic&  168.317   &   886.333    &    3.985  &      51.474   &   40519 \\
+    \hline
+    Mark 1&  28.6   &    903.050   &     2.117    &    52.045     &  8839 \\
+     \hline
+    Nurikabe Sudoku &     &     &      &       &  \\
+    \hline
+    Sudoku Man Of Mystery&   23.183   &  876.667       &  0.930   &      6.849    &   7399 \\
+    \hline
+    The Miracle Thermo&  739.767   &  1671.617    &   261.780    &   112.124  &   138743 \\
+    \hline
+    The Original Sandwich & 1677.183   &   2059.250    &   26.277     &  12.221    & 302640 \\
+    \hline
+    The Pyramid& 48.683  &   1434.533     &   2.228    &     3.357  &    15233 \\
+    \hline
+    Thermo 2020&  24.233  &   1355.667   &     1.095    &    54.234  &     7659 \\
+    \hline
+    Thermo Couples&   27.983  &   1354.517   &     0.854     &    8.192    &   8884 \\
+    \hline
+    Thermo Squares&  23.917  &    1362.250  &      0.743     &   54.871   &    7692 \\
+    \hline
+    The Road To Genius&   22.950   &    1364.200     &   0.811      &  56.829     &  7401 \\
+    \hline
+    \end{tabular}
+    \renewcommand{\arraystretch}{1}
+    \caption{CTCGH Sudokus, MiniSat, PBC-Encoding with Adder Networks}
+    \label{Experimnet:CTCGHMiniSatAdderNetworks}
+\end{table}
+
+\begin{table}
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{ |l|r|r|r|r|r|}
+    \hline
+    \multicolumn{1}{|c|}{\multirow{2}{*}{Variant}} & \multicolumn{2}{c|}{\makecell[c]{$t$-avg.\\(ms)}} & \multicolumn{2}{c|}{\makecell[c]{$t$-std.\\(ms)}} & \multicolumn{1}{c|}{\multirow{2}{*}{\#clauses}}\\\cline{2-5}
+    & \makecell[c]{encode} & \makecell[c]{solve} & \makecell[c]{encode} & \makecell[c]{solve} &\\
+    \hline
+    9 Marks The Spot&4428.017& 170.900& 211.034& 36.755& 727636\\
+    \hline
+    Chess Sudoku& 29.050 & 3.233 &        1.096  &       0.427    &   8912 \\
+    \hline
+    Fawlty Towers & 65.383    &     11.100    &   12.311     &    0.706    &  17632 \\
+    \hline
+    Frozen Picnic & 168.317   &    14.917   &    3.985   &      0.809   &   40519 \\
+    \hline
+    Mark 1 &  28.600     &   8.183    &    2.117     &    0.504    &   8839 \\
+        \hline
+    Nurikabe Sudoku &     &     &      &       &  \\
+    \hline
+    Sudoku Man Of Mystery& 23.183   &     1.967      &   0.930     &  0.712   &    7399 \\
+    \hline
+    The Miracle Thermo& 739.767  &    446.317   &    261.780   &     24.739   &  138743 \\
+    \hline
+    The Original Sandwich&   1677.183    &    15408.000   &    26.277    &   384.064   &  302640 \\
+    \hline
+    The Pyramid&    48.683  &    219.067    &    2.228     &    3.463   &   15233 \\
+    \hline
+    Thermo 2020&  24.233   &     1.967  &     1.095   &      0.663     &  7659 \\
+    \hline
+    Thermo Couples&  27.983      &    3.800  &      0.854    &     0.546   &    8884 \\
+    \hline
+    Thermo Squares& 23.917    &    17.950  &      0.743   &      0.675   &    7692 \\
+    \hline
+    The Road To Genius&   22.95    &    1.967    &    0.811    &     0.736   &    7401 \\
+    \hline
+    \end{tabular}
+    \renewcommand{\arraystretch}{1}
+    \caption{CTCGH Sudokus, Sat4j, PBC-Encoding with Adder Networks}
+    \label{Experimnet:CTCGHSat4jAdderNetworks}
+\end{table}
+
+
+\FloatBarrier
+{
+\renewcommand{\figurename}{Plot}
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/killer_BDD_encode.eps}
+    \caption{Encoding time per clause, using Binary Decision Diagrams}
+    \label{killerBDDencode}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/killer_AN_encode.eps}
+    \caption{Encoding time per clause, using Adder Networks}
+    \label{killerANencode}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/killer_BDD_solve.eps}
+    \caption{Solving time per clause, using Binary Decision Diagrams}
+    \label{killerBDDsolve}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/killer_AN_solve.eps}
+    \caption{Solving time per clause, using Adder Networks}
+    \label{killerANsolve}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/killer_encode_compare.eps}
+    \caption{Encoding time comparison, Binary Decision Diagrams vs. Adder Networks}
+    \label{killerCompareEncode}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/killer_solve_compare.eps}
+    \caption{Solving time comparison, Binary Decision Diagrams vs. Adder Networks}
+    \label{killerCompareSolve}
+\end{figure}
+}
+
+{
+\renewcommand{\figurename}{Plot}
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/opt_encode_2_1.eps}
+    \caption{Encoding time comparison, PBCs vs. PBCs + Combinations}
+    \label{opt_encode_2_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/opt_encode_3_1.eps}
+    \caption{Encoding time comparison, PBCs vs. Combinations}
+    \label{opt_encode_3_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/opt_solve_2_1.eps}
+    \caption{Solving time comparison, PBCs vs. PBCs + Combinations}
+    \label{opt_solve_2_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width = 0.85\textwidth]{Figures/opt_solve_3_1.eps}
+    \caption{Solving time comparison, PBCs vs. Combinations}
+    \label{opt_solve_3_1}
+\end{figure}
+}

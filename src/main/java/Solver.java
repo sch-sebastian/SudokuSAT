@@ -48,7 +48,7 @@ public class Solver {
     public static boolean runSat4j(String inputFile, String outputFile) {
         boolean satisfiable = false;
         ISolver solver = SolverFactory.newDefault();
-        solver.setTimeout(3600); // 1 hour timeout
+        solver.setTimeout(7200); // 2 hour timeout
         Reader reader = new DimacsReader(solver);
         PrintWriter out = null;
         try {

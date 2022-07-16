@@ -4,10 +4,16 @@ package main.java;
 public class ExperimentKiller {
 
     public static void main(String[] args) {
+        /* Define experiment configuration...
+            -Solver
+            -Killer Optimization
+            -PBC encoding Method
+            -Puzzle instances
+        */
         int roundsConf = 60;
         int[] killerOptimize = {0};
         String[] solvers = {"Sat4j"};
-        String[] pbcEncoder = {"BDD", "AdderNetwork"};
+        String[] pbcEncoder = {/*"BDD",*/ "AdderNetwork"};
 
         String[] puzzles = new String[]{"TheTimesK016.sdq", "TheTimesK017.sdq", "TheTimesK018.sdq", "TheTimesK019.sdq",
                 "TheTimesK020.sdq", "TheTimesK021.sdq", "TheTimesK022.sdq", "TheTimesK023.sdq", "TheTimesK024.sdq",
@@ -46,12 +52,13 @@ public class ExperimentKiller {
                         long[] encDat = ExperimentUtil.encode(puzzle, enc, opt);
                         for (String sN : solvers) {
                             j++;
-                            System.out.println(j + "/" + totalRounds + " " + i + " " + sN + " " + enc + " " + opt + "   " + puzzle);
+                            //System.out.println(j + "/" + totalRounds + " " + i + " " + sN + " " + enc + " " + opt + "   " + puzzle);
                             long solT = ExperimentUtil.solve(sN, enc);
                             ExperimentUtil.log(puzzle, encDat[0], solT, encDat[1], sN, enc, opt);
                         }
                     }
                 }
+                System.out.println(j + "/" + totalRounds);
             }
         }
     }

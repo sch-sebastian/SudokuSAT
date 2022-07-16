@@ -4,16 +4,22 @@ package main.java;
 public class ExperimentCTCGH {
 
     public static void main(String[] args) {
-        int roundsConf = 60;
+        /* Define experiment configuration...
+            -Solver
+            -Killer Optimization
+            -PBC encoding Method
+            -Puzzle instances
+        */
+        int roundsConf = 10;
         int[] killerOptimize = {0};
-        String[] solvers = {"Sat4j", "MiniSat"};
+        String[] solvers = {"Sat4j"/*, "MiniSat"*/};
         String[] pbcEncoder = {"AdderNetwork"};
 
         String[] puzzles;
         if (args.length == 0) {
-            puzzles = new String[]{"9MarksTheSpot.sdq", "chessSudoku.sdq", "FawltyTowers.sdq", "frozenPicnic.sdq",
-                    "mark1.sdq", /*"nurikabeSudoku.sdq", */ "sudokuManOfMystery.sdq", "theMiracleThermo.sdq", "theOriginalSandwich.sdq",
-                    "thePyramid.sdq", "thermo2020.sdq", "thermoCouples.sdq", "thermoSquares.sdq", "theRoadToGenius.sdq"};
+            puzzles = new String[]{/*"9MarksTheSpot.sdq", "chessSudoku.sdq", "FawltyTowers.sdq", "frozenPicnic.sdq",
+                    "mark1.sdq", */"nurikabeSudoku.sdq" /*,  "sudokuManOfMystery.sdq", "theMiracleThermo.sdq", "theOriginalSandwich.sdq",
+                    "thePyramid.sdq", "thermo2020.sdq", "thermoCouples.sdq", "thermoSquares.sdq", "theRoadToGenius.sdq"*/};
         } else {
             puzzles = args;
         }
@@ -49,12 +55,13 @@ public class ExperimentCTCGH {
                         long[] encDat = ExperimentUtil.encode(puzzle, enc, opt);
                         for (String sN : solvers) {
                             j++;
-                            System.out.println(j + "/" + totalRounds + " " + i + " " + sN + " " + enc + " " + opt + "   " + puzzle);
+                            //System.out.println(j + "/" + totalRounds + " " + i + " " + sN + " " + enc + " " + opt + "   " + puzzle);
                             long solT = ExperimentUtil.solve(sN, enc);
                             ExperimentUtil.log(puzzle, encDat[0], solT, encDat[1], sN, enc, opt);
                         }
                     }
                 }
+                System.out.println(j + "/" + totalRounds);
             }
         }
     }

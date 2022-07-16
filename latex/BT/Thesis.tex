@@ -13,6 +13,13 @@
 \usepackage{placeins}
 \usepackage{mathtools}
 \usepackage{hyperref}
+\usepackage{adjustbox}
+\usepackage{diagbox}
+
+\usepackage{stackengine}
+\usepackage{rotating}
+\usepackage{tabularx}
+
 \newcounter{cons}[subsection]
 \renewcommand{\thecons}{\roman{cons}}
 \newcommand\consCount[1]{\refstepcounter{cons} \text{(#1-\roman{cons})}}
@@ -63,7 +70,7 @@
 
 %% ----------------------------------------------------------------
 
-\title				{Thesis Title}
+\title				{Encoding Diverse Sudoku Variants as SAT Problems}
 \thesistype			{Bachelor thesis}
 
 \department 		    {Department of Mathematics and Computer Science}
@@ -93,7 +100,7 @@
 \maketitle
 \pagestyle{thesis}
 %% ----------------------------------------------------------------
-% \input{./Front/Acknowledgment}
+\input{./Front/Acknowledgment}
 %% ----------------------------------------------------------------
 \input{./Front/Abstract}
 %% ----------------------------------------------------------------

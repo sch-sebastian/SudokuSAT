@@ -861,54 +861,57 @@ To encode the Fawlty Tower rules, we introduce three new variables for each towe
     \\
     \hline
     \\
-    $Arrowhead(x',y',x'',y'')$      &= &\begin{tabular}{l c l}
-                                            \multicolumn{3}{l}{Set of clauses needed to encode that the cell $(x',y')$ }\\
+    $Arrowhead(x,y,x',y')$      &= &\begin{tabular}{l c l}
+                                            \multicolumn{3}{l}{Set of clauses needed to encode that the cell $(x,y)$ }\\
                                             \end{tabular}\\
                                         &  &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{contains a smaller value than the cell $(x'',y'')$ as if }\\
-                                    \multicolumn{3}{l}{there were an Arrowhead placed between $(x',y')$ and }\\
-                                    \multicolumn{3}{l}{$(x'',y'')$. Arrowheads can be encoded as explained in}\\ \multicolumn{3}{l}{\ref{Encoding:Arrowheads}.}\\
+                                    \multicolumn{3}{l}{contains a smaller value than the cell $(x',y')$ as if}\\
+                                    \multicolumn{3}{l}{there were an Arrowhead placed between $(x,y)$ and}\\
+                                    \multicolumn{3}{l}{$(x',y')$. Arrowheads can be encoded as explained in}\\
+                                    \multicolumn{3}{l}{\ref{Encoding:Arrowheads}.}\\
                             \end{tabular}\\
                                 \\
-    $Killer(x',y',x'',y'')$      &= &\begin{tabular}{l c l}
+    $Killer(x,y,x',y')$      &= &\begin{tabular}{l c l}
                                             \multicolumn{3}{l}{Set of clauses needed to encode that the cells between}\\
                                             \end{tabular}\\
                                         &  &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{$(x',y')$ and $(x'',y'')$ (including $(x',y')$ and $(x'',y'')$)}\\
-                                    \multicolumn{3}{l}{have values that add up to the indicated sum for the}\\
-                                    \multicolumn{3}{l}{tower in column $x$. This encoding is similar to the one}\\
-                                    \multicolumn{3}{l}{for killer cages which is explained in \ref{encoding:killer}.}\\
+                                    \multicolumn{3}{l}{$(x,y)$ and $(x',y')$ (including $(x,y)$ and $(x',y')$) have}\\
+                                    \multicolumn{3}{l}{values that add up to the indicated sum for the tower}\\
+                                    \multicolumn{3}{l}{in column $x$. This encoding is similar to the one for}\\
+                                    \multicolumn{3}{l}{killer cages which is explained in \ref{encoding:killer}.}\\
                             \end{tabular}\\
         \\
     $PBC_{faulty}$            &= &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{Set of clauses needed to encode that the number of }\\
+                                    \multicolumn{3}{l}{Set of clauses needed to encode a PBC, which ensures}\\
                                     \end{tabular}\\
                                 &  &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{columns containing a faulty tower matches the one}\\
-                                    \multicolumn{3}{l}{stated in the puzzle description.}\\
+                                    \multicolumn{3}{l}{that the number of columns containing a faulty tower}\\
+                                    \multicolumn{3}{l}{matches the one stated in the puzzle description.}\\
                                     $LHS$       &=  &$\displaystyle\sum_{x=1}^9 1*faulty(x)$\\
                                     $RHS$       &=  &Number of faulty towers demanded in\\
                                                 &   &puzzle description.\\
                             \end{tabular}\\
     \\
     $PBC_{inc}$            &= &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{Set of clauses needed to encode that the number of }\\
+                                    \multicolumn{3}{l}{Set of clauses needed to encode a PBC, which ensures}\\
                                     \end{tabular}\\
                                 &  &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{columns containing a tower with increasing cell values}\\
-                                    \multicolumn{3}{l}{matches the one stated in the puzzle description.}\\
+                                    \multicolumn{3}{l}{that the number of columns containing a tower with}\\
+                                    \multicolumn{3}{l}{increasing cell values matches the one stated in the}\\
+                                    \multicolumn{3}{l}{puzzle description.}\\
                                     $LHS$       &=  &$\displaystyle\sum_{x=1}^9 1*inc(x)$\\
                                     $RHS$       &=  &Number of increasing towers demanded in\\
                                                 &   &puzzle description.\\
                             \end{tabular}\\
     \\
     $PBC_{sum}$            &= &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{Set of clauses needed to encode that the number of }\\
+                                    \multicolumn{3}{l}{Set of clauses needed to encode a PBC, which ensures}\\
                                     \end{tabular}\\
                                 &  &\begin{tabular}{l c l}
-                                    \multicolumn{3}{l}{columns containing a tower with cell values that add}\\
-                                    \multicolumn{3}{l}{up to the correspondingly indicated sum is matches}\\
-                                    \multicolumn{3}{l}{the one stated in the puzzle description.}\\
+                                    \multicolumn{3}{l}{that the number of columns containing a tower with}\\
+                                    \multicolumn{3}{l}{cell values that add up to the correspondingly}\\
+                                    \multicolumn{3}{l}{indicated sum  matches the one stated in the puzzle}\\
+                                    \multicolumn{3}{l}{description.}\\
                                     $LHS$       &=  &$\displaystyle\sum_{x=1}^9 1*sum(x)$\\
                                     $RHS$       &=  &Number of towers with a cell value sum \\
                                                 &   &matching the indicated one.\\
@@ -1003,11 +1006,11 @@ To encode the Fawlty Tower rules, we introduce three new variables for each towe
 \section{Nurikabe Sudoku}
 As one part of the solution to a Nurikabe Sudoku is marking island and ocean cells, we introduce corresponding variables that encode if a cell $(x,y)$ is part of the ocean or part of island $n$ (further detailed in  Table \ref{variables:NurikabeSudoku} as $\ocean(x,y)$ and  $\island(n,x,y)$). We note that there is only one ocean but multiple islands. Since an island must consist of at least three orthogonally adjacent cells and there are only 81 cells in the grid, a safe upper bound for the number of islands can be calculated by $81/3=27$. However, this number can be lowered because of the additional rule that islands may not touch each other orthogonally and that there is only one ocean. Considering this, the maximum number of islands found (by hand) to fit in the grid is 13, but we will use an upper bound of 14 for the encoding just to be sure. An example of how 13 islands can be placed in the grid that complies with the rules of Nurikabe Sudoku can be seen in Figure\todoMissing{13 Island Figure}.\\
 \\
-The rule that an island must consist of at least three adjacent cells can be broken down to each individual cell of an island, by stating that each cell that is part of an island must have at least two orthogonally adjacent neighbouring cells that are part of the same island. As shown in Figure \todoMissing{Figure Constelations}, there are 18 different possibilities (\emph{constellations}) for such two neighbouring cells. To encode this rule, we introduce a new variable which is further explained in Table \ref{variables:NurikabeSudoku} in the definition of $\nb(c,n,x,y)$.\\
+The rule that an island must consist of at least three orthogonally adjacent cells can be broken down to each individual cell of an island by stating that each cell that is part of an island must be in a \emph{constellation} (a set) with two other neighbouring cells that are part of the same island. For such a constellation, it must hold that one of the three cells is orthogonally adjacent to the other two cells. As shown in Figure \todoMissing{Figure Constelations}, there are 18 different possible constellations that one cell could be part of. To encode this rule, we introduce a new variable which is further explained in Table \ref{variables:NurikabeSudoku} in the definition of $\nb(c,n,x,y)$.\\
 \\
 Further, we must enforce that islands are continuous. So from every cell that is part of an island  $n$ it must be possible to reach any other cell of island $n$, without crossing an ocean cell. This reachability can be enforced by constraints describing a Floodfill methodology. However, we will call this \emph{walk} as the word \emph{flood} is better suited to describe the similar idea used for the ocean cells. A walk is defined by its corresponding island $n$ and its source $(x_s,y_s)$, which is said to be at depth 1 of the walk. Outgoing from the source, orthogonally adjacent cells are walked with increasing depth numbers. As we model a Floodfill multiple cells can be at the same depth of a walk. At depth 9, the walk will have covered all cells of an island because the rules state that there are no value repetitions within an island which limits the size of an island to at most nine cells. The variable used to encode walks is further described in Table \ref{variables:NurikabeSudoku} in the definition of $\walk(d,n,x_s,y_s,x,y)$. An example walk on an island is illustrated in Figure \todoMissing{Figure Walk}.\\
 
-The rules also dictate that there may only be one continuous ocean, which can be enforced with an approach similar to the one used for the continuousness of islands. However, as value repetitions are allowed within the ocean, its size is not limited to nine cells.The depth needed by a flood to cover all ocean cells is maximized if there are as few cells as possible in every depth. With only one cell in each depth, an upper bound of 81 can be given as the grid contains a total of 81 cells. But this number can be lowered as more than one cell will be at the same depth in practice. After experimenting with possible island placements by hand, we found an upper limit for the flood depth of 49 to be likely. Examples of island placements that require this flood depth can be seen in Figure \todoMissing{Figure Flood-1} and Figure \todoMissing{Figure Flood-2}. The variable used to encode floods is further described in Table \ref{variables:NurikabeSudoku} in the definition of $\flood(d,x_s,y_s,x,y)$.\\
+The rules also dictate that there may only be one continuous ocean, which can be enforced with an approach similar to the one used for the continuousness of islands. However, as value repetitions are allowed within the ocean, its size is not limited to nine cells.The depth needed by a flood to cover all ocean cells is maximized if there are as few cells as possible in every depth. With only one cell in each depth, an upper bound of 81 can be given as the grid contains a total of 81 cells. But this number can be lowered as more than one cell will be at the same depth in practice. After experimenting with possible island placements by hand, we found an upper limit for the flood depth of 49. Examples of island placements that require this flood depth can be seen in Figure \todoMissing{Figure Flood-1} and Figure \todoMissing{Figure Flood-2}. The variable used to encode floods is further described in Table \ref{variables:NurikabeSudoku} in the definition of $\flood(d,x_s,y_s,x,y)$.\\
 \\
 The constraints to encode Nurikabe Sudoku are stated in the Figures \ref{Constraints:NurikabeSudoku1}, \ref{Constraints:NurikabeSudoku2} and \ref{Constraints:NurikabeSudoku3}. How the constraints are encoded into clauses is shown in the Figures \ref{formulae:NurikabeSudoku1}, \ref{formulae:NurikabeSudoku2} and \ref{formulae:NurikabeSudoku3}.
 

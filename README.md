@@ -1,6 +1,21 @@
-# .sdq file -Syntax
+# How to run:
 
-Files used to encode and input a sudoku problem for this program have the ending `.sdq` and most currently be located
+**To solve single Sudoku Puzzles...**<br>
+run `src\main\java\Main` with the command:
+`java Main FileName.sdq SolverName UniquenessCheck`.<br>
+
+FileName.sdq:     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Sudoku Puzzle instance to solve.<br>
+SolverName:     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   "Sat4j" or "MiniSat"<br>
+UniquenessCheck:   &nbsp; Write "true" to check if the solution is unique or leaf this argument away to omit the check.
+
+**To solve multiple Sudoku Puzzles...**<br>
+use `src\test\java\SudokuExampleTest`, which will solve all instances saved in the 
+folder `src\main\data`. Instances that should not be solved must be added to the "ignore" list within the code.
+
+
+# .sdq file-Syntax
+
+Files used to encode and input a sudoku problem for this program have the ending `.sdq` and must currently be located
 in `src\main\data`. An .sdq file can consist of multiple clauses, each one surrounded with`{ }`. Each clause is used to
 describe a constraint that the solution should satisfy. Each clause begins with the constraints name followed by `:`
 .<br>

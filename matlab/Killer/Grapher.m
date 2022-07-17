@@ -196,7 +196,13 @@ set(gca,'xscale','log')
 set(gca,'yscale','log')
 xlim([max([1,mi]),ma])
 ylim([max([1,mi]),ma])
-axis equal
+xtickformat('%.0f')
+%axis equal
+axis square
+yticks([100, 200, 300, 400, 500, 600])
+yticklabels({100, 200, 300, 400, 500, 600})
+xticks([100, 200, 300, 400, 500, 600])
+xticklabels({100, 200, 300, 400, 500, 600})
 hold on
 scatter(AN_encode_avg(:,1),BDD_encode_avg(:,1),'o')
 scatter(AN_encode_avg(:,5),BDD_encode_avg(:,5),'s')
@@ -218,7 +224,8 @@ set(gca,'xscale','log')
 set(gca,'yscale','log')
 xlim([max([1,mi]),ma])
 ylim([max([1,mi]),ma])
-axis equal
+%axis equal
+axis square
 hold on
 scatter(AN_solve_avg(:,1),BDD_solve_avg(:,1),'o')
 scatter(AN_solve_avg(:,5),BDD_solve_avg(:,5),'s')

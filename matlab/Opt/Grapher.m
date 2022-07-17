@@ -51,15 +51,19 @@ for i=1:n
 end
 
 
+
+ma = max([max([max(encode_avg(:,2)), max(encode_avg(:,1))]),max([max(encode_avg(:,3)), max(encode_avg(:,1))])]);
+mi = min([min([min(encode_avg(:,2)), min(encode_avg(:,1))]),min([min(encode_avg(:,3)), min(encode_avg(:,1))])]);
 f1 = figure;
-ma = max([max(encode_avg(:,2)), max(encode_avg(:,1))]);
-mi = min([min(encode_avg(:,2)), min(encode_avg(:,1))]);
+%ma = max([max(encode_avg(:,2)), max(encode_avg(:,1))]);
+%mi = min([min(encode_avg(:,2)), min(encode_avg(:,1))]);
 %set(gca,'xscale','log')
 %set(gca,'yscale','log')
 set(gca,'fontname','times')
 xlim([max([0,mi]),ma])
 ylim([max([0,mi]),ma])
-axis equal
+%axis equal
+axis square
 hold on
 scatter(encode_avg(:,2),encode_avg(:,1))
 x= linspace(0,100);
@@ -73,14 +77,15 @@ ylabel('PBCs | t-encode | (ms)')
 print('-deps','opt_encode_2_1')
 
 f2 = figure;
-ma = max([max(encode_avg(:,3)), max(encode_avg(:,1))]);
-mi = min([min(encode_avg(:,3)), min(encode_avg(:,1))]);
+%ma = max([max(encode_avg(:,3)), max(encode_avg(:,1))]);
+%mi = min([min(encode_avg(:,3)), min(encode_avg(:,1))]);
 %set(gca,'xscale','log')
 %set(gca,'yscale','log')
 set(gca,'fontname','times')
 xlim([max([0,mi]),ma])
 ylim([max([0,mi]),ma])
-axis equal
+%axis equal
+axis square
 hold on
 scatter(encode_avg(:,3),encode_avg(:,1))
 x= linspace(0,100);
@@ -93,15 +98,20 @@ ylabel('PBCs | t-encode | (ms)')
 %legend('Moderate','Extra Deadly','Location','northwest')
 print('-deps','opt_encode_3_1')
 
+
+ma = max([max([max(solve_avg(:,2)), max(solve_avg(:,1))]),max([max(solve_avg(:,3)), max(solve_avg(:,1))])]);
+mi = min([min([min(solve_avg(:,2)), min(solve_avg(:,1))]),min([min(solve_avg(:,3)), min(solve_avg(:,1))])]);
+
 f3 = figure;
-ma = max([max(solve_avg(:,2)), max(solve_avg(:,1))]);
-mi = min([min(solve_avg(:,2)), min(solve_avg(:,1))]);
+%ma = max([max(solve_avg(:,2)), max(solve_avg(:,1))]);
+%mi = min([min(solve_avg(:,2)), min(solve_avg(:,1))]);
 set(gca,'xscale','log')
 set(gca,'yscale','log')
 set(gca,'fontname','times')
 xlim([max([eps,mi]),ma])
 ylim([max([eps,mi]),ma])
-axis equal
+%axis equal
+axis square
 hold on
 scatter(solve_avg(:,2),solve_avg(:,1))
 x= linspace(eps,ma);
@@ -115,14 +125,15 @@ ylabel('PBCs | t-solve | (ms)')
 print('-deps','opt_solve_2_1')
 
 f4 = figure;
-ma = max([max(solve_avg(:,3)), max(solve_avg(:,1))]);
-mi = min([min(solve_avg(:,3)), min(solve_avg(:,1))]);
+%ma = max([max(solve_avg(:,3)), max(solve_avg(:,1))]);
+%mi = min([min(solve_avg(:,3)), min(solve_avg(:,1))]);
 set(gca,'xscale','log')
 set(gca,'yscale','log')
 set(gca,'fontname','times')
 xlim([max([eps,mi]),ma])
 ylim([max([eps,mi]),ma])
-axis equal
+%axis equal
+axis square
 hold on
 scatter(solve_avg(:,3),solve_avg(:,1))
 x= linspace(eps,ma);

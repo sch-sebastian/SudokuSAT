@@ -1,0 +1,34 @@
+\chapter{Deleted Texts} \todo{This should not be part of the PDF!}
+
+\paragraph{Satisfiability} \label{Satisfiability} A formula is called \emph{satisfiable} if there exists at least one model for it otherwise it is called \emph{unsatisfiable}. The formula $\varphi \equiv (x_1 \lor \neg x_2) \land (x_2 \lor x_3) \land (\neg x_1 \lor \neg x_3) \land (\neg x_1 \lor \neg x_2 \lor x_3)$ is satisfiable and $\mathcal{I}:= \{x_1 \rightarrow false, x_2 \rightarrow false, x_3 \rightarrow true\}$ is a model for it. However if this model is explicitly ruled out as in $\psi \equiv \varphi \land (x_1 \land x_2 \land \neg x_3)$ the formula becomes unsatisfiable (example by \cite{10.5555/1121689}).
+
+
+\section{Complexity Theory}\todo{Is this section needed?}
+The time it takes a program to run depends on various factors. Complexity Theory can be used to classify problems (and the programs that solve them) by their running time. The goal of this section is to give a brief overview of how complexity is measured and how problems can be classified.\footnote{The following definitions are intentionally simplified. This section is based on \cite{IntroductionToTheTheoryOfComputation},where more detailed information can be found. Also, it is worth mentioning that the concepts of Complexity Theory not only consider time but can also be applied to other resources that might be limited and therefore could be seen as a measure of complexity.}
+
+\subsection{Time Complexity}\label{TimeComplexity}
+Time Complexity is not an estimate of seconds it takes to finish a program instance but rather a meassure of difficulty using abstract units. Such a unit could, for example, be a step that requires a comparably long constant time in a program that solves a problem. The \emph{running time} or \emph{time complexity} of a program or problem is then the maximal number such a step is needed to run the program given an input of length $n$ and can be described as a function $f(n): \mathcal{N} \rightarrow \mathcal{R}^+$. 
+
+Considering the following example where the program gets as input a list of size $n$ and $someAction()$ takes constant time:
+\lstset{basicstyle=\ttfamily}
+\begin{lstlisting}[language=java,frame=single]
+myProgramm(ArrayList<Integer> list){
+    someAction();
+    for(int i = 0; i < list.size()){
+        someAction();
+    }
+    for(int i = 0; i< list.size();i++){
+        for(int j = 0; j < list.size();j++){
+            someAction();
+            someAction();
+        }
+    }
+}
+\end{lstlisting}
+In the beginning, $someAction()$ is executed once. The first for-loop iterates $n$-times, which leads to $n$ executions of $someAction()$. The two nested for loops result in $2n^2$ executions of $someAction()$, so we find the time complexity $f(n)=2n^2+n+1$.
+
+\subsection{BIG-O Notation}
+The detailed time complexity formula is further estimated for BIG-O Notation (also called Asymptotic Notation), considering its behaviour for large inputs. In BIG-O Notation, only the highest-order term is considered lower-order terms like constants are left away. Revisiting the example of \ref{TimeComplexity} we get $f(n) = 2n^2+n+1 = O(n^2)$ and $n^2$ is called the asymptotic upper bound of $f(n)$.
+
+\subsection{P and NP}
+Problems are classified into two complexity classes, $P$ and $NP$. $P$ is the set of problems for which algorithms with polynomial time complexity are known (Example: $f(n)=2n^2+n+1$). $NP$ is the set of problems for which no algorithms with polynomial time complexity have been found, but only exponential ones (Example: $f(n)=2^n+n+1$). A problem is called NP-Hard if all other problems of the class NP can be reduced to it in polynomial time. Further, a problem is called NP-Complete if it is part of NP and is NP-Hard. If one found a problem with polynomial complexity to be NP-Hard, it would imply that all other problems in NP could be reduced to it, which would mean that P = NP. If this is the case or not is still an open question in Computer Science and Mathematics but shall not be the focus of this thesis.

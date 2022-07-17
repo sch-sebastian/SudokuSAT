@@ -1,0 +1,132 @@
+%% ----------------------------------------------------------------
+%% Thesis.tex -- main
+%% ---------------------------------------------------------------- 
+
+\documentclass[a4paper, 10pt, oneside]{memoir}
+%% Use the option citeauthor to be able to use citet. The default cite will still work.
+\usepackage[citeauthor]{basilea}
+\usepackage{listings}
+\usepackage{lipsum}
+\usepackage{caption}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{placeins}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{adjustbox}
+\usepackage{diagbox}
+
+\usepackage{stackengine}
+\usepackage{rotating}
+\usepackage{tabularx}
+
+\newcounter{cons}[subsection]
+\renewcommand{\thecons}{\roman{cons}}
+\newcommand\consCount[1]{\refstepcounter{cons} \text{(#1-\roman{cons})}}
+
+\newcounter{rownumber}[table]
+\renewcommand{\therownumber}{\thefigure.\arabic{rownumber}}
+
+\newcommand{\false}{$\textit{false}$}
+\newcommand{\true}{$\textit{true}$}
+\newcommand{\ocean}{\mathcal{O}}
+\newcommand{\flood}{\digamma}
+\newcommand{\walk}{\mathcal{W}}
+\newcommand{\island}{\mathcal{I}}
+\newcommand{\nb}{\mathcal{N}}
+\newcommand{\pseudo}{\lstset%
+{%
+    emph=[1]%
+    {%
+        If,
+        While,
+        Else,
+        For,
+        AdderNetworkEncoder,
+        BuildBDD,
+        Return,
+    },
+    emphstyle=[1]{\bfseries},
+    %
+    emph=[2]% Variable Types
+    {% 
+       false,
+       true,
+    },
+  emphstyle=[2]{\textit{}\ttfamily},
+}}
+\DeclareRobustCommand{\rchi}{{\mathpalette\irchi\relax}}
+\newcommand{\irchi}[2]{\raisebox{\depth}{$#1\chi$}} %https://tex.stackexchange.com/questions/103885/how-to-type-an-inline-chi-in-latex
+
+\lstdefinelanguage{Pseudo}{
+    morekeywords={If, While, Else},
+    sensitive=false, % keywords are not case-sensitive
+    morecomment=[l]{//}, % l is for line comment
+    morecomment=[s]{/*}{*/}, % s is for start and end delimiter
+    morestring=[b]" % defines that strings are enclosed in double quotes
+}
+
+
+
+%% ----------------------------------------------------------------
+
+\title				{Encoding Diverse Sudoku Variants as SAT Problems}
+\thesistype			{Bachelor thesis}
+
+\department 		    {Department of Mathematics and Computer Science}
+\faculty			{Natural Science Faculty of the University of Basel}
+\research		    {Artifical Intelligence Research Group \\ \url{https://ai.dmi.unibas.ch/}}
+
+\examiner    		{Prof. Dr. Malte Helmert}
+\supervisor  		{Augusto B. Corrêa}
+
+\authors     		{Sebastian Schlachter}
+\email				{sebastian.schlachter@unibas.ch}
+\immatriculnr		{2017-927-534}
+
+\date				{20.07.2022}
+
+% switch here for the german logo to logo-de
+\ulogo				{Template/logo-en} 
+
+
+%% ----------------------------------------------------------------
+\begin{document}
+
+% for english use \selectlanguage{english}, for german use \selectlanguage{ngerman}
+\selectlanguage{english}
+
+\thesisfront
+\maketitle
+\pagestyle{thesis}
+%% ----------------------------------------------------------------
+\input{./Front/Acknowledgment}
+%% ----------------------------------------------------------------
+\input{./Front/Abstract}
+%% ----------------------------------------------------------------
+\thesistoc
+%% ----------------------------------------------------------------
+%\thesisnomencl
+%% ----------------------------------------------------------------
+\thesismain
+\input{./Chapters/Chapter1}
+\input{./Chapters/Chapter2}
+\input{./Chapters/Chapter3}
+\input{./Chapters/Chapter4}
+\input{./Chapters/Chapter5}
+\input{./Chapters/Chapter6}
+%\input{./Chapters/Chapter7}
+%% ----------------------------------------------------------------
+\thesisappendix
+\thesisbib
+\begin{appendices}
+	\input{./Back/AppendixA} 
+\end{appendices}
+%% ----------------------------------------------------------------
+\thesisback
+\iflanguage{english}
+  {\includepdf{./Back/wissensch_Redlichkeit_E_Aug_21.pdf}}
+  {\includepdf{./Back/wissensch_Redlichkeit_D_Aug_21.pdf}}
+%% ----------------------------------------------------------------
+\end{document}
+%% ----------------------------------------------------------------

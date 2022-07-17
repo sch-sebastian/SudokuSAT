@@ -29,9 +29,7 @@ If $\varphi$ and $\psi$ are formulas, then so is the disjunction $\varphi \lor \
     $\mathcal{I} \models (\psi \lor \varrho)$ & iff & $\mathcal{I} \models \psi$ or $\mathcal{I} \models \varrho$\\
 \end{tabular}\\
 Where $\psi$ and  $\varrho$ are formulas and $x_1$ is an atom.
-\end{center}
-
-An interpretation for which a formula $\varphi$ hold is called a \emph{model} of $\varphi$.
+\end{center}An interpretation for which a formula $\varphi$ hold is called a \emph{model} of $\varphi$.
 
 \paragraph{Equivalence}
 of two formulas $\varphi$ and $\psi$ is given if it holds for all interpretations $\mathcal{I}$ that, $\varphi$ holds under $\mathcal{I}$ if and only if $\psi$ holds under $\mathcal{I}$. The formulas are then called \emph {logically equivalent} ($\varphi \equiv \psi$).
@@ -58,13 +56,13 @@ For example, given the atoms \emph{a}, \emph{b}, \emph{c} and \emph{d}, the form
     $\varrho$ & $\equiv$ & $((a \lor b) \land (c \lor d))$\\
 \end{tabular}
 \end{center}
-Also, it holds that every formula can be brought into CNF \cite{LogicForComputerScientists}.\todo{introduce set notation}
+Also, it holds that every formula can be brought into CNF \cite{LogicForComputerScientists}, and a formula in CNF can be noted as a set of sets of literals, for example, $\varrho \equiv \{\{a,b\},\{c,d\}\}$.
 
 \section{SAT-Problems and SAT-Solvers}
 SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula of propositional logic is satisfiable (if there exists a model for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem. They take a formula as input and return a boolean value (true or false) to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis, multiple SAT-Solvers are used, which are described in further detail in \ref{MiniSatAndSat4j}. As we will later see, the time to find solutions for particular problem instances varies between them. However, when it comes to computational complexity, it holds that SAT-Problems are in NP and that they are NP-Hard\cite{10.1145/800157.805047}\cite{levin1973universal}, so the runtime of the solvers may scale exponentially with the number of clauses and variables given to them as input.
 
 \subsection{DIMACS CNF File Format}\label{DIMACS}
-The used SAT-Solvers require the input formula to be in CNF. Further, they expect them to be described in the DIMACS CNF File Format, often just called DIMACS. The abbreviation DIMACS stands for Center for ``Discrete Mathematics and Theoretical Computer Science", which is a collaboration between Rutgers and Princeton University and research firms. The file format was utilised in the DIMACS Implementation Challenge 1993 and since then has become the common file format for SAT-Problems\todoMissing{reference}.\\
+The used SAT-Solvers require the input formula to be in CNF. Further, they expect them to be described in the DIMACS CNF File Format, often just called DIMACS. The abbreviation DIMACS stands for Center for ``Discrete Mathematics and Theoretical Computer Science", which is a collaboration between Rutgers and Princeton University and research firms. The file format was utilised in the DIMACS Implementation Challenge 1993 and since then has become the common file format for SAT-Problems.\\
 
 DIMACS CNF Files have the following Format:
 \begin{itemize}
@@ -161,7 +159,7 @@ In this case further clauses like $\neg x_{1,1} \lor x_{2,1} \lor x_{2,2} \lor x
 
 
 \subsection{Pseudo Boolean Constraints (PBC)}
-Constraints that describe equations like $w_1x_1+w_2x_2+...+w_nx_n \leq K$ are called pseudo boolean constraints. The variables $x_1$ to $x_n$ have boolean domains, the $w_i$s are called weights, and K is called bound (or RHS)\todo{Is this ok?}. Both the weights and the bound must have integer values. If a variable $x_i$ gets assigned a truth value of true/false, it gets valued 1/0 in the equation. PBC can be transformed into clauses by first converting them to Binary Decision Diagrams (BDD), Adder Networks or Sorter Networks. Within this thesis, we will use the former two variants following the ideas of \cite{Een2006TranslatingPC}.
+Constraints that describe equations like $w_1x_1+w_2x_2+...+w_nx_n \leq K$ are called pseudo boolean constraints. The variables $x_1$ to $x_n$ have boolean domains, the $w_i$s are called weights, and K is called bound (or RHS). Both the weights and the bound must have integer values. If a variable $x_i$ gets assigned a truth value of true/false, it gets valued 1/0 in the equation. PBC can be transformed into clauses by first converting them to Binary Decision Diagrams (BDD), Adder Networks or Sorter Networks. Within this thesis, we will use the former two variants following the ideas of \cite{Een2006TranslatingPC}.
 
 \section{Sudoku}\label{NormalSudoku}
 The family of logic puzzles called Sudoku is based on the Latin Squares Problem. In its current form, it was first published in the US in 1979 by Howard Garns as ``Number Place". In 1984 the puzzle became popular in Japan,  where it got the name ``Sudoku" (translated: ``digit-single") which is the name under which it later became famous around the world.
@@ -170,14 +168,14 @@ For most Sudoku instances, there is the additional property that they only have 
 
 \begin{figure}
 \centering
-\includegraphics[width=0.6\textwidth]{Figures/17-clue sudoku puzzle (McGuire).png}
+\includegraphics[width=0.5\textwidth]{Figures/17-clue sudoku puzzle (McGuire).png}
 \caption{Example of a Sudoku Puzzle with 17 clues by \citet{https://doi.org/10.48550/arxiv.1201.0749}.}
 \label{fig:exampleSudoku}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.6\textwidth]{Figures/GridCoordinates.png}
+\includegraphics[width=0.5\textwidth]{Figures/GridCoordinates.png}
 \caption{Coordinate system for grid cells.}
 \label{fig:GridCoordinates}
 \end{figure}

@@ -1,5 +1,5 @@
 % !TEX root = ../Thesis.tex
-\chapter{Experiments}
+\chapter{Experiments}\label{Experiments}
 This chapter elaborates on how the different encodings perform and how the different Sudoku Variants compare.
 The program to encode the various  puzzle instances is written in Java. We also use Java to call the different solvers (introduced in \ref{MiniSatAndSat4j}) and to log the resulting data. All experiments are run on a personal computer using Windows 10. The PC has an AMD Ryzen 7 5800X 8-Core Processor (3.80 GHz) and 32 GB of RAM (from which the Java Virtual Machine (JVM) is allowed to use 28GB).\\
 
@@ -47,44 +47,50 @@ Comparing the times needed for encoding to the ones needed for solving (using Sa
 \FloatBarrier
 {
 \renewcommand{\figurename}{Plot}
+
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/killer_BDD_encode.eps}
+    \vspace{8.7mm}
+    \includegraphics[height = 90mm]{Figures/killer_BDD_encode.eps}
     \caption{Encoding time per clause, using Binary Decision Diagrams}
     \label{killerBDDencode}
 \end{figure}
+
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/killer_AN_encode.eps}
+    \vspace{11mm}
+    \includegraphics[height = 90mm]{Figures/killer_AN_encode.eps}
     \caption{Average encoding time per clause, using Adder Networks}
     \label{killerANencode}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/killer_BDD_solve.eps}
+    \includegraphics[height = 90mm]{Figures/killer_BDD_solve.eps}
     \caption{Average solving time per clause, using Binary Decision Diagrams}
     \label{killerBDDsolve}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/killer_AN_solve.eps}
+    \includegraphics[height = 90mm]{Figures/killer_AN_solve.eps}
     \caption{Average solving time per clause, using Adder Networks}
     \label{killerANsolve}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/killer_encode_compare.eps}
-    \caption{Average encoding time comparison, Binary Decision Diagrams vs. Adder Networks}
+    \includegraphics[height = 90mm]{Figures/killer_encode_compare.eps}
+    \captionsetup{justification=centering,margin=0cm}
+    \caption{Average encoding time comparison, Binary Decision Diagrams vs.\\Adder Networks}
     \label{killerCompareEncode}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/killer_solve_compare.eps}
-    \caption{Average solving time comparison, Binary Decision Diagrams vs. Adder Networks}
+    \includegraphics[height = 90mm]{Figures/killer_solve_compare.eps}
+    \captionsetup{justification=centering,margin=0cm}
+    \caption{Average solving time comparison, Binary Decision Diagrams vs.\\Adder Networks}
     \label{killerCompareSolve}
 \end{figure}
 }
@@ -93,29 +99,33 @@ Comparing the times needed for encoding to the ones needed for solving (using Sa
 \renewcommand{\figurename}{Plot}
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/opt_encode_2_1.eps}
-    \caption{Average encoding time comparison, PBCs vs. PBCs + Combinations}
+    \includegraphics[height = 90mm]{Figures/opt_encode_2_1.eps}
+    \captionsetup{justification=centering,margin=0cm}
+    \caption{Average encoding time comparison, PBCs vs. PBCs + Combinations,\\ using Adder Networks}
     \label{opt_encode_2_1}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/opt_encode_3_1.eps}
-    \caption{Average encoding time comparison, PBCs vs. Combinations}
+    \includegraphics[height = 90mm]{Figures/opt_encode_3_1.eps}
+    \captionsetup{justification=centering,margin=0cm}
+    \caption{Average encoding time comparison, PBCs vs. Combinations,\\ using Adder Networks}
     \label{opt_encode_3_1}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/opt_solve_2_1.eps}
-    \caption{Average solving time comparison, PBCs vs. PBCs + Combinations}
+    \includegraphics[height = 90mm]{Figures/opt_solve_2_1.eps}
+    \captionsetup{justification=centering,margin=0cm}
+    \caption{Average solving time comparison, PBCs vs. PBCs + Combinations,\\ using Adder Networks}
     \label{opt_solve_2_1}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width = 0.85\textwidth]{Figures/opt_solve_3_1.eps}
-    \caption{Average solving time comparison, PBCs vs. Combinations}
+    \includegraphics[height = 90mm]{Figures/opt_solve_3_1.eps}
+    \captionsetup{justification=centering,margin=0cm}
+    \caption{Average solving time comparison, PBCs vs. Combinations,\\ using Adder Networks}
     \label{opt_solve_3_1}
 \end{figure}
 }

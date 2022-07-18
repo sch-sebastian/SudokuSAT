@@ -20,7 +20,7 @@ Because we use a relatively small test set of different puzzle instances, it is 
 \section{Adder Networks vs. Binary Decision Diagrams}
 To analyze the Encoding of PBCs, we conducted further experiments using Killer Sudoku instances from the books ``The Times Ultimate Killer Su Doku Book 14"\cite{TheTimesUltimateKillerSuDokuBook14} and ``The Times Killer Su Doku (Book 18)''\cite{TheTimesKillerSuDokuBook18} both of which are the latest collections of Killer Sudoku Puzzles arranged by ``The Times''. In these books, puzzles are further categorized into categories of hardness, which reach from the easiest, ``Moderate'', to ``Extra Deadly'', the hardest. With ten instances from each of the categories, ``Moderate" and  ``Extra Deadly'', we can compare how Binary Decision Diagrams and Adder Networks perform when encoding PBCs.\\
 \\
-As Plot \ref{killerBDDencode} shows, there is a strong correlation between the number of clauses and the time needed to encode if BDDs are used. In the case of Adder Networks (Plot \ref{killerANencode}), it is harder to make such a statement, as some instances with few clauses require more time to encode compared to instances with fewer clauses. Further, in this case, the variance in clauses needed by the instances is relatively low. So to reliably analyze the relation, additional samples with higher clause numbers would be necessary. \\
+As Plot \ref{killerBDDencode} shows, there is a strong correlation between the number of clauses and the time needed to encode if BDDs are used. In the case of Adder Networks (Plot \ref{killerANencode}), it is harder to make such a statement, as some instances with few clauses require more time to encode compared to instances with fewer clauses. Furthermore, in this case, the variance in clauses needed by the instances is relatively low. So to reliably analyze the relation, additional samples with higher clause numbers would be necessary. \\
 \\
 Looking at the ratio of solving time per clause (shown in Plots \ref{killerBDDsolve} and \ref{killerANsolve}), it seems that in both cases, the variance in solving time between the different instances seems to increase the more clauses are needed to encode them.\\
 \\
@@ -231,7 +231,7 @@ Comparing the times needed for encoding to the ones needed for solving (using Sa
     \end{tabularx}
     }
     \renewcommand{\arraystretch}{1}
-    \caption{Sudoku Puzzle Instances and their rules.}
+    \caption{Sudoku Puzzle instances and their rules.}
     \label{tab:InstanceRule}
 \end{table}
 

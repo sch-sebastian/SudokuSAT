@@ -4,7 +4,7 @@
 Before we dive into how we can translate Sudokus into a language such that a computer can work on them, we first elaborate on some background knowledge and definitions needed to understand the used tools and formalisms.
 
 \section{Propositional Logic}
-Propositional logic is a language that provides a formal way of writing statements that can either be true or false. It is used in this thesis to describe and encode the specific rules of the different Sudoku variants. This section will shortly introduce the common syntax and semantics.
+Propositional logic is a language that provides a formal way of writing statements that can either be true or false. It is used in this thesis to describe and encode the specific rules of the different Sudoku Variants. This section will shortly introduce the common syntax and semantics.
 
 \paragraph{Atoms}
 (also called \emph{atomic propositions}) are the smallest units used in propositional logic, and must have a truth value of true or false (often noted as digits 0 and 1).
@@ -59,10 +59,10 @@ For example, given the atoms \emph{a}, \emph{b}, \emph{c} and \emph{d}, the form
 Also, it holds that every formula can be brought into CNF \cite{LogicForComputerScientists}, and a formula in CNF can be noted as a set of sets of literals, for example, $\varrho \equiv \{\{a,b\},\{c,d\}\}$.
 
 \section{SAT-Problems and SAT-Solvers}
-SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula of propositional logic is satisfiable (if there exists a model for it) or not. SAT-Solvers are programs or algorithms that try to solve instances of this problem. They take a formula as input and return a boolean value (true or false) to indicate if a model exists or not. Most SAT-Solvers also directly provide a model if they can find one. In the experiments of this thesis, multiple SAT-Solvers are used, which are described in further detail in \ref{MiniSatAndSat4j}. As we will later see, the time to find solutions for particular problem instances varies between them. However, when it comes to computational complexity, it holds that SAT-Problems are in NP and that they are NP-Hard\cite{10.1145/800157.805047}\cite{levin1973universal}, so the runtime of the solvers may scale exponentially with the number of clauses and variables given to them as input.
+SAT-Problems (also called \emph{Satisfiability Problems} or \emph{Boolean Satisfiability Problems}) describe the problem of deciding if a formula of propositional logic is satisfiable (if there exists a model for it) or not. SAT-solvers are programs or algorithms that try to solve instances of this problem. They take a formula as input and return a boolean value (true or false) to indicate if a model exists or not. Most SAT-solvers also directly provide a model if they can find one. In the experiments of this thesis, multiple SAT-solvers are used, which are described in further detail in \ref{MiniSatAndSat4j}. As we will later see, the time to find solutions for particular problem instances varies between them. However, when it comes to computational complexity, it holds that SAT-Problems are in NP and that they are NP-Hard\cite{10.1145/800157.805047}\cite{levin1973universal}, so the runtime of the solvers may scale exponentially with the number of clauses and variables given to them as input.
 
 \subsection{DIMACS CNF File Format}\label{DIMACS}
-The used SAT-Solvers require the input formula to be in CNF. Further, they expect them to be described in the DIMACS CNF File Format, often just called DIMACS. The abbreviation DIMACS stands for Center for ``Discrete Mathematics and Theoretical Computer Science", which is a collaboration between Rutgers and Princeton University and research firms. The file format was utilised in the DIMACS Implementation Challenge 1993 and since then has become the common file format for SAT-Problems.\\
+The used SAT-solvers require the input formula to be in CNF. Further, they expect them to be described in the DIMACS CNF File Format, often just called DIMACS. The abbreviation DIMACS stands for Center for ``Discrete Mathematics and Theoretical Computer Science", which is a collaboration between Rutgers and Princeton University and research firms. The file format was utilised in the DIMACS Implementation Challenge 1993 and since then has become the common file format for SAT-Problems.\\
 
 DIMACS CNF Files have the following Format:
 \begin{itemize}
@@ -87,7 +87,7 @@ p cnf 3 4
 
 \subsection{How SAT-Solvers solve}
 Given a formula, a SAT-solver must decide if it is satisfiable or not (We assume the formula is in CNF so it can be handled as a set of clauses). To do so, the solver tries to find a model by assigning truth values to atoms one by one. In a standard SAT-solver, this is not done randomly but by using the inference mechanism of \emph{unit propagation}. 
-A famous algorithm using this mechanism is the DPLL algorithm\cite{DavisAMachineProgramForTheoremProving1962} which can be directly implemented into a SAT-Solver.
+A famous algorithm using this mechanism is the DPLL algorithm \cite{DavisAMachineProgramForTheoremProving1962} which can be directly implemented into a SAT-solver.
 DPLL applies three rules:
 \begin{enumerate}
     \item If a clause contains only one literal (or multiple literals, but only one is still unbound and all the others do not make the clause true),  the value that makes the literal true must be assigned. Otherwise, the clause and the formula would become false. If a value gets assigned, all clauses containing the corresponding true literal can be removed from the set of clauses. The corresponding false literals can be removed from all remaining clauses since they can not make them true.
@@ -103,10 +103,10 @@ MiniSat is a lightweight SAT-solver that is based on ``the ideas for conflict-dr
 
 Sat4j is a Java library that provides a SAT-solver that can be directly called and run in Java. It does not provide the best performance, but because it is easy to use and integrate, it is well suited for early experimenting and testing. The used version is 2.3.4. The library itself and further details can be found at \cite{webSat4j}.
 
-MiniSat+ (a particular version of MiniSat) and Sat4j provide native support for pseudo boolean constraints. However, this feature will not be used because this thesis aims to translate Sudoku puzzles into a form that can be solved with arbitrary SAT-solvers.
+MiniSat+ (a particular version of MiniSat) and Sat4j provide native support for Pseudo-Boolean Constraints. However, this feature will not be used because this thesis aims to translate Sudoku Puzzles into a form that can be solved with arbitrary SAT-solvers.
 
 \section{Constraint Networks (CN)}
-Puzzles like Sudoku can be broken down into multiple constraints that must all hold for a solution to be correct. Problems like this can be described using constraint networks. The issue of finding a solution to a constraint network is called Constraint Satisfaction Problem or short CSP. Solutions for constraint networks can be found using Backtracking Search (\cite{ArtificialAModernApproach}, page 175).However, this thesis aims to find such solutions by first encoding the Constraints into SAT-Problems that arbitrary SAT-Solvers can then solve. This section will shortly discuss how constraint networks are defined and how they can be translated directly to general SAT-Problems.
+Puzzles like Sudoku can be broken down into multiple constraints that must all hold for a solution to be correct. Problems like this can be described using constraint networks. The issue of finding a solution to a constraint network is called Constraint Satisfaction Problem or short CSP. Solutions for constraint networks can be found using Backtracking Search (\cite{ArtificialAModernApproach}, page 175).However, this thesis aims to find such solutions by first encoding the Constraints into SAT-Problems that arbitrary SAT-solvers can then solve. This section will shortly discuss how constraint networks are defined and how they can be translated directly to general SAT-Problems.
 
 
 Constraint Networks can be described as a tuple of three components: $CN := \langle \mathcal{X},  \mathcal{D},  \mathcal{C}\rangle$.
@@ -122,7 +122,7 @@ Constraints that include two variables are called binary constraints. They get d
 Constraints that include more than two variables are called N-nary constraints and get defined similarly to binary constraints in a CSP. Examples for variables $x_1$ to $x_9$ could be: ``At most one CSP variable from $x_1$ to $x_9$ may be 5" or ``The sum of the CSP variables $x_1$ to $x_9$ must be 45".
 
 \subsection{Common Encodings}
-There are many different ways to transform a CSP into a set of clauses that a SAT-Solver can work on, two of the most common ones we want to elaborate on here.
+There are many different ways to transform a CSP into a set of clauses that a SAT-solver can work on, two of the most common ones we want to elaborate on here.
 
 \paragraph{Direct Encoding \cite{walsh2000SATvCSP}\cite{gent20002ArcConsistencyInSAT}}
 We assign a SAT variable $x_{i,j}$ to all possible variable values $j$ for all CSP variables $i$. \emph{At-least-one} clauses ensure that a CSP variable i has at least one out of the $d$ values assigned from its domain.
@@ -155,21 +155,21 @@ This is best shown in an example, assume all CSP variables have a domain of \{1,
  $\neg x_{2,5} \lor x_{3,1} \lor x_{3,2} \lor x_{3,3} \lor x_{3,4}$\\
  $\neg x_{3,5} \lor x_{2,1} \lor x_{2,2} \lor x_{2,3} \lor x_{2,4}$\\
 \end{center}
-In this case further clauses like $\neg x_{1,1} \lor x_{2,1} \lor x_{2,2} \lor x_{2,3} \lor x_{2,4} \lor x_{2,5}$ can be added, but they are redundant because if the CSP variable $x_1$ takes the value 1 the constraint does allow all possible values for $x_2$. Generally, the support encoding requires more clauses than the direct encoding, but this does not make it inferior or necessarily slower for SAT-Solvers \cite{gent20002ArcConsistencyInSAT}. 
+In this case further clauses like $\neg x_{1,1} \lor x_{2,1} \lor x_{2,2} \lor x_{2,3} \lor x_{2,4} \lor x_{2,5}$ can be added, but they are redundant because if the CSP variable $x_1$ takes the value 1 the constraint does allow all possible values for $x_2$. Generally, the support encoding requires more clauses than the direct encoding, but this does not make it inferior or necessarily slower for SAT-solvers \cite{gent20002ArcConsistencyInSAT}. 
 
 
-\subsection{Pseudo Boolean Constraints (PBC)}
-Constraints that describe equations like $w_1x_1+w_2x_2+...+w_nx_n \leq K$ are called pseudo boolean constraints. The variables $x_1$ to $x_n$ have boolean domains, the $w_i$s are called weights, and K is called bound (or RHS). Both the weights and the bound must have integer values. If a variable $x_i$ gets assigned a truth value of true/false, it gets valued 1/0 in the equation. PBC can be transformed into clauses by first converting them to Binary Decision Diagrams (BDD), Adder Networks or Sorter Networks. Within this thesis, we will use the former two variants following the ideas of \cite{Een2006TranslatingPC}.
+\subsection{Pseudo-Boolean Constraints (PBCs)}
+Constraints that describe equations like $w_1x_1+w_2x_2+...+w_nx_n \leq K$ are called Pseudo-Boolean Constraints. The variables $x_1$ to $x_n$ have boolean domains, the $w_i$s are called weights, and K is called bound (or RHS). Both the weights and the bound must have integer values. If a variable $x_i$ gets assigned a truth value of true/false, it gets valued 1/0 in the equation. PBCs can be transformed into clauses by first converting them to Binary Decision Diagrams (BDD), Adder Networks or Sorter Networks. Within this thesis, we will use the former two variants following the ideas of \cite{Een2006TranslatingPC}, which we will elaborate on further in section \ref{encoding:PBCs}.
 
 \section{Sudoku}\label{NormalSudoku}
 The family of logic puzzles called Sudoku is based on the Latin Squares Problem. In its current form, it was first published in the US in 1979 by Howard Garns as ``Number Place". In 1984 the puzzle became popular in Japan,  where it got the name ``Sudoku" (translated: ``digit-single") which is the name under which it later became famous around the world.
 A \emph{normal} Sudoku Puzzle consists of a $9\times9$ grid, partially already filled with numbers from 1 to 9 named clues. Additionally, the grid is divided into smaller sub-areas called boxes, consisting of  $3\times3$ cells. To solve the puzzle, one has to assign a value from 1 to 9 to each free cell so that each number is present in each row, column, and box.\\
-For most Sudoku instances, there is the additional property that they only have one solution. There must be at least 17 clues for this to hold, as \citet{https://doi.org/10.48550/arxiv.1201.0749} show. An example of a Normal Sudoku Puzzle can be seen in Figure \ref{fig:exampleSudoku}. For a more accessible annotation, we define a coordinate system on the Sudoku grid, which can be seen in Figure \ref{fig:GridCoordinates}. With this coordinate system, a grid cell can be specified using a tuple of two numbers $(x,y)$ which is how we reference specific cells from now on. Countless variations and rules can be added to the original Sudoku puzzle to create new (and eventually harder) solving experiences. The book ``Cracking The Cryptic Greatest Hits" \cite{CrackingTheCryptic2021} contains an extensive collection of Sudoku variants, a few of which are introduced in the next chapter (\ref{SudokuVariantsAndRules}) and further elaborated during this thesis.
+For most Sudoku instances, there is the additional property that they only have one solution. There must be at least 17 clues for this to hold, as \citet{doi:10.1080/10586458.2013.870056} show. An example of a Normal Sudoku Puzzle can be seen in Figure \ref{fig:exampleSudoku}. For a more accessible annotation, we define a coordinate system on the Sudoku grid, which can be seen in Figure \ref{fig:GridCoordinates}. With this coordinate system, a grid cell can be specified using a tuple of two numbers $(x,y)$ which is how we reference specific cells from now on. Countless variations and rules can be added to the original Sudoku Puzzle to create new (and eventually harder) solving experiences. The book ``Cracking The Cryptic Greatest Hits" \cite{CrackingTheCryptic2021} contains an extensive collection of Sudoku Variants, a few of which are introduced in the next chapter (\ref{SudokuVariantsAndRules}) and further elaborated during this thesis.
 
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{Figures/17-clue sudoku puzzle (McGuire).png}
-\caption{Example of a Sudoku Puzzle with 17 clues by \citet{https://doi.org/10.48550/arxiv.1201.0749}.}
+\caption{Example of a Sudoku Puzzle with 17 clues by \citet{doi:10.1080/10586458.2013.870056}.}
 \label{fig:exampleSudoku}
 \end{figure}
 

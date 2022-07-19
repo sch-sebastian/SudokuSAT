@@ -1,6 +1,6 @@
 % !TEX root = ../Thesis.tex
 \chapter{Encoding}\label{Encoding}
-As introduced in \ref{DIMACS}, the SAT-Solvers expect a DIMACS file as input that describes a set of clauses. This chapter details how the different Sudoku Variants and their rules can be encoded into these clause sets. We elaborate on the different variants separately, but as long as there are no direct contradictions, the different variants and rules could be freely combined (which can be done by creating the union of the corresponding clause sets). In the following formulae, we use the notation $s_{x_{n},...,x_{0}}$ to describe boolean variables, the corresponding integer numbers in the DIMACS files have the values $x_{n}*10^{n}+...+x_{0}*10^{0}$. For example, the literal $\neg s_{1,2,3}$ would be transformed to $-123$. There are two ways how we choose the name (number) for a variable during the encoding process:
+As introduced in \ref{DIMACS}, the SAT-solvers expect a DIMACS file as input that describes a set of clauses. This chapter details how the different Sudoku Variants and their rules can be encoded into these clause sets. We elaborate on the different variants separately, but as long as there are no direct contradictions, the different variants and rules could be freely combined (which can be done by creating the union of the corresponding clause sets). In the following formulae, we use the notation $s_{x_{n},...,x_{0}}$ to describe boolean variables, the corresponding integer numbers in the DIMACS files have the values $x_{n}*10^{n}+...+x_{0}*10^{0}$. For example, the literal $\neg s_{1,2,3}$ would be transformed to $-123$. There are two ways how we choose the name (number) for a variable during the encoding process:
 
 \begin{enumerate}
     \item We use increasing values starting from 1. These dynamically chosen values are, by example, used for variables necessary to encode PBCs. We use $s_{v}$, for $v \in \mathbb{N}$, to describe them in the formulae as we do not know the corresponding integers in advance.
@@ -9,7 +9,7 @@ As introduced in \ref{DIMACS}, the SAT-Solvers expect a DIMACS file as input tha
 
 It is important to note that the numbers used as variable names are not ``continuous". There are ``gaps". For example, not all integers from 1 to 1000 are used. This is because the dynamic variables skip the entire interval from 111 to 999, and the fixed variables used to encode cell values will not use numbers like 400 because we start to count rows at 1, and the grid cells can only hold values from 1 to 9. The needed fixed intervals grow larger when encoding more complicated variants, and with them often also the ``gaps". These gaps have no effect logically, but they can have a non-negligible effect on the time needed by the solvers, which is affected by the highest integer value used to describe a variable. However, as the ``gaps" are the same when encoding Sudokus with the same rules, they should not make a difference when comparing solver-times.
 
-\section{Encoding of PBCs}
+\section{Encoding of PBCs}\label{encoding:PBCs}
 In the following two subsections (\ref{PBCEncodingBDD} and \ref{PBCEncodingAdderNetworks}), we will elaborate on how PBCs can be encoded into clauses. As teased earlier, we will follow the ideas of \cite{Een2006TranslatingPC} and use Binary Decision Diagrams and Adder Networks to perform this translation. The two methods approach their task rather differently, so we will compare their results and performance in chapter \ref{Experiments}.
 
 \subsection{Encoding of PBCs using Binary Decision Diagrams}\label{PBCEncodingBDD}
@@ -152,7 +152,7 @@ AdderNetworkEncoder(PBC):
 \end{lstlisting}
 }
 
-During algorithm \ref{PBCEncodingAdderNetworks}, Half and Full Adders are transformed into clauses, which can then be added to the result set of clauses that the procedure returns. Assuming the input variables of an adder are $x$, $y$ and $z$, the corresponding output variables are $s$ for the sum and $c$ for the carry. Then the needed implications (as presented in \cite{Een2006TranslatingPC} for Full Adders) to logically describe the adder nodes are as shown in Figure \ref{AdderNetworkClauses}.
+During algorithm \ref{CodeAdderNetwork}, Half and Full Adders are transformed into clauses, which can then be added to the result set of clauses that the procedure returns. Assuming the input variables of an adder are $x$, $y$ and $z$, the corresponding output variables are $s$ for the sum and $c$ for the carry. Then the needed implications (as presented in \cite{Een2006TranslatingPC} for Full Adders) to logically describe the adder nodes are as shown in Figure \ref{AdderNetworkClauses}.
 
 \begin{figure}
     \centering
@@ -303,14 +303,14 @@ Another possibility is to completely abandon PBCs and exploit that only certain 
         \\
         \hline
         \\
-        \makecell[cl]{For every Cage $g \in G$ and possible combination $c \in C_g$ it\\
+        \makecell[cl]{For every cage $g \in G$ and possible combination $c \in C_g$ it\\
         holds that, either the cage's target sum is not achieved using\\
         combination $c$ or every cage cell contains at least one value\\
         of the combination $c$.} & (K-\ref{K-i})\\
         \\
-        In every Cage $g \in G$ at least one combination $c \in C_g$ is used. & (K-\ref{K-ii})\\
+        In every cage $g \in G$ at least one combination $c \in C_g$ is used. & (K-\ref{K-ii})\\
         \\
-        In every Cage $g \in G$ at most one combination $c \in C_g$ is used. & (K-\ref{K-iii})\\
+        In every cage $g \in G$ at most one combination $c \in C_g$ is used. & (K-\ref{K-iii})\\
         \\
         \makecell[cl]{Every value from 1 to 9 appears at most once within the\\
         cells of a cage $g \in G$.} & (K-\ref{K-iv})\\
@@ -343,7 +343,7 @@ Another possibility is to completely abandon PBCs and exploit that only certain 
 \clearpage
 
 \section{Arrowheads}\label{Encoding:Arrowheads}
-Arrowheads demand a total or partial order between two cells. The sets of all tuples of two cells under total or partial order are respectively noted as $TO$ and $PO$. The first cell $(x_1,y_1)$ of such a tuple  $((x_1,y_1), (x_2,y_2)) \in TO \cup PO$ shall have a smaller (or equal) value than the second one $(x_2,y_2)$. To enforce this, the constraints shown in \ref{tab:ArrowHeads} are encoded into clauses using the support encoding (sea Table \ref{formulae:Arrowhead}). In formula AH-\ref{AH-i}, the values of $z_1$ go from $1$ to $9$, which ensures that the first cell of a tuple can not have a value of 9. In formula AH-\ref{AH-ii}, on the other hand, $z_1$ iterates from $2$ to $9$ because if the first cell has a value of $1$, all values from $1$ to $9$ are allowed for the second cell.\\
+Arrowheads demand a total or partial order between two cells. The sets of all tuples of two cells under total or partial order are respectively noted as $TO$ and $PO$. The first cell $(x_1,y_1)$ of such a tuple  $((x_1,y_1), (x_2,y_2)) \in TO \cup PO$ shall have a smaller (or equal) value than the second one $(x_2,y_2)$. To enforce this, the constraints shown in \ref{tab:ArrowHeads} are encoded into clauses using the support encoding (see Table \ref{formulae:Arrowhead}). In formula AH-\ref{AH-i}, the values of $z_1$ go from $1$ to $9$, which ensures that the first cell of a tuple can not have a value of 9. In formula AH-\ref{AH-ii}, on the other hand, $z_1$ iterates from $2$ to $9$ because if the first cell has a value of $1$, all values from $1$ to $9$ are allowed for the second cell.\\
 
 \begin{table}[ht!]
     \centering
@@ -383,7 +383,7 @@ Arrowheads demand a total or partial order between two cells. The sets of all tu
 \clearpage
 
 \section{Thermometers (Hidden)}
-As the Thermometer rule also demands a total (or partial) order between the cells of the thermometers, one can reuse the rules and formulas shown for Arrowheads in \ref{Encoding:Arrowheads}. Starting from a Thermometers bulb, one can conceptually place Arrowheads between every cell pair along the Thermometer, enforcing a total (or partial) order between all cells.\\
+As the Thermometer rule also demands a total (or partial) order between the cells of the thermometers, one can reuse the rules and formulas shown for Arrowheads in \ref{Encoding:Arrowheads}. Starting from a thermometers bulb, one can conceptually place arrowheads between every cell pair along the thermometer, enforcing a total (or partial) order between all cells.\\
 
 Further constraints and variables are needed for the more complicated puzzle, where the solver must also deduce the thermometer positions. When encoding this puzzle, we distinguish two main cases: if the entire thermometer number $t$ fits inside the $9\times9$ grid when its bulb is placed at $(x,y)$, the clauses of TH-\ref{TH-iv}, TH-\ref{TH-v} and TH-\ref{TH-vi} are added. Otherwise the clauses of TH-\ref{TH-vii} are added. The corresponding constraints are defined in Table \ref{Constraints:Thermometers}, and the formulae in Table \ref{formulae:thermometers} show how to encode them into clauses. Details on the used notation and variables within the formulae can be found in Table \ref{notation:ThermometersHidden}.\\
 
@@ -451,7 +451,7 @@ Further constraints and variables are needed for the more complicated puzzle, wh
     \\
     \hline
 \end{tabular*}
-    \caption{Notations and variables, Thermometers Hidden rules.}
+    \caption{Notations and variables, Thermometers-Hidden rules.}
     \label{notation:ThermometersHidden}
 \end{table}
 
@@ -531,11 +531,11 @@ Further constraints and variables are needed for the more complicated puzzle, wh
 \section{Sandwich Sum}
 Sandwich Sums can be given for rows and columns. We will elaborate on the row constraints from which the formulas for the column constraints can be derived by swapping $x$ and $y$, respectively. Similar to the Killer Sudoku rules, multiple optimizations can be (incrementally) made when encoding the Sandwich Sum rules.
 
-\paragraph{Using PBCs:} Assuming that all lengths of sandwiches are possible to achieve a certain sum. We must encode all possible sandwich lengths ($0$ to $7$) and all corresponding positions for the cells with values $1$ and $9$. Also, we encode a PBC for every possible sandwich length and position. The LHS of said PBC is $\sum_{i=1}^{9} (s_{x,y,i}*i)$, and the RHS is set to the current rows sandwich sum. Since the Sandwich can only be at one position in a row at once, only one of all the PBC will be true. To ensure that a PBC's clauses are satisfied if the sandwich is not in its corresponding position, we add the negative literal of the corresponding $s_v$ to each clause (sea formulae SW-\ref{SW-vii}, SW-\ref{SW-viii} and SW-\ref{SW-ix} in Table \ref{formulae:SandwichSum}). To encode the Sandwich Sum rules for rows without the incorporation of further knowledge, the following constraints/formulas are used: SW-\ref{SW-i}, SW-\ref{SW-ii}, SW-\ref{SW-vii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
+\paragraph{Using PBCs:} Assuming that all lengths of sandwiches are possible to achieve a certain sum. We must encode all possible sandwich lengths ($0$ to $7$) and all corresponding positions for the cells with values $1$ and $9$. Also, we encode a PBC for every possible sandwich length and position. The LHS of said PBC is $\sum_{i=1}^{9} (s_{x,y,i}*i)$, and the RHS is set to the current rows sandwich sum. Since the sandwich can only be at one position in a row at once, only one of all the PBC will be true. To ensure that a PBC's clauses are satisfied if the sandwich is not in its corresponding position, we add the negative literal of the corresponding $s_v$ to each clause (see formulae SW-\ref{SW-vii}, SW-\ref{SW-viii} and SW-\ref{SW-ix} in Table \ref{formulae:SandwichSum}). To encode the Sandwich Sum rules for rows without the incorporation of further knowledge, the following constraints/formulas are used: SW-\ref{SW-i}, SW-\ref{SW-ii}, SW-\ref{SW-vii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
 
-\paragraph{Using PBCs + Combinations for Lengths:} Given the Sandwich Sum of a row, one can already make statements about the number of cells involved in the sum. For example, given a sandwich sum of $8$, one can conclude that the sandwich has either length $3$, $2$, or $1$ (contains $3$, $2$ or $1$ cells, not counting the border cells with values $1$ and $9$). This already reduces the number of combinations of sandwich lengths and positions and can be utilized to encode the rules using the constraints/formulas: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-viii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
+\paragraph{Using PBCs + Combinations for Lengths:} Given the sandwich sum of a row, one can already make statements about the number of cells involved in the sum. For example, given a sandwich sum of $8$, one can conclude that the sandwich has either length $3$, $2$, or $1$ (contains $3$, $2$ or $1$ cells, not counting the border cells with values $1$ and $9$). This already reduces the number of combinations of sandwich lengths and positions and can be utilized to encode the rules using the constraints/formulas: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-viii}, SW-\ref{SW-x} and SW-\ref{SW-xi}.
 
-\paragraph{Using Combinations for PBCs + Combinations for Lengths:} Given the Sandwich Sum of a row, one can not only make statements about the number of cells involved in the sum but also about the possible values of these cells given a certain sandwich length (Similar to the possible cell values in a killer cage given the cages sum and size). This reduces the number of summands of the LHS of PBCs and can be combined with the knowledge about possible sandwich lengths. To encode the sandwich sum rules using this additional knowledge, the following constraints/formulas: are used: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-ix}, SW-\ref{SW-x}, SW-\ref{SW-xi} and SW-\ref{SW-xii}.\\
+\paragraph{Using Combinations for PBCs + Combinations for Lengths:} Given the sandwich sum of a row, one can not only make statements about the number of cells involved in the sum but also about the possible values of these cells given a certain sandwich length (Similar to the possible cell values in a killer cage given the cages sum and size). This reduces the number of summands of the LHS of PBCs and can be combined with the knowledge about possible sandwich lengths. To encode the Sandwich Sum rules using this additional knowledge, the following constraints/formulas: are used: SW-\ref{SW-iii}, SW-\ref{SW-iv}, SW-\ref{SW-v}, SW-\ref{SW-vi}, SW-\ref{SW-ix}, SW-\ref{SW-x}, SW-\ref{SW-xi} and SW-\ref{SW-xii}.\\
 \\
 The different constraints and formulae used for these three encoding versions are listed in Tables \ref{Constraints:SandwichSum} and \ref{formulae:SandwichSum}, respectively. Notation and variables used in the formulae are further explained in Table \ref{notation:SandwichSum}.
 
@@ -813,7 +813,7 @@ Combining the previous two deductions, we can compute a sufficiently low upper b
 \FloatBarrier
 \newpage
 \section{Fawlty Towers}
-To encode the Fawlty Tower rules, we introduce three new variables for each tower, which are true iff a tower is faulty, has increasing values or if the cell values of a tower add up to the indicated sum, respectively. Details about these three variables can be found in Table \ref{variables:FawltyTowers}. We can encode the needed increasing values of a tower by placing Arrowheads between each neighbouring pair of its cells. Arrowheads can be encoded as shown in \ref{Encoding:Arrowheads}. To encode that the cells of a tower must have values that add up to the indicated sum, we can place a killer cage over them and set the cage's sum to the indicated one. The killer cage can then be encoded, as explained in \ref{encoding:killer}. Further, we can use PBCs to ensure that the correct number of towers is faulty, has increasing values or has cell values that add up to the indicated sum. The three PBCs used for this are detailed in Table \ref{notation:FawltyTowers}. The constraints derived from the Fawlty Tower rules are shown in Table \ref{Constraints:FawltyTowers}, and the formulae to encode these constraints into clauses are displayed in Table \ref{formulae:FawltyTower}.\\
+To encode the Fawlty Tower rules, we introduce three new variables for each tower, which are true iff a tower is faulty, has increasing values or if the cell values of a tower add up to the indicated sum, respectively. Details about these three variables can be found in Table \ref{variables:FawltyTowers}. We can encode the needed increasing values of a tower by placing arrowheads between each neighbouring pair of its cells. Arrowheads can be encoded as shown in \ref{Encoding:Arrowheads}. To encode that the cells of a tower must have values that add up to the indicated sum, we can place a killer cage over them and set the cage's sum to the indicated one. The killer cage can then be encoded, as explained in \ref{encoding:killer}. Further, we can use PBCs to ensure that the correct number of towers is faulty, has increasing values or has cell values that add up to the indicated sum. The three PBCs used for this are detailed in Table \ref{notation:FawltyTowers}. The constraints derived from the Fawlty Tower rules are shown in Table \ref{Constraints:FawltyTowers}, and the formulae to encode these constraints into clauses are displayed in Table \ref{formulae:FawltyTower}.\\
 \begin{table}[hb!]
     \centering
     \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c}
@@ -829,7 +829,7 @@ To encode the Fawlty Tower rules, we introduce three new variables for each towe
         not both at once).} & (FT-\ref{FT-i}) and (FT-\ref{FT-ii})\\
         \\
         \makecell[cl]{If a tower has increasing cell values, all the clauses of\\
-        the corresponding Arrowheads placed between its cells\\
+        the corresponding arrowheads placed between its cells\\
         must be true.} & (FT-\ref{FT-iii})\\
         \\
         \makecell[cl]{If the cells of a tower in column $x$ have values that add\\
@@ -866,7 +866,7 @@ To encode the Fawlty Tower rules, we introduce three new variables for each towe
                                             \end{tabular}\\
                                         &  &\begin{tabular}{l c l}
                                     \multicolumn{3}{l}{contains a smaller value than the cell $(x',y')$ as if}\\
-                                    \multicolumn{3}{l}{there were an Arrowhead placed between $(x,y)$ and}\\
+                                    \multicolumn{3}{l}{there were an arrowhead placed between $(x,y)$ and}\\
                                     \multicolumn{3}{l}{$(x',y')$. Arrowheads can be encoded as explained in}\\
                                     \multicolumn{3}{l}{\ref{Encoding:Arrowheads}.}\\
                             \end{tabular}\\
